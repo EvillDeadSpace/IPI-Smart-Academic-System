@@ -1,0 +1,8 @@
+version: "3.8"
+
+services:
+  python_backend:
+    build:
+      context: ./NLP
+    ports:
+      - "5000:5000"
