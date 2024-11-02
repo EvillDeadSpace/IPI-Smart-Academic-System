@@ -1,20 +1,19 @@
+
 import requests
-from bs4 import BeautifulSoup
 
-# URL tvoje fakultetske stranice
-url = 'https://ipi-akademija.ba/informatika-i-racunarstvo'
-response = requests.get(url)
+# URL stranice koju želiš preuzeti
+url = 'https://ipi-akademija.ba'
 
-# Parsiranje HTML sadržaja
-soup = BeautifulSoup(response.content, 'html.parser')
+try:
+    # Preuzimanje sadržaja stranice
+    response = requests.get(url)
+    response.raise_for_status()  # Provjera za eventualne greške
 
-# Pronađi sve <p> tagove ili druge elemente koje želiš
-texts = soup.find_all('p')
+    # Spremanje sadržaja u .txt fajl
+    with open('stranica.txt', 'w', encoding='utf-8') as file:
+        file.write(response.text)
 
-# Ekstrakcija teksta
-document_texts = [text.get_text() for text in texts]
+    print("Sadržaj stranice je uspješno spremljen u 'stranica.txt'")
 
-# Čuvanje teksta u datoteku
-with open('fakultetski_sadržaj.txt', 'w', encoding='utf-8') as file:
-    for text in document_texts:
-        file.write(text + '\n')
+except requests.exceptions.RequestException as e:
+    print(f"Greška prilikom preuzimanja stranice: {e}")
