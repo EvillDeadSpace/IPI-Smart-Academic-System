@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	
+
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<base href="https://ipi-akademija.ba/" />
+<link rel="stylesheet" type="text/css" href="system/css/main.css?v=2.10.5" />
+<link rel="stylesheet" type="text/css" href="system/css/client.css?v=2.10.5" />
+<script type="text/javascript" src="lib/jquery/jquery-1.12.1.min.js"></script>
+<script type="text/javascript" src="lib/jquery/jquery.hoverIntent.min.js"></script>
+<script type="text/javascript" src="lib/jquery/jquery.infinitescroll.min.js"></script>
+<script type="text/javascript" src="lib/jquery/jquery.cookie.js"></script>
+<script type="text/javascript" src="index.php?action=jslang&lang=1&v=2.10.5"></script>
+<script type="text/javascript" src="system/js/app.js?v=2.10.5"></script>
+<script type="text/javascript" src="system/js/helpers.js?v=2.10.5"></script>
+<link rel="stylesheet" href="lib/nivo/nivo-slider.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="lib/nivo/themes/dark/dark.css" type="text/css" media="screen" />
+<script type="text/javascript" src="lib/nivo/jquery.nivo.slider.pack.js"></script>
+<link rel="stylesheet" type="text/css" href="template/Napo/css/default.css?v=2.10.5-5" />
+<link rel="stylesheet" type="text/css" href="template/Napo/css/blue.css?v=2.10.5-5" />
+<link rel="stylesheet" type="text/css" href="template/Napo/css/responsive.css?v=2.10.5-5" />
+<style type="text/css">/* Custom CSS */
+@import url('https://fonts.googleapis.com/css?family=Raleway:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i&display=swap');
+
+body{
+    font-family: 'Raleway', sans-serif!important;
+    background: #ffffff;
+   
+}
+body, input, select, textarea {
+    color: #323232;
+}
+h1, h2, h3, h4, h5, h6 {
+    text-transform: none;
+    font-family: 'Raleway', sans-serif;
+}
+strong, b, h1, h2, h3, h4, h5, h6, blockquote.testimonial cite .name, label {
+    color: #345aaa;
+}
+
+#header, #top, .AccordionsBox .CL-box-title, .AccordionsHeader h3.CL-box-title {
+    background: #345aaa;
+}
+header#header {
+    height: 130px;
+    line-height: 130px;
+    /*background: url(http://ipiatuzla.mojweb.ba/images/menislika.jpg);*/
+    background: url(/images/meni2.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+
+}
+
+.CL-site-identity[style] {
+    width: 400px!important;
+    height: 120px!important;
+}
+.ikonevrh {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: end;
+        -ms-flex-pack: end;
+            justify-content: flex-end;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+    padding: 7px 0px;
+}
+.ikonevrh a {
+    color: white;
+    font-size: 0.9em;
+}
+.ikona{
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+}
+.ikona:hover {
+    -webkit-transform: translateY(-1px);
+        -ms-transform: translateY(-1px);
+            transform: translateY(-1px);
+}
+.ikona:active{
+    -webkit-transform: translateY(1px);
+        -ms-transform: translateY(1px);
+            transform: translateY(1px);
+}
+.ikona img {
+    
+    height: 20px;
+    margin: 0px 3px;
+}
+.ikona.moodle {
+    position: relative;
+    top: -2px;
+}
+
+#header nav ul li a {
+    font-family: 'Raleway', sans-serif;
+    text-transform: none;
+    padding: 0px 0.5em;
+   
+}
+#CL-menu-item-103 {
+    border: 1px solid white;
+    -webkit-box-shadow: 1px 2px 24px rgba(255, 251, 187, 0.6);
+            box-shadow: 1px 2px 24px rgba(255, 251, 187, 0.6);
+}
+
+.dropotron {
+    /*background: url(http://ipiatuzla.mojweb.ba/images/menislika.jpg);*/
+    background: url(/images/meni2.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position-x: 36%;
+}
+.dropotron.level-0:before {
+    border-bottom: solid 1em #fefefe;
+}
+.dropotron > li > a {
+    font-family: 'Raleway', sans-serif;
+    text-transform: none;
+    font-size: 1.2em;
+}
+    
+#banner {
+  
+    background-size: cover!important;
+    background-position-x: center !important;
+     background-position-y: -48px !important;
+}
+section#banner {
+    /*height: 100vh;*/
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+    /*padding: 170px 0px;*/
+}
+#banner .CL-box-main-content {
+    background: none;
+}
+.naslov {
+    font-size: 1rem !important;
+    text-align: center;
+    text-transform: none;
+}
+.listauslici {
+    list-style: none;
+}
+.ikonaslikepoce {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-pack: distribute;
+        justify-content: space-around;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+    /*flex-wrap: wrap;*/
+    padding: 15% 0px;
+   /* padding: 10% 0px 2% 0px;*/
+}
+.listauslici li {
+    color: white !important;
+}
+.dugmeprvo {
+    background: white;
+    padding: 9px 0px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 1.2rem;
+    color: #345aaa;
+
+}
+.dugmeprvo:hover {
+    background: #4978dc;
+    color: white;
+}
+.ikonaslika {
+    margin-top: 10px;
+}
+/*
+.flip-container{
+    perspective: 1000px;
+}
+
+.flip-container:hover .flipper,
+.flip-container:hover .flipper{
+    transform: rotateY(180deg);
+}
+
+.flip-container, .front, .back{
+    width: 200px;
+    height: 350px;
+}
+
+.flipper{
+    transition: 0.6s;
+    transform-style: preserve-3d;
+    position: relative;
+    cursor: pointer;
+}
+.font,
+.back{
+    backface-visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.front{
+    z-index: 2;
+    transform: rotateY(0deg);
+}
+.back{
+    transform: rotateY(180deg);
+}
+*/
+/* entire container, keeps perspective */
+.flip-container {
+	-webkit-perspective: 1000px;
+	        perspective: 1000px;
+}
+	/* flip the pane when hovered */
+	.flip-container:hover .flipper, .flip-container.hover .flipper {
+		-webkit-transform: rotateY(180deg);
+		        transform: rotateY(180deg);
+	}
+
+.flip-container, .front, .back {
+	width: 270px;
+    height: 350px;
+}
+
+/* flip speed goes here */
+.flipper {
+	-webkit-transition: 0.6s;
+	-o-transition: 0.6s;
+	transition: 0.6s;
+	-webkit-transform-style: preserve-3d;
+	        transform-style: preserve-3d;
+
+	position: relative;
+}
+
+/* hide back of pane during swap */
+.front, .back {
+	-webkit-backface-visibility: hidden;
+	        backface-visibility: hidden;
+
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+/* front pane, placed above back */
+.front {
+	z-index: 2;
+	/* for firefox 31 */
+	-webkit-transform: rotateY(0deg);
+	        transform: rotateY(0deg);
+}
+
+/* back, initially hidden pane */
+.back {
+	-webkit-transform: rotateY(180deg);
+	        transform: rotateY(180deg);
+}
+
+
+
+.vertical.flip-container {
+	position: relative;
+}
+
+	.vertical .back {
+		-webkit-transform: rotateX(180deg);
+		        transform: rotateX(180deg);
+	}
+
+	.vertical.flip-container .flipper {
+		-webkit-transform-origin: 100% 174.5px;
+		    -ms-transform-origin: 100% 174.5px;
+		        transform-origin: 100% 174.5px; /* half of height */
+	}
+
+	.vertical.flip-container:hover .flipper {
+		-webkit-transform: rotateX(-180deg);
+		        transform: rotateX(-180deg);
+	}
+	
+.v2.vertical.flip-container {
+	position: relative;
+}
+
+	.v2.vertical .back {
+		-webkit-transform: rotateX(180deg);
+		        transform: rotateX(180deg);
+	}
+
+	.v2.vertical.flip-container .flipper {
+		-webkit-transform-origin: 100% 174.5px;
+		    -ms-transform-origin: 100% 174.5px;
+		        transform-origin: 100% 174.5px; /* half of height */
+	}
+
+	.v2.vertical.flip-container:hover .flipper {
+		-webkit-transform: rotateX(180deg);
+		        transform: rotateX(180deg);
+	}
+	
+
+
+
+.ikonaslikepoce  .back {
+    background: #345aaa!important;
+}
+
+.back {
+    padding: 10px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+    -webkit-box-align: stretch;
+        -ms-flex-align: stretch;
+            align-items: stretch;
+
+}
+#navButton .toggle::before {
+    background: rgba(52, 90, 170, 0.66);
+    color: #def2ed;
+}
+.wrapper.style1{
+    display: none;
+}
+
+.meni {
+    
+    display: -webkit-box;
+    
+    display: -ms-flexbox;
+    
+    display: flex;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+}
+.meni ul {
+    list-style: none;
+    
+}
+.meni h3 {
+    text-align: center;
+    color: white;
+    background: #345aaa;
+    padding: 8px 0px;
+}
+.meni a {
+    color: #345aaa;
+    font-weight: 600;
+}
+.meni img {
+   
+    
+    width: 38%;
+    height: auto;
+   
+    margin: 0 auto;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+
+}
+#banner .IntroBlock h3 {
+    color: #345aaa;
+    font-size: 2rem;
+    letter-spacing: 7px;
+    font-weight: 600;
+}
+
+#banner .IntroBlock header.major::after {
+    height: 2px;
+    width: 20em;
+    max-width: 60%;
+    background: rgb(52, 90, 170);
+}
+.CL-what-is-new-list.CL-what-is-new-has-image {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+    -webkit-box-align: start;
+        -ms-flex-align: start;
+            align-items: flex-start;
+}
+.CL-what-is-new-item.CL-result-type-news {
+    -webkit-box-flex: 1;
+        -ms-flex: 1;
+            flex: 1;
+    -webkit-transition: all 1s ease;
+    -o-transition: all 1s ease;
+    transition: all 1s ease;
+}
+.CL-what-is-new-item.CL-result-type-news:hover .CL-what-is-new-item-icon {
+    -webkit-filter: grayscale(1);
+            filter: grayscale(1);
+}
+.CL-what-is-new-item-icon {
+    width: 100%;
+    height: 250px;
+    -o-object-fit: cover;
+       object-fit: cover;
+    -webkit-filter: grayscale(0);
+            filter: grayscale(0);
+    -webkit-transition: all 1s ease;
+    -o-transition: all 1s ease;
+    transition: all 1s ease;
+}
+.CL-what-is-new-item-icon:hover{
+    -webkit-filter: grayscale(1);
+            filter: grayscale(1);
+}
+.CL-what-is-new-item-title {
+    text-align: center;
+    color: #345aaa !important;
+    
+}
+.CL-what-is-new-item-text {
+    
+    color: #1f1f1f;
+    font-size: 1rem !important;
+}
+#banner-bottom-top {
+    
+    background-size: cover!important;
+}
+
+
+h2{
+  text-align:center;
+  padding: 20px;
+}
+/* Slider */
+
+.slick-slide {
+    margin: 0px 20px;
+}
+
+.slick-slide img {
+    width: 100%;
+}
+
+.slick-slider
+{
+    position: relative;
+    display: block;
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+            user-select: none;
+    -webkit-touch-callout: none;
+    -khtml-user-select: none;
+    -ms-touch-action: pan-y;
+        touch-action: pan-y;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.slick-list
+{
+    position: relative;
+    display: block;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+.slick-list:focus
+{
+    outline: none;
+}
+.slick-list.dragging
+{
+    cursor: pointer;
+    cursor: hand;
+}
+
+.slick-slider .slick-track,
+.slick-slider .slick-list
+{
+    -webkit-transform: translate3d(0, 0, 0);
+        -ms-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+}
+
+.slick-track
+{
+    position: relative;
+    top: 0;
+    left: 0;
+    display: block;
+}
+.slick-track:before,
+.slick-track:after
+{
+    display: table;
+    content: '';
+}
+.slick-track:after
+{
+    clear: both;
+}
+.slick-loading .slick-track
+{
+    visibility: hidden;
+}
+
+.slick-slide
+{
+    display: none;
+    float: left;
+    height: 100%;
+    min-height: 1px;
+}
+[dir='rtl'] .slick-slide
+{
+    float: right;
+}
+.slick-slide img
+{
+    display: block;
+}
+.slick-slide.slick-loading img
+{
+    display: none;
+}
+.slick-slide.dragging img
+{
+    pointer-events: none;
+}
+.slick-initialized .slick-slide
+{
+    display: block;
+}
+.slick-loading .slick-slide
+{
+    visibility: hidden;
+}
+.slick-vertical .slick-slide
+{
+    display: block;
+    height: auto;
+    border: 1px solid transparent;
+}
+.slick-arrow.slick-hidden {
+    display: none;
+}
+
+#navButton{
+    width:0%;
+}
+
+#footer {
+    background: #2b4a8b;
+    color: white;
+    background: url(/images/donjaslika.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+
+}
+.CL-news-list-wrapper {
+    display: -ms-grid;
+    display: grid;
+    -ms-grid-columns: 1fr 20px 1fr;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 20px;
+}
+a.CL-upload-file-link {
+    font-weight: 400;
+    background: #3459aa;
+    border: 1px solid white;
+    color: white;
+    text-transform: none;
+    text-align: center;
+    width: 100%;
+}
+a.CL-upload-file-link:hover {
+    background: #6e92e1;
+    border: 1px solid #3459aa;
+}
+#footer h2 {
+    color: white;
+}
+#copyright a {
+    color: #afc8ff;
+}
+@media (min-width: 1681px){
+    #header nav ul li a {
+    font-size: 1rem;
+}
+.dropotron > li > a {
+   
+    font-size: 0.9rem;
+}
+}
+@media (max-width: 1280px){
+    .row.uniform {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+#sys-logo-image {
+    width: 230px;
+    height: auto;
+    position: relative;
+    top: 20px;
+}
+.ikona img {
+    height: 14px;
+    margin: 0px 3px;
+}
+.ikona p {
+    font-size: 0.8em;
+}
+.dropotron > li > a {
+   
+    font-size: 0.7rem;
+}
+#banner .container{
+    width: 1261px;
+}
+}
+@media (max-width: 1100px){
+    .ikonaslikepoce{
+        -ms-flex-wrap: wrap!important;
+            flex-wrap: wrap!important;
+    }
+}
+@media (max-width: 980px){
+    #navButton .toggle{
+        left: -15px;
+        top: 51px;
+    }
+    /*section#banner{
+        padding: 0;
+    }*/
+    .ikonaslikepoce {
+  
+    padding: 0;
+    }
+    #top {
+   
+    display: block;
+}
+}
+@media (max-width: 767px){
+    .CL-what-is-new-list.CL-what-is-new-has-image{
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+            -ms-flex-direction: column;
+                flex-direction: column;
+    }
+    .CL-news-list-wrapper {
+    -ms-grid-columns: 1fr;
+    grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 550px){
+   .ikonevrh a {
+    color: white;
+    font-size: 0.7em;
+   }
+   .ikona img {
+    height: 9px;
+   }
+   .ikonevrh {
+    
+    -webkit-box-pack: center;
+    
+        -ms-flex-pack: center;
+    
+            justify-content: center;
+   }
+}</style>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dobro došli - IPI Akademija Tuzla</title>
+<meta name="description" content="Internacionalna poslovno-informaciona akademija Tuzla" />
+<meta name="keywords" content="akademija, IT, obrazovanje, savremeno poslovanje, tržišne komunikacije, informacione tehnologije, Tuzla, BiH, studenti" />
+<meta name="generator" content="mojWeb 2.10.5 by LEFTOR" />
+<meta name="robots" content="index, follow" />
+<link href="cimage/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+<meta name="google-site-verification" content="googlebeb19db17e4effa3.html" />
+<meta property="og:site_name" content="Internacionalna poslovno-informaciona akademija Tuzla"/>
+<meta property="og:title" content="Dobro došli - IPI Akademija Tuzla" />
+<meta property="og:url" content="https://ipi-akademija.ba/" />
+<meta property="og:description" content="Internacionalna poslovno-informaciona akademija Tuzla" />
+<meta property="og:image" content="https://ipi-akademija.ba/cimage/image-17.png" />
+<style type="text/css">#banner{background: url('cimage/background/image-1.png') no-repeat scroll 0 0 transparent}</style>
+<style type="text/css">#banner-bottom-top{background: url('cimage/background/image-2.png') no-repeat scroll 0 0 transparent}</style>		    <meta name="google-site-verification" 
+content="3CAY0dAjsN0oJrfiCONLi_vL9aVQPEYgn73wbORrOCA" />
+		<!--[if lte IE 8]>
+            <script src="//cdn.jsdelivr.net/html5shiv/3.7.3/html5shiv.min.js"></script>
+            <script src="//cdn.jsdelivr.net/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+	</head>
+	<body class="CL-Napo CL-layout_single CL-blue ">
+				<!-- Top position -->
+			<div id="top">
+				<div class="container">
+					<div class="row uniform 200%">
+						<div class="8u 8u(large) 8u$(medium)">
+							
+<div class="CL-column CL-position-custom" >
+	</div>
+
+						</div>
+						<div class="4u 4u$(large) 4u$(medium)">
+							
+<div class="CL-column CL-position-header" >
+	<div id="CL-module-293" class="CL-portlet CL-portlet-header CL-portlet-customhtml"  >
+    <div class="CL-box-main">
+	        <h2 class="CL-box-main-title">
+            HTML        </h2>
+	        <div class="CL-box-main-content">
+             <div class="CL-custom-html">
+    <div class="ikonevrh">
+
+<a href="http://ipi-nastava.ba/moodle/login/index.php" target="_blank" class="ikona moodle" rel="noreferrer noopener">
+<img src="/images/modleweb.png" alt="modleweb.png" /></a>
+<a href="https://www.facebook.com/ipiakademija/" target="_blank" class="ikona" rel="noreferrer noopener">
+<img src="/images/facebook.png" alt="modleweb.png" /></a><p><a href="https://www.facebook.com/ipiakademija/" target="_blank" class="ikona" rel="noreferrer noopener">Facebook</a></p><a href="https://www.facebook.com/ipiakademija/" target="_blank" class="ikona" rel="noreferrer noopener"></a>
+
+
+<a href="https://www.youtube.com/channel/UCK0FwOGEVWpRoYuXt038edw" target="_blank" class="ikona" rel="noreferrer noopener">
+<img src="/images/youtun3.png" alt="modleweb.png" /></a><p><a href="https://www.youtube.com/channel/UCK0FwOGEVWpRoYuXt038edw" target="_blank" class="ikona" rel="noreferrer noopener">YouTube</a></p><a href="https://www.youtube.com/channel/UCK0FwOGEVWpRoYuXt038edw" target="_blank" class="ikona" rel="noreferrer noopener">
+</a>
+
+<a href="https://www.instagram.com/ipi_akademija/?hl=hr" target="_blank" class="ikona" rel="noreferrer noopener">
+<img src="/images/instagram.png" alt="modleweb.png" /></a><p><a href="https://www.instagram.com/ipi_akademija/?hl=hr" target="_blank" class="ikona" rel="noreferrer noopener">Instagram</a></p><a href="https://www.instagram.com/ipi_akademija/?hl=hr" target="_blank" class="ikona" rel="noreferrer noopener">
+</a>
+
+<a href="https://www.linkedin.com/company/ipiakademija/" target="_blank" class="ikona" rel="noreferrer noopener">
+<img src="/images/linkedin.png" alt="modleweb.png" /></a><p><a href="https://www.linkedin.com/company/ipiakademija/" target="_blank" class="ikona" rel="noreferrer noopener">Linkedin</a></p><a href="https://www.linkedin.com/company/ipiakademija/" target="_blank" class="ikona" rel="noreferrer noopener">
+</a>
+
+
+</div></div>        </div>
+</div>	</div>
+</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		<!-- Header -->
+			<header id="header">
+				<div class="container">
+					<div class="logo"><div class="CL-site-identity" style="width:320px;height:80px;"><div class="CL-template-image" style="top:17px;left:0px;">
+	<img id="sys-logo-image" src="cimage/image-17.png" alt="sys-logo Slika" />
+	</div></div></div>
+					<nav id="nav">
+						
+<div class="CL-column CL-position-top" >
+	<div id="CL-module-2" class="CL-portlet CL-portlet-top CL-portlet-menu CL-portlet-has-no-title"  >
+    <div class="CL-box-main">
+	        <div class="CL-box-main-content">
+             <ul class="CL-menu-level-0">
+<li id="CL-menu-item-6" class="CL-active CL-first-child">
+	<a href="home"  title="" data-description="">
+		<span>Početna</span>
+	</a>
+	</li><li id="CL-menu-item-80" class=" CL-parent-menu">
+	<a href="o-nama"  title="" data-description="">
+		<span>O nama</span>
+	</a>
+	<ul class="CL-menu-level-1">
+<li id="CL-menu-item-81" class=" CL-first-child">
+	<a href="vizija-i-misija"  title="" data-description="">
+		<span>Vizija i misija</span>
+	</a>
+	</li><li id="CL-menu-item-82" class="">
+	<a href="nastavno-osoblje"  title="" data-description="">
+		<span>Nastavno osoblje</span>
+	</a>
+	</li><li id="CL-menu-item-102" class="">
+	<a href="alumni"  title="" data-description="">
+		<span>Alumni</span>
+	</a>
+	</li><li id="CL-menu-item-89" class="">
+	<a href="studij-ipia"  title="" data-description="">
+		<span>Studij@IPIA</span>
+	</a>
+	</li><li id="CL-menu-item-114" class=" CL-last-child">
+	<a href="naucno-istrazivacki-rad"  title="" data-description="">
+		<span>Naučno-istraživački rad</span>
+	</a>
+	</li></ul>
+<div class="CL-float-cleaner"></div></li><li id="CL-menu-item-83" class=" CL-parent-menu">
+	<a href="#"  title="" data-description="">
+		<span>Studijski programi</span>
+	</a>
+	<ul class="CL-menu-level-1">
+<li id="CL-menu-item-84" class=" CL-first-child CL-parent-menu">
+	<a href="#"  title="" data-description="">
+		<span>Trogodišnji</span>
+	</a>
+	<ul class="CL-menu-level-2">
+<li id="CL-menu-item-107" class=" CL-first-child">
+	<a href="informacione-tehnolgije"  title="" data-description="">
+		<span>Informacione tehnolgije</span>
+	</a>
+	</li><li id="CL-menu-item-108" class="">
+	<a href="trzisne-komunikacije"  title="" data-description="">
+		<span>Tržišne komunikacije</span>
+	</a>
+	</li><li id="CL-menu-item-109" class=" CL-last-child">
+	<a href="savremeno-poslovanje-i-informaticki-menadzment"  title="" data-description="">
+		<span>Savremeno poslovanje i informatički menadžment</span>
+	</a>
+	</li></ul>
+<div class="CL-float-cleaner"></div></li><li id="CL-menu-item-85" class=" CL-parent-menu">
+	<a href="#"  title="" data-description="">
+		<span>Četverogodišnji</span>
+	</a>
+	<ul class="CL-menu-level-2">
+<li id="CL-menu-item-110" class=" CL-first-child CL-last-child">
+	<a href="informatika-i-racunarstvo"  title="" data-description="">
+		<span>Informatika i računarstvo</span>
+	</a>
+	</li></ul>
+<div class="CL-float-cleaner"></div></li><li id="CL-menu-item-87" class=" CL-last-child">
+	<a href="upis"  title="" data-description="">
+		<span>Upis</span>
+	</a>
+	</li></ul>
+<div class="CL-float-cleaner"></div></li><li id="CL-menu-item-96" class="">
+	<a href="nastava"  title="" data-description="">
+		<span>Nastava</span>
+	</a>
+	</li><li id="CL-menu-item-100" class="">
+	<a href="novosti"  title="" data-description="">
+		<span>Novosti</span>
+	</a>
+	</li><li id="CL-menu-item-98" class=" CL-parent-menu">
+	<a href="#"  title="" data-description="">
+		<span>Osiguranje kvaliteta</span>
+	</a>
+	<ul class="CL-menu-level-1">
+<li id="CL-menu-item-112" class=" CL-first-child">
+	<a href="sistem-osiguranja-kvaliteta"  title="" data-description="">
+		<span>Sistem osiguranja kvaliteta</span>
+	</a>
+	</li><li id="CL-menu-item-113" class=" CL-last-child">
+	<a href="dokumenti"  title="" data-description="">
+		<span>Dokumenti</span>
+	</a>
+	</li></ul>
+<div class="CL-float-cleaner"></div></li><li id="CL-menu-item-99" class="">
+	<a href="kontakt"  title="" data-description="">
+		<span>Kontakt</span>
+	</a>
+	</li><li id="CL-menu-item-103" class=" CL-last-child CL-parent-menu">
+	<a href="#"  title="" data-description="">
+		<span>English</span>
+	</a>
+	<ul class="CL-menu-level-1">
+<li id="CL-menu-item-104" class=" CL-first-child">
+	<a href="about-us"  title="" data-description="">
+		<span>About us</span>
+	</a>
+	</li><li id="CL-menu-item-105" class="">
+	<a href="our-programs"  title="" data-description="">
+		<span>Study programs</span>
+	</a>
+	</li><li id="CL-menu-item-106" class=" CL-last-child">
+	<a href="contact-us"  title="" data-description="">
+		<span>Contact us</span>
+	</a>
+	</li></ul>
+<div class="CL-float-cleaner"></div></li></ul>
+<div class="CL-float-cleaner"></div>        </div>
+</div>	</div>
+</div>
+
+					</nav>
+				</div>
+			</header>
+
+		<!-- Slider Wrap -->
+			<div class="slider-wrap">
+				
+<div class="CL-column CL-position-header_image" >
+	</div>
+
+			</div>
+
+		<!-- Page Wrapper -->
+			<div id="page-wrapper">
+
+				<!-- Banner -->
+					<section id="banner">
+						<div class="container">
+							
+<div class="CL-column CL-position-custom1" >
+	<div id="CL-module-566" class="CL-portlet CL-portlet-custom1 CL-portlet-trail"  >
+    <div class="CL-box-main">
+	        <h2 class="CL-box-main-title">
+            Putanja        </h2>
+	        <div class="CL-box-main-content">
+             <div class="CL-trail">
+			<a href="index.php" class="CL-trail-home" title="Vrati se na početnu stranicu">Početna</a>
+			
+	</div>        </div>
+</div>	</div>
+</div>
+
+						</div>
+					</section>
+
+				<!-- One -->
+					<section id="one" class="wrapper style1 split">
+						<div class="container">
+							<div class="primary">
+								
+<div class="CL-column CL-position-custom2" >
+	</div>
+
+							</div>
+							<div class="secondary">
+								<section>
+									<div class="logged-in-padding">
+										
+<div class="CL-column CL-position-custom3" >
+	</div>
+
+									</div>
+								</section>
+							</div>
+						</div>
+					</section>
+					<div class="container content-padding">
+
+						
+<div class="CL-column CL-position-breadcrumb" >
+	</div>
+
+						<div class="CL-article">
+	<div class="CL-article-main-info">
+		    </div>
+	
+    <div class="CL-article-layout"  data-layout="0">
+		<div class="CL-article-block-group">
+	<div class="CL-article-column" style="width:100.00%;" >
+	</div>	</div><div class="CL-article-block-group CL-block-with-options">
+	<div class="CL-article-column" style="width:68.17%;" >
+	<div class="CL-article-block CL-module-renderer CL-article-Image">
+	<div class="CL-box-main">
+	        <div class="CL-box-main-content">
+             <div class="CL-image-slider" style="height:438px; overflow: hidden;" >
+		<img src="cimage/module/custom/image-217.png" alt="Slika 47" />
+		</div>        </div>
+</div> 
+	</div></div>	<div class="CL-article-column-separator "></div>
+	<div class="CL-article-column" style="width:27.83%;" >
+	<div class="CL-article-block CL-module-renderer CL-article-CustomHTML">
+	<div class="CL-box-main">
+	        <div class="CL-box-main-content">
+             <div class="CL-custom-html">
+    <div class="meni">
+<h3>Korisni linkovi</h3>
+<ul><li><a href="http://hea.gov.ba" target="_blank" rel="noreferrer noopener">Agencija za razvoj visokog obrazovanja i osiguranje kvaliteta</a></li>
+<li><a href="http://www.ehea.info/" target="_blank" rel="noreferrer noopener">European Higher Education Area and Bologna Process</a></li>
+<li><a href="http://www.cip.gov.ba/" target="_blank" rel="noreferrer noopener">Centar za informiranje i priznavanje dokumenata iz oblasti visokog obrazovanja</a></li>
+</ul></div><center><a href="https://search.ebscohost.com/Login.aspx" target="_blank" rel="noreferrer noopener"><img src="https://i1.wp.com/radnorlibrary.org/wp-content/uploads/2016/10/ebsco-logo.jpg?ssl=1" alt="EBSCO" width="250" height="90" /></a><br /><a href="https://www.ceeol.com/search/journal-detail?id=2432" target="_blank" rel="noreferrer noopener"><img src="https://mu-plovdiv.bg/wp-content/uploads/2018/02/ceeol-logo.png" alt="ceeol.png" width="200" height="80" /></a></center>
+</div>        </div>
+</div> 
+	</div></div>	</div><div class="CL-article-block-group">
+	<div class="CL-article-column" style="width:100.00%;" >
+	<div class="CL-article-block CL-module-renderer CL-article-WhatIsNew">
+	<div class="CL-box-main">
+	        <div class="CL-box-main-content">
+             <div class="CL-what-is-new-wrapper">
+	<ul class="CL-what-is-new-list CL-what-is-new-has-image">
+			<li class="CL-what-is-new-item CL-result-type-news">
+			<a class="CL-what-is-new-link" href="view-more/obavjestenje-pristupno-predavanje/728">				
+				<img class="CL-what-is-new-item-icon" src="cimage/news/image-630.png" alt="Slika" />
+
+				
+				<span class="CL-what-is-new-item-title">
+					Obavještenje - pristupno predavanje				</span>
+
+				
+								<span class="CL-what-is-new-item-text">
+					Kandidat Melina Altumbabić, mag. žurnalistike će dana 04.11.2024. godine (ponedeljak) u 10:00 sati u prostorijama Visoke škole za savremeno poslovanje, informacione tehnologije i tržišne komunikacije “Inte...				</span>
+				
+								<span class="CL-what-is-new-item-date">
+					01.11.2024 12:06				</span>
+				
+			</a>		</li>
+			<li class="CL-what-is-new-item CL-result-type-news">
+			<a class="CL-what-is-new-link" href="view-more/obavjestenje-pristupno-predavanje/727">				
+				<img class="CL-what-is-new-item-icon" src="cimage/news/image-629.png" alt="Slika" />
+
+				
+				<span class="CL-what-is-new-item-title">
+					Obavještenje - pristupno predavanje				</span>
+
+				
+								<span class="CL-what-is-new-item-text">
+					Kandidat Sabina Čavalić, mag. oec. će dana 04.11.2024. godine (ponedeljak) u 17:30 sati u prostorijama Visoke škole za savremeno poslovanje, informacione tehnologije i tržišne komunikacije “Inte...				</span>
+				
+								<span class="CL-what-is-new-item-date">
+					01.11.2024 12:03				</span>
+				
+			</a>		</li>
+			<li class="CL-what-is-new-item CL-result-type-news">
+			<a class="CL-what-is-new-link" href="view-more/obavijest-o-odbranama-zavrsnih-radova/726">				
+				<img class="CL-what-is-new-item-icon" src="cimage/news/image-628.png" alt="Slika" />
+
+				
+				<span class="CL-what-is-new-item-title">
+					Obavijest o odbranama završnih radova				</span>
+
+				
+								<span class="CL-what-is-new-item-text">
+					Dana 08.11.2024. godine, sljedeći studenti brane završni rad:
+
+1) Amila Omerović, sa početkom u 09:30 sati, tema: "NOVI TRENDOVI U OGLAŠAVANJU NA PODRUČJU BOSNE I HERCEGOVINE"
+2) Alma Goletić, sa početk...				</span>
+				
+								<span class="CL-what-is-new-item-date">
+					01.11.2024 10:49				</span>
+				
+			</a>		</li>
+			<li class="CL-what-is-new-item CL-result-type-news">
+			<a class="CL-what-is-new-link" href="view-more/obavijest-o-odbranama-zavrsnih-radova/725">				
+				<img class="CL-what-is-new-item-icon" src="cimage/news/image-627.png" alt="Slika" />
+
+				
+				<span class="CL-what-is-new-item-title">
+					Obavijest o odbranama završnih radova				</span>
+
+				
+								<span class="CL-what-is-new-item-text">
+					Dana 07.11.2024. godine, sljedeći studenti brane završni rad:
+
+1) Mahir Kešetović, sa početkom u 15:15 sati, tema: "SIGURNOST I ZAŠTITA PODATAKA U E - TRGOVINI"
+2) Aleksandar Saša Ivković, sa početko...				</span>
+				
+								<span class="CL-what-is-new-item-date">
+					31.10.2024 10:43				</span>
+				
+			</a>		</li>
+		</ul>
+	</div>
+        </div>
+</div> 
+	</div></div>	</div>		    </div>
+	<div class="CL-pager">
+	<span class="CL-pager-current-page">0</span>
+	<a class="CL-pager-page-link" href="home/part/0">
+		0	</a>
+</div>	<div class="CL-float-cleaner"></div>
+</div>
+					</div>
+
+				<section id="banner-bottom-top">
+					<div class="container">
+						
+<div class="CL-column CL-position-custom4" >
+	<div id="CL-module-271" class="CL-portlet CL-portlet-custom4 CL-portlet-box CL-portlet-has-no-title"  >
+    <div class="CL-box-main">
+	        <div class="CL-box-main-content">
+             <div class="CL-box-default CL-box-no-image CL-box-no-icon CL-box-no-subtitle CL-box-no-datetime CL-box-style-0">
+	<div class="CenterBlock blockid-2">
+	<div class="hover01 column">
+			<figure></figure>
+	</div>
+	<div class="centerblock-radius">
+		<span class="name"><div class="CL-box-inplace-editors-wrapper">
+	<h3 id="CL-box-title-2" class="CL-box-title">
+	Odluči se za kvalitet - biraj studij po mjeri poslodavca!</h3>
+</div></span>
+		<span class="title"><div class="CL-box-inplace-editors-wrapper">
+	<h4 id="CL-box-subtitle-2" class="CL-box-subtitle">
+	&nbsp;</h4>
+</div></span>
+		<div class="CL-box-inplace-editors-wrapper">
+	<div id="CL-box-text-content-2" class="CL-box-text-content">
+	<p style="text-align:center;">Na IPI Akademiji možete upisati trogodišnje studijske programe (180ECTS) iz oblasti: Informacionih tehnologija, Tržišnih komunikacija, Savremenog poslovanja i  informatičkog menadžmenta; ili četverogodišnje studijske programe (240ECTS): Informatika i računarstvo, Računovodstvo i finansije. <br />Uz praktičnu nastavu, obaveznu stručnu praksu, visok nivo znanja i stručnosti akademskog kadra obrazujemo i pružamo podršku mladima u razvoju njihovih ideja, te ih adekvatno pripremamo za tržište rada. </p></div>
+</div>		<p class="CL-box-read-more-link"><a href="kontakt">Kontakt</a></p>	</div>
+</div>	<div class="CL-float-cleaner"></div>
+</div>        </div>
+</div>	</div>
+</div>
+
+					</div>
+				</section>
+				<section id="banner-bottom">
+					<div class="container">
+						
+<div class="CL-column CL-position-custom5" >
+	<div id="CL-module-299" class="CL-portlet CL-portlet-custom5 CL-portlet-customhtml CL-portlet-has-no-title"  >
+    <div class="CL-box-main">
+	        <div class="CL-box-main-content">
+             <div class="CL-custom-html">
+    <div class="container">
+  <h2>Saradnja</h2>
+   <section class="customer-logos slider"><div class="slide"><img src="/images/logo/logo1.jpg" alt="logo1.jpg" /></div>
+      <div class="slide"><img src="/images/logo/logo2.jpg" alt="logo2.jpg" /></div>
+      <div class="slide"><img src="/images/logo/logo3.jpg" alt="logo3.jpg" /></div>
+      
+      <div class="slide"><img src="/images/logo/logo4.jpg" alt="logo4" /></div>
+      <div class="slide"><img src="/images/logo/logo5.jpg" alt="logo5" /></div>
+<div class="slide"><img src="/images/logo/logo6.jpg" alt="logo3.jpg" /></div>
+   <div class="slide"><img src="/images/logo/logo7.jpg" alt="logo7" /></div>
+ 
+      
+   </section></div></div>        </div>
+</div>	</div>
+</div>
+
+					</div>
+					<div class="container">
+						<div class="row">
+							<div class="6u 12u$(medium)">
+								
+<div class="CL-column CL-position-custom6" >
+	</div>
+
+							</div>
+						<div class="6u 12u$(medium)">
+								
+<div class="CL-column CL-position-custom7" >
+	</div>
+
+						</div>
+					</div>
+				</section>
+					<!-- Footer -->
+					<footer id="footer">
+						<div class="container">
+							<div class="row">
+								<div class="12u 12u$(medium)">
+									
+<div class="CL-column CL-position-footer" >
+	</div>
+
+								</div>
+							</div>
+							<div class="row">
+								<div class="4u 12u$(medium)">
+									
+<div class="CL-column CL-position-footer1" >
+	</div>
+
+								</div>
+								<div class="4u 12u$(medium)">
+									
+<div class="CL-column CL-position-footer2" >
+	</div>
+
+								</div>
+								<div class="4u 12u$(medium)">
+									
+<div class="CL-column CL-position-footer3" >
+	</div>
+
+								</div>
+							</div>
+							<div class="row">
+								<div class="5u 12u$(medium)">
+									
+<div class="CL-column CL-position-footer4" >
+	<div id="CL-module-277" class="CL-portlet CL-portlet-footer4 CL-portlet-box"  >
+    <div class="CL-box-main">
+	        <h2 class="CL-box-main-title">
+            Kontakt        </h2>
+	        <div class="CL-box-main-content">
+             <div class="CL-box-default CL-box-no-image CL-box-no-icon CL-box-no-link CL-box-no-title CL-box-no-subtitle CL-box-no-datetime">
+	<div class="CL-box-container">
+	<div class="CL-box-header">
+				<div class="CL-box-inplace-editors-wrapper">
+	<h3 id="CL-box-title-8" class="CL-box-title">
+	&nbsp;</h3>
+</div>		<div class="CL-box-inplace-editors-wrapper">
+	<h4 id="CL-box-subtitle-8" class="CL-box-subtitle">
+	&nbsp;</h4>
+</div>	</div>
+	<div class="CL-box-content">
+				<div class="CL-box-inplace-editors-wrapper">
+	<div id="CL-box-text-content-8" class="CL-box-text-content">
+	<br /><i class="fa fa-phone"> </i> +387 35 258 454<br /><i class="fa fa-phone"> </i> +387 62 062 657<br /><i class="fa fa-envelope"> </i> info@ipi-akademija.ba<br /><i class="fa fa-map-marker"> </i> Kulina bana br. 2, <br />75000 Tuzla, <br />Bosna i Hercegovina</div>
+</div>			</div>
+</div>	<div class="CL-float-cleaner"></div>
+</div>        </div>
+</div>	</div>
+<div id="CL-module-281" class="CL-portlet CL-portlet-footer4 CL-portlet-followus CL-portlet-has-no-title"  >
+    <div class="CL-box-main">
+	        <div class="CL-box-main-content">
+             <ul class="CL-follow-us  CL-follow-us--small CL-follow-us--horizontal">
+		<li><a target="_blank" href="https://www.facebook.com/ipiakademija/"><img src="images/social/facebook.png" /></a></li>
+		<li><a target="_blank" href="https://www.youtube.com/channel/UCK0FwOGEVWpRoYuXt038edw"><img src="images/social/youtube.png" /></a></li>
+		<li><a target="_blank" href="https://www.instagram.com/ipi_akademija/?hl=en"><img src="images/social/instagram.png" /></a></li>
+		<li><a target="_blank" href="https://www.linkedin.com/school/ipiakademija/"><img src="images/social/linkedin.png" /></a></li>
+	</ul>        </div>
+</div>	</div>
+</div>
+
+								</div>
+								<div class="7u 12u$(medium)">
+									
+<div class="CL-column CL-position-footer5" >
+	<div id="CL-module-280" class="CL-portlet CL-portlet-footer5 CL-portlet-map"  >
+    <div class="CL-box-main">
+	        <h2 class="CL-box-main-title">
+            Naša Lokacija        </h2>
+	        <div class="CL-box-main-content">
+             <link rel="stylesheet" href="lib/leaflet/leaflet.css" type="text/css" />
+
+<div id="CL-map-show-1" style="height:196px" class="CL-map-container"></div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	function _initMap() {
+		if(!($("#CL-map-show-1").data("init")===true)) {
+			var map = L.map('CL-map-show-1',
+			{
+				dragging: false,
+				touchZoom: false,
+				tap: false,
+				scrollWheelZoom: false,
+				doubleClickZoom: false,
+				boxZoom: false,
+				keyboard: false,
+				zoomControl: false,
+				attributionControl: false
+			}).setView([44.5405, 18.6738], 16);
+
+						map.on("click", function(){
+				window.open('https://www.openstreetmap.org/?mlat=44.5405&mlon=18.6738#map=16/44.5405/18.6738');
+			});
+			
+			L.Icon.Default.imagePath='lib/leaflet/images';
+
+			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				maxZoom: 18,
+				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+			}).addTo(map);
+
+			L.marker([44.5405, 18.6738]).addTo(map);
+
+			$("#CL-map-show-1").data("init", true);
+		}
+	}
+	
+	if(typeof L !== 'undefined') {
+		_initMap();
+	}
+	else {
+		app.mw.require('lib/leaflet/leaflet.js', _initMap);
+	}
+	
+});
+</script>        </div>
+</div>	</div>
+<div id="CL-module-408" class="CL-portlet CL-portlet-footer5 CL-portlet-counter"  >
+    <div class="CL-box-main">
+	        <h2 class="CL-box-main-title">
+            Brojač posjeta        </h2>
+	        <div class="CL-box-main-content">
+             <div class="CL-counter-module">
+	<div class="CL-counter-item">
+		<p>Broj online korisnika: 
+			<span class="CL-count-value">3</span>
+		</p>
+	</div>
+	<div class="CL-counter-item">
+		<p>Broj jedinstvenih posjeta: 
+			<span class="CL-count-value">134055</span>
+		</p>
+	</div>
+	<div class="CL-counter-item">
+		<p>Ukupno pregleda: 
+			<span class="CL-count-value">6739396</span>
+		</p>
+	</div>
+</div>        </div>
+</div>	</div>
+</div>
+
+								</div>
+							</div>
+							<div class="row">
+								<div class="12u 12u$(medium)">
+									
+<div class="CL-column CL-position-footer6" >
+	</div>
+
+								</div>
+							</div>
+						</div>
+						<div id="copyright">
+							&copy; 2024 ipi-akademija.ba. 							Napravljeno sa <a href="https://mojweb.ba/" target="_blank" title="Izrada web stranica na brz i jednostavan način">mojWeb</a> 2.10.5 | <a href="http://www.leftor.com/" target="_blank" title="LEFTOR: WEB apps &amp; hosting">LEFTOR</a>						</div>
+					</footer>
+
+		<!-- Scripts -->
+	        	        	        	        	        	        <script type="text/javascript" src="template/Napo/js/jquery.dropotron.min.js?v=2.10.5"></script>
+<script type="text/javascript" src="template/Napo/js/skel.min.js?v=2.10.5"></script>
+<script type="text/javascript" src="template/Napo/js/skel-viewport.min.js?v=2.10.5"></script>
+<script type="text/javascript" src="template/Napo/js/util.js?v=2.10.5"></script>
+<script type="text/javascript" src="template/Napo/js/main.js?v=2.10.5"></script><!-- Google Analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-120230028-1', 'auto');
+  ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->	        <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.js"></script>
+	        
+	        <script>
+	            
+	            $(document).ready(function(){
+    $('.customer-logos').slick({
+        slidesToShow: 6,
+        slidesToScroll: 1,
+        autoplay: true,
+        autoplaySpeed: 1500,
+        arrows: false,
+        dots: false,
+        pauseOnHover: false,
+        responsive: [{
+            breakpoint: 768,
+            settings: {
+                slidesToShow: 4
+            }
+        }, {
+            breakpoint: 520,
+            settings: {
+                slidesToShow: 3
+            }
+        }]
+    });
+});
+	        </script>
+
+	</body>
+</html>
