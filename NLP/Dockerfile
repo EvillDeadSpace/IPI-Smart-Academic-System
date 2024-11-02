@@ -1,15 +1,20 @@
-# Odaberi osnovnu sliku
+# Koristi osnovni Python imidž
 FROM python:3.9-slim
 
-# Postavi radni direktorijum
+# Instaliraj sistemske zavisnosti
+RUN apt-get update && apt-get install -y \
+    libopenblas-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Postavi radni direktorijum u kontejneru
 WORKDIR /app
 
-# Kopiraj requirements.txt i instaliraj zavisnosti
+# Kopiraj requirements fajl i instaliraj Python zavisnosti
 COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Kopiraj sve ostale fajlove
+# Kopiraj sve fajlove iz lokalnog direktorijuma u kontejner
 COPY . .
 
-# Definiši komandu koja će se izvršiti kada kontejner krene
-CMD ["python", "scrap.py"]
+# Postavi komandnu za pokretanje aplikacije
+CMD ["python", "Test.py"]
