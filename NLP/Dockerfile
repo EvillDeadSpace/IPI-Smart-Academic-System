@@ -1,5 +1,5 @@
 # Koristi osnovni Python imidž
-FROM python:3.9-slim
+FROM python:3.10
 
 # Instaliraj sistemske zavisnosti
 RUN apt-get update && apt-get install -y \
@@ -9,12 +9,20 @@ RUN apt-get update && apt-get install -y \
 # Postavi radni direktorijum u kontejneru
 WORKDIR /app
 
-# Kopiraj requirements fajl i instaliraj Python zavisnosti
-COPY requirements.txt requirements.txt
+# Kopiraj requirements fajl
+COPY requirements.txt .
+
+# Prvo instaliraj faiss-cpu, kako bi taj sloj bio keširan
+RUN pip install faiss-cpu==1.7.3
+
+# Instaliraj ostale Python zavisnosti
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Kopiraj sve fajlove iz lokalnog direktorijuma u kontejner
 COPY . .
 
-# Postavi komandnu za pokretanje aplikacije
+# Otvori port 5000
+EXPOSE 5000
+
+# Postavi komandu za pokretanje aplikacije
 CMD ["python", "Test.py"]

@@ -1,18 +1,20 @@
+# Koristimo oficijelni Node.js image kao bazu za build
+FROM node:18-alpine AS build
 
-FROM node:18-alpine
-
+# Postavljamo radni direktorijum u kontejneru
 WORKDIR /app
 
-COPY package.json .
+# Kopiramo package.json i package-lock.json u radni direktorijum
+COPY package*.json .
 
+# Instaliramo zavisnosti
 RUN npm install
 
-RUN npm i -g serve
-
+# Kopiramo ostatak aplikacije u radni direktorijum
 COPY . .
 
-RUN npm run build
+# Ekspozicija porta 3000
+EXPOSE 5173
 
-EXPOSE 3000
-
-CMD [ "serve", "-s", "dist" ]
+# Pokrećemo aplikaciju koristeći `serve`
+CMD ["npm", "run", "dev"]

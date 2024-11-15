@@ -5,8 +5,10 @@ from transformers import AutoTokenizer, AutoModel
 import torch
 from flask import Flask, request, jsonify
 from sklearn.metrics.pairwise import cosine_similarity
+from flask_cors import CORS  # Importujte CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # Postavljanje modela i učitavanje teksta
 model_name = 'sentence-transformers/all-MiniLM-L6-v2'
@@ -59,4 +61,5 @@ def search():
     return jsonify({"results": results})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
+

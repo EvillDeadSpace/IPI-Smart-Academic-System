@@ -1,8 +1,18 @@
 version: "3.8"
 
 services:
-  python_backend:
+  frontend_service:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: frontend_image
+    ports:
+      - "5173:5173"
+
+  backend_service:
     build:
       context: ./NLP
+      dockerfile: Dockerfile
+    image: backend_image
     ports:
       - "5000:5000"
