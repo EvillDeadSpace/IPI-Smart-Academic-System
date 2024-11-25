@@ -2,4 +2,6 @@ torch
 faiss-cpu
 transformers
 scikit-learn
-numpy
+numpy<2
+flask
+flask-cors
