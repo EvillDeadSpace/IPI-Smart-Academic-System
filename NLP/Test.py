@@ -1,65 +1,72 @@
-import os
-import faiss
-import numpy as np
-from transformers import AutoTokenizer, AutoModel
-import torch
+import spacy
+from flask_cors import CORS
 from flask import Flask, request, jsonify
-from sklearn.metrics.pairwise import cosine_similarity
-from flask_cors import CORS  # Importujte CORS
+from mistralai import Mistral, UserMessage, SystemMessage
+import os
+
+
+token = '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'
+endpoint = "https://models.inference.ai.azure.com"
+model_name = "Mistral-small"
+
 
 app = Flask(__name__)
 CORS(app)
 
-# Postavljanje modela i učitavanje teksta
-model_name = 'sentence-transformers/all-MiniLM-L6-v2'
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModel.from_pretrained(model_name)
+# Učitavanje NLP modela
+nlp = spacy.load("hr_core_news_sm")
 
-# Učitavanje i obrada teksta
+# Učitavanje teksta iz fajla (samo jednom prilikom pokretanja aplikacije)
 def load_text_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         return file.read()
 
-def preprocess_text(text):
-    return text.split('\n')
+text = load_text_file('fakultetski_sadržaj.txt')
+doc = nlp(text)  # Procesuiraj tekst sa spaCy
 
-# Kreiranje embeddingsa
-def create_embeddings(text_chunks):
-    embeddings = []
-    for chunk in text_chunks:
-        inputs = tokenizer(chunk, return_tensors='pt', truncation=True, padding=True)
-        with torch.no_grad():
-            outputs = model(**inputs)
-        embeddings.append(outputs.last_hidden_state.mean(dim=1).squeeze().numpy())
-    return np.array(embeddings)
+# Funkcija za pretragu rečenica koje sadrže sve ključne riječi
+def find_sentence_with_keywords(doc, query):
+    keywords = query.lower().split()  # Pretvori upit u listu ključnih riječi
+    for sent in doc.sents:
+        sentence_text = sent.text.lower()
+        # Provjeri da li sve ključne riječi postoje u rečenici
+        if all(keyword in sentence_text for keyword in keywords):
+            return sent.text
+    return None
 
-# Kreiranje FAISS indeksa
-file_path = 'fakultetski_sadržaj.txt'  # Putanja do vašeg teksta
-text = load_text_file(file_path)
-text_chunks = preprocess_text(text)
-embeddings = create_embeddings(text_chunks)
-index = faiss.IndexFlatIP(embeddings.shape[1])
-faiss.normalize_L2(embeddings)
-index.add(embeddings)
+
+client = Mistral(api_key=token, server_url=endpoint)
+
+def test (user_msg):
+    response = client.chat.complete(
+    model=model_name,
+    messages=[
+        SystemMessage(content="Ti si pomocnik koji odgovara na pitanje o IPI akdemiji. Odgovaraj na bosanskom jeziku."),
+        UserMessage(content=user_msg),
+    ],
+    temperature=1.0,
+    max_tokens=1000,
+    top_p=1.0
+    )
+    return response.choices[0].message.content
+
 
 # Endpoint za pretragu
 @app.route('/search', methods=['POST'])
 def search():
-    data = request.json
-    query = data.get("query")
-
+    data = request.get_json()
+    query = data.get('word', '').strip()  # Dohvati i očisti upit
+    
     if not query:
-        return jsonify({"error": "Query not provided"}), 400
+        return jsonify({'error': 'Riječ ili fraza je obavezna!'}), 400
 
-    inputs = tokenizer(query, return_tensors='pt', truncation=True, padding=True)
-    with torch.no_grad():
-        query_embedding = model(**inputs).last_hidden_state.mean(dim=1).squeeze().numpy()
-    faiss.normalize_L2(np.array([query_embedding]))
-    _, I = index.search(np.array([query_embedding]), 5)  # Top 5 rezultata
-
-    results = [text_chunks[i] for i in I[0]]
-    return jsonify({"results": results})
+    # Pronađi rečenicu koja sadrži sve ključne riječi iz upita
+    sentence = find_sentence_with_keywords(doc, query)
+    if sentence:
+        proces_text= test(f'Na osnovu sljedeceg upita: {sentence}, odgovori mi na sljedece pitanje: {query}')
+        return jsonify({'sentence': proces_text})
+    else:
+        return jsonify({'message': f"Nije pronađena odgovarajuća rečenica za upit '{query}'."})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
-
