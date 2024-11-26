@@ -1,7 +1,0 @@
-torch
-faiss-cpu
-transformers
-scikit-learn
-numpy<2
-flask
-flask-cors

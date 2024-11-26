@@ -1,6 +1,0 @@
-from langchain.embeddings import OpenAIEmbeddings
-from langchain_community.vectorstores.faiss import FAISS
-
-# Kreiraj embeddings
-embeddings = OpenAIEmbeddings(openai_api_key="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")
-docsearch = FAISS.from_texts(texts, embeddings)

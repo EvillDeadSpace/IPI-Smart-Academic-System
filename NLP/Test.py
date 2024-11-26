@@ -22,14 +22,15 @@ def load_text_file(file_path):
         return file.read()
 
 text = load_text_file('fakultetski_sadržaj.txt')
-doc = nlp(text)  # Procesuiraj tekst sa spaCy
+
+# Procesiranje teksta pomoću NLP modela
+doc = nlp(text) 
 
 # Funkcija za pretragu rečenica koje sadrže sve ključne riječi
 def find_sentence_with_keywords(doc, query):
-    keywords = query.lower().split()  # Pretvori upit u listu ključnih riječi
+    keywords = query.lower().split() 
     for sent in doc.sents:
         sentence_text = sent.text.lower()
-        # Provjeri da li sve ključne riječi postoje u rečenici
         if all(keyword in sentence_text for keyword in keywords):
             return sent.text
     return None
@@ -60,7 +61,6 @@ def search():
     if not query:
         return jsonify({'error': 'Riječ ili fraza je obavezna!'}), 400
 
-    # Pronađi rečenicu koja sadrži sve ključne riječi iz upita
     sentence = find_sentence_with_keywords(doc, query)
     if sentence:
         proces_text= test(f'Na osnovu sljedeceg upita: {sentence}, odgovori mi na sljedece pitanje: {query}')
