@@ -3,21 +3,22 @@ import Lottie from 'lottie-react'
 import animation from '../assets/wired-gradient-981-consultation-hover-conversation.json'
 import animationChat from '../assets/AnimationChat.json'
 import { RiRobot2Line } from 'react-icons/ri'
+import { LuDot } from 'react-icons/lu'
+import { TbArrowBadgeRightFilled } from 'react-icons/tb'
 
 const Chat: FC = () => {
-    const [data, setData] = useState<{ word: string[] } | null>(null) // Type as needed
-    const [word, setWord] = useState<string>('') // State for user input
+    // State variables
+    const [word, setWord] = useState<string>('')
     const [messages, setMessages] = useState<
         { text: string; isUser: boolean }[]
     >([])
-    const [isLoading, setIsLoading] = useState<boolean>(false) // State for loading
+    const [isLoading, setIsLoading] = useState<boolean>(false)
     const [showChat, setShowChat] = useState<boolean>(false)
 
+    // Function to handle continue button click
     const handleContinue = () => {
         setShowChat(true)
     }
-
-    console.log(data)
 
     // Function to handle input field changes
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,13 +30,13 @@ const Chat: FC = () => {
         event.preventDefault()
 
         if (word.trim()) {
-            // Add new user message to the messages array
             setMessages([...messages, { text: word, isUser: true }])
-            // Reset the input field
             setWord('')
         }
 
-        setIsLoading(true) // Set loading to true before fetching data
+        setIsLoading(true)
+
+        // Add simulated AI response to the messages
 
         try {
             const response = await fetch('http://127.0.0.1:5000/search', {
@@ -43,11 +44,9 @@ const Chat: FC = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ word }), // Send word instead of query
+                body: JSON.stringify({ word }),
             })
             const result = await response.json()
-            console.log(result) // Log the result to the console
-            setData(result as { word: string[] })
 
             // Add AI response to the messages array
             if (result.sentence && result.sentence.length > 0) {
@@ -59,7 +58,7 @@ const Chat: FC = () => {
         } catch (error) {
             console.error('There was an error!', error)
         } finally {
-            setIsLoading(false) // Set loading to false after fetching data
+            setIsLoading(false)
         }
     }
 
@@ -95,16 +94,30 @@ const Chat: FC = () => {
                     </>
                 ) : (
                     <>
-                        <p>
-                            <RiRobot2Line />
-                        </p>
-                        <div className="chat-content max-h-96 overflow-y-auto p-4">
+                        <div className="flex items-center">
+                            <RiRobot2Line
+                                color="blue"
+                                size={46}
+                                className="m-2"
+                            />
+                            <div className="flex flex-col ml-2">
+                                <p className="text-blue-800 font-medium">
+                                    IPI AI Chat
+                                </p>
+                                <p className="text-green-700 flex items-center">
+                                    <LuDot size={24} className="ml-[-10px]" />{' '}
+                                    Online
+                                </p>
+                            </div>
+                        </div>
+                        <hr className="border-t-2 border-black-100 my-1" />
+                        <div className="chat-content max-h-max overflow-y-auto p-4">
                             {messages.map((message, index) => (
                                 <p
-                                    className={`border-2 rounded-3xl p-2 m-2 ${
+                                    className={`border-2 rounded-3xl p-2 m-4 ${
                                         message.isUser
-                                            ? 'text-left bg-gray-400'
-                                            : 'text-right bg-gray-200'
+                                            ? 'text-left bg-[#3369FF] rounded-2xl rounded-tr-none text-white p-5 m-2 '
+                                            : 'text-right rounded-2xl rounded-tl-none bg-[#EEEEEE]'
                                     }`}
                                     key={index}
                                 >
@@ -112,16 +125,31 @@ const Chat: FC = () => {
                                 </p>
                             ))}
                             {isLoading && <p>Loading...</p>}
-                            <form onSubmit={handleSubmit}>
-                                <input
-                                    className="border-2 m-2 p-1 rounded-3xl placeholder-italic placeholder-gray-600"
-                                    type="text"
-                                    value={word}
-                                    onChange={handleInputChange}
-                                    placeholder="Enter your word"
-                                />
-                                <button type="submit">Pretrazi</button>
-                            </form>
+                            <div>
+                                <form
+                                    onSubmit={handleSubmit}
+                                    className="relative"
+                                >
+                                    <div className="relative">
+                                        <input
+                                            className="border-2 m-2 p-3 rounded-3xl placeholder-italic placeholder-gray-600 pr-10 w-full"
+                                            type="text"
+                                            value={word}
+                                            onChange={handleInputChange}
+                                            placeholder="Enter your word"
+                                        />
+                                        <button
+                                            type="submit"
+                                            className="absolute right-6 top-1/2 transform -translate-y-1/2"
+                                        >
+                                            <TbArrowBadgeRightFilled
+                                                size={24}
+                                                color="blue"
+                                            />
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </>
                 )}
