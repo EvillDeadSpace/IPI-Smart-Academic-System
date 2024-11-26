@@ -1,0 +1,5 @@
+Flask
+Flask-Cors
+spacy
+mistralai
+python-dotenv

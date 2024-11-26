@@ -12,11 +12,11 @@ WORKDIR /app
 # Kopiraj requirements fajl
 COPY requirements.txt .
 
-# Prvo instaliraj faiss-cpu, kako bi taj sloj bio keširan
-RUN pip install faiss-cpu==1.7.3
-
 # Instaliraj ostale Python zavisnosti
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt 
+
+# Preuzmi spacy model
+RUN python -m spacy download hr_core_news_sm
 
 # Kopiraj sve fajlove iz lokalnog direktorijuma u kontejner
 COPY . .
@@ -25,4 +25,4 @@ COPY . .
 EXPOSE 5000
 
 # Postavi komandu za pokretanje aplikacije
-CMD ["python", "Test.py"]
+CMD ["python", "main.py"]
