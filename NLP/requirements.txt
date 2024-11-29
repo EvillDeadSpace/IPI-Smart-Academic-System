@@ -3,3 +3,4 @@ Flask-Cors
 spacy
 mistralai
 python-dotenv
+openai

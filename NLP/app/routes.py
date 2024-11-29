@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.services import find_sentence_with_keywords, generate_response
 from app.nlp_utils import load_text_file, process_text
-
+from app.openAiText import compare_query_with_sentences
 # Kreiranje Blueprint-a za rute
 bp = Blueprint('routes', __name__)
 
@@ -23,3 +23,7 @@ def search():
         return jsonify({'sentence': processed_text})
     else:
         return jsonify({'message': f"Nije pronađena odgovarajuća rečenica za upit '{query}'."})
+
+@bp.route('/status', methods=['GET'])
+def status():
+    return jsonify({'status': True})

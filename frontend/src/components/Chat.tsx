@@ -1,4 +1,4 @@
-import { FC, useState } from 'react'
+import { FC, useState, useEffect } from 'react'
 import Lottie from 'lottie-react'
 import animation from '../assets/wired-gradient-981-consultation-hover-conversation.json'
 import animationChat from '../assets/AnimationChat.json'
@@ -8,6 +8,8 @@ import { TbArrowBadgeRightFilled } from 'react-icons/tb'
 
 const Chat: FC = () => {
     // State variables
+    const [status, setStatus] = useState<boolean>(false)
+    console.log(status + ' status')
     const [word, setWord] = useState<string>('')
     const [messages, setMessages] = useState<
         { text: string; isUser: boolean }[]
@@ -62,6 +64,24 @@ const Chat: FC = () => {
         }
     }
 
+    useEffect(() => {
+        const fetchStatus = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/status')
+                const data = await response.json()
+                console.log(data)
+                setTimeout(() => setStatus(data.status), 5000)
+            } catch (error) {
+                console.error('There was an error fetching the status!', error)
+                setStatus(false) // Postavite status na false u slučaju greške
+            }
+        }
+
+        fetchStatus() // Pozivamo fetchStatus odmah nakon definisanja
+
+        return () => {}
+    }, [])
+
     return (
         <>
             <div className="lottie-container">
@@ -104,10 +124,23 @@ const Chat: FC = () => {
                                 <p className="text-blue-800 font-medium">
                                     IPI AI Chat
                                 </p>
-                                <p className="text-green-700 flex items-center">
-                                    <LuDot size={24} className="ml-[-10px]" />{' '}
-                                    Online
-                                </p>
+                                {!status ? (
+                                    <p className="text-red-700 flex items-center">
+                                        <LuDot
+                                            size={24}
+                                            className="ml-[-10px]"
+                                        />{' '}
+                                        Offline
+                                    </p>
+                                ) : (
+                                    <p className="text-green-700 flex items-center">
+                                        <LuDot
+                                            size={24}
+                                            className="ml-[-10px]"
+                                        />{' '}
+                                        Online
+                                    </p>
+                                )}
                             </div>
                         </div>
                         <hr className="border-t-2 border-black-100 my-1" />
@@ -140,7 +173,7 @@ const Chat: FC = () => {
                                         />
                                         <button
                                             type="submit"
-                                            className="absolute right-6 top-1/2 transform -translate-y-1/2"
+                                            className="absolute right-6 top-1/2 transform -translate-y-1/2 "
                                         >
                                             <TbArrowBadgeRightFilled
                                                 size={24}
