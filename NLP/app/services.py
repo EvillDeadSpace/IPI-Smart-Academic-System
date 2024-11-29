@@ -15,13 +15,15 @@ def generate_response(user_msg):
 
     client = Mistral(api_key=token, server_url=endpoint)
 
+
     response = client.chat.complete(
         model=model_name,
         messages=[
             SystemMessage(content="Ti si pomoćnik koji odgovara na pitanje o IPI akademiji. Odgovaraj na bosanskom jeziku."),
             UserMessage(content=user_msg),
         ],
-        temperature=1.0,
+        #temperatura dize se bura
+        temperature=0.8,
         max_tokens=1000,
         top_p=1.0
     )
