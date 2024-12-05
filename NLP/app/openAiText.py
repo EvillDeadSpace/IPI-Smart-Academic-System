@@ -3,9 +3,13 @@ from openai import OpenAI
 import numpy as np
 from numpy import dot
 from numpy.linalg import norm
+from dotenv import load_dotenv
 
-token = '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'
-endpoint = "https://models.inference.ai.azure.com"
+# Učitavanje varijabli iz .env fajla
+load_dotenv()
+
+token = os.getenv("OPENAI_TOKEN")
+endpoint = os.getenv('ENDPOINT_OPENAI')
 model_name = "text-embedding-3-small"
 
 client = OpenAI(
@@ -39,7 +43,7 @@ def compare_query_with_sentences(query, sentences):
 # Primer korišćenja
 
 
-#query = "Druga"
+#query = "Peta recenica"
 #sentences = ["Prva recenica.", "Druga recenica.", "Treća recenica.", "cetvrta recenica.", "Peta recenica.", "Sesta recenica."]
 #top_5_sentences = compare_query_with_sentences(query, sentences)
-#print("Top 5 najbliih recenica:", top_5_sentences)
+#print("Top 5 najbliih recenica:", top_5_sentences)#

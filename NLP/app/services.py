@@ -1,3 +1,9 @@
+#Const for .env
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 def find_sentence_with_keywords(doc, query):
     keywords = query.lower().split() 
     for sent in doc.sents:
@@ -9,8 +15,8 @@ def find_sentence_with_keywords(doc, query):
 def generate_response(user_msg):
     from mistralai import Mistral, UserMessage, SystemMessage
 
-    token = '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'
-    endpoint = "https://models.inference.ai.azure.com"
+    token = os.getenv("MISTRAL_TOKEN")
+    endpoint = os.getenv("ENDPOINT_MISTRAL")
     model_name = "Mistral-small"
 
     client = Mistral(api_key=token, server_url=endpoint)
