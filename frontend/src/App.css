@@ -10,22 +10,26 @@ body {
     height: 50px;
     border-radius: 80%;
     overflow: hidden;
-    border: 2px solid #000; /* Boja kruga */
+    border: 2px solid #000;
+    /* Boja kruga */
     display: flex;
     justify-content: center;
     align-items: center;
-    cursor: pointer; /* Dodaje pokazivač ruke pri prelasku miša */
+    cursor: pointer;
+    /* Dodaje pokazivač ruke pri prelasku miša */
 }
 
 .lottie-icon {
     width: 100%;
     height: 100%;
 }
+
 .chat-window {
     display: flex;
     flex-direction: column;
     position: fixed;
-    bottom: 70px; /* Iznad ikone */
+    bottom: 70px;
+    /* Iznad ikone */
     right: 40px;
     width: 400px;
     height: 600px;
@@ -35,8 +39,11 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
     z-index: 1000;
+
+    /* Inicijalno sakriven */
 }
 
 .chat-content {
-    margin-top: auto; /* Spušta sadržaj na dno chat prozora */
+    margin-top: auto;
+    /* Spušta sadržaj na dno chat prozora */
 }

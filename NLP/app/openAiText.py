@@ -33,13 +33,13 @@ def get_top_n_sentences(query_embedding, sentences_embeddings, sentences, n=5):
 def compare_query_with_sentences(query, sentences):
     query_embedding = generate_embeddings_for_text(query)
     sentences_embeddings = [generate_embeddings_for_text(sent) for sent in sentences]
-    print(sentences_embeddings)
     top_5_sentences = get_top_n_sentences(query_embedding, sentences_embeddings, sentences)
     return top_5_sentences
 
 # Primer korišćenja
 
-#query = "Peta"
+
+#query = "Druga"
 #sentences = ["Prva recenica.", "Druga recenica.", "Treća recenica.", "cetvrta recenica.", "Peta recenica.", "Sesta recenica."]
 #top_5_sentences = compare_query_with_sentences(query, sentences)
 #print("Top 5 najbliih recenica:", top_5_sentences)
