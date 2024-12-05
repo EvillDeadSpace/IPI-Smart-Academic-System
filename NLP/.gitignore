@@ -11,3 +11,10 @@ __pycache__/*
 .env
 
 .env/
+**/__pycache__/
+
+NLP/APP/__pycache__/
+
+/APP/__pycache__/
+
+app/__pycache__

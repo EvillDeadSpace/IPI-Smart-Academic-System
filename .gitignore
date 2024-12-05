@@ -9,3 +9,8 @@ __pycache__/*
 *.pyo
 /__pycache/*
 /pycache/
+
+
+NLP/app/__pycache__
+
+NLP/app/__pycache__/
