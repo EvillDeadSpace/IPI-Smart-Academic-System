@@ -1,99 +1,33 @@
-import { FC, useState, useEffect } from 'react'
+import { FC, useState } from 'react'
 import Lottie from 'lottie-react'
 import animation from '../assets/wired-gradient-981-consultation-hover-conversation.json'
-import animationChat from '../assets/AnimationChat.json'
-import { RiRobot2Line } from 'react-icons/ri'
-import { LuDot } from 'react-icons/lu'
 import { TbArrowBadgeRightFilled } from 'react-icons/tb'
-
+import StartPage from './UtilsChat/StartPage'
+import ChatHeader from './UtilsChat/StatusComponent'
+import { useChat } from '../Context'
+import { useChatSubmit } from './Utils/CustomHook'
 const Chat: FC = () => {
-    // State variables
-    const [status, setStatus] = useState<boolean>(false)
-    console.log(status + ' status')
-    const [word, setWord] = useState<string>('')
-    const [messages, setMessages] = useState<
-        { text: string; isUser: boolean }[]
-    >([])
-    const [isLoading, setIsLoading] = useState<boolean>(false)
+    // Global state for chat
+    const { status, isChatOpen, setIsChatOpen } = useChat()
+    const { word, setWord, messages, isLoading, handleSubmit } = useChatSubmit()
     const [showChat, setShowChat] = useState<boolean>(false)
-    const [isChatOpen, setIsChatOpen] = useState(false)
 
     // Function to handle continue button click
     const handleContinue = () => {
         setShowChat(true)
     }
-    const handleOpenChat = () => {
-        setIsChatOpen(true) // Otvara chat kada klikneš na ikonicu
+    // Function to handle chat open/close
+    const handleChat = (isOpen: boolean) => {
+        setIsChatOpen(isOpen)
     }
     // Function to handle input field changes
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setWord(event.target.value)
     }
 
-    // Function to handle form submission
-    const handleSubmit = async (event: React.FormEvent) => {
-        event.preventDefault()
-
-        if (word.trim()) {
-            setMessages([...messages, { text: word, isUser: true }])
-            setWord('')
-        }
-
-        setIsLoading(true)
-
-        // Add simulated AI response to the messages
-
-        try {
-            const response = await fetch('http://127.0.0.1:5000/search', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ word }),
-            })
-            const result = await response.json()
-
-            // Add AI response to the messages array
-            if (result.sentence && result.sentence.length > 0) {
-                setMessages((prevMessages) => [
-                    ...prevMessages,
-                    { text: result.sentence, isUser: false },
-                ])
-            } else if (result.message) {
-                // Ako postoji message, dodaj ga kao obavještenje
-                setMessages((prevMessages) => [
-                    ...prevMessages,
-                    { text: result.message, isUser: false },
-                ])
-            }
-        } catch (error) {
-            console.error('There was an error!', error)
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
-    useEffect(() => {
-        const fetchStatus = async () => {
-            try {
-                const response = await fetch('http://127.0.0.1:5000/status')
-                const data = await response.json()
-                console.log(data)
-                setTimeout(() => setStatus(data.status), 5000)
-            } catch (error) {
-                console.error('There was an error fetching the status!', error)
-                setStatus(false) // Postavite status na false u slučaju greške
-            }
-        }
-
-        fetchStatus() // Pozivamo fetchStatus odmah nakon definisanja
-
-        return () => {}
-    }, [])
-
     return (
         <>
-            <div className="lottie-container" onClick={handleOpenChat}>
+            <div className="lottie-container" onClick={() => handleChat(true)}>
                 <Lottie animationData={animation} className="lottie-icon" />
             </div>
 
@@ -101,61 +35,14 @@ const Chat: FC = () => {
                 <div className="chat-window">
                     {!showChat ? (
                         <>
-                            <div>
-                                <h1 className="text-blue-700 font-medium text-center text-xl">
-                                    Tvoj IPI asistent
-                                </h1>
-                                <p className="text-center mx-4 gap-2 mt-5 text-gray-600">
-                                    Koristeći ovaj chat, možeš pitati bilo koje
-                                    pitanje koje želiš, i ja ću ti brzo naći
-                                    odgovor.
-                                </p>
-                                <Lottie
-                                    animationData={animationChat}
-                                    className="w-1/2 mx-auto mt-8"
-                                />
-                            </div>
-                            <div className="flex justify-center mt-auto">
-                                <button
-                                    onClick={handleContinue}
-                                    className="w-full bg-blue-500 text-white py-2 px-4 mb-2 border-2 rounded-3xl border-blue-500"
-                                >
-                                    <p className="text-white">Nastavi</p>
-                                </button>
-                            </div>
+                            <StartPage onContinue={handleContinue} />
                         </>
                     ) : (
                         <>
-                            <div className="flex items-center">
-                                <RiRobot2Line
-                                    color="blue"
-                                    size={46}
-                                    className="m-2"
-                                />
-                                <div className="flex flex-col ml-2">
-                                    <p className="text-blue-800 font-medium">
-                                        IPI AI Chat
-                                    </p>
-                                    {!status ? (
-                                        <p className="text-red-700 flex items-center">
-                                            <LuDot
-                                                size={24}
-                                                className="ml-[-10px]"
-                                            />{' '}
-                                            Offline
-                                        </p>
-                                    ) : (
-                                        <p className="text-green-700 flex items-center">
-                                            <LuDot
-                                                size={24}
-                                                className="ml-[-10px]"
-                                            />{' '}
-                                            Online
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                            <hr className="border-t-2 border-black-100 my-1" />
+                            <ChatHeader
+                                status={status}
+                                onClose={() => handleChat(false)}
+                            />
                             <div className="chat-content max-h-max overflow-y-auto p-4">
                                 {messages.map((message, index) => (
                                     <p
