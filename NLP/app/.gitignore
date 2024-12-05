@@ -1,10 +1,5 @@
 __pycache__/
 __pycache__/*
-
-.idea/
-
-__pycache__/
-__pycache__/*
 *.pyc
 *.pyo
 /__pycache/*
@@ -13,4 +8,4 @@ __pycache__/*
 
 NLP/app/__pycache__
 
-NLP/app/__pycache__/
+__pycache__/

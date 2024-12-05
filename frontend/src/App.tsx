@@ -1,10 +1,12 @@
 import './App.css'
 import Chat from './components/Chat'
-
+import { ChatProvider } from './Context'
 function App() {
     return (
         <>
-            <Chat />
+            <ChatProvider>
+                <Chat />
+            </ChatProvider>
         </>
     )
 }
