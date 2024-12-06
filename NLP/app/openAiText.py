@@ -3,13 +3,14 @@ from openai import OpenAI
 import numpy as np
 from numpy import dot
 from numpy.linalg import norm
+
 from dotenv import load_dotenv
 
-# Učitavanje varijabli iz .env fajla
 load_dotenv()
 
-token = os.getenv("OPENAI_TOKEN")
-endpoint = os.getenv('ENDPOINT_OPENAI')
+
+token = os.getenv("OPEN_API_KEY_OPENAI")
+endpoint = "https://models.inference.ai.azure.com"
 model_name = "text-embedding-3-small"
 
 client = OpenAI(

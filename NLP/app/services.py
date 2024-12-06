@@ -15,8 +15,8 @@ def find_sentence_with_keywords(doc, query):
 def generate_response(user_msg):
     from mistralai import Mistral, UserMessage, SystemMessage
 
-    token = os.getenv("MISTRAL_TOKEN")
-    endpoint = os.getenv("ENDPOINT_MISTRAL")
+    token = os.getenv("OPEN_API_KEY_MISTRAL")
+    endpoint = "https://models.inference.ai.azure.com"
     model_name = "Mistral-small"
 
     client = Mistral(api_key=token, server_url=endpoint)
