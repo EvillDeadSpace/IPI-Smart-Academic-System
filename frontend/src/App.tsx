@@ -1,11 +1,20 @@
 import './App.css'
-import Chat from './components/Chat'
+
 import { ChatProvider } from './Context'
+import HeroSite from './components/HeroSite'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import NotFound from './components/Pages/NotFound'
+
 function App() {
     return (
         <>
             <ChatProvider>
-                <Chat />
+                <Router>
+                    <Routes>
+                        <Route path="/" element={<HeroSite></HeroSite>} />
+                        <Route path="*" element={<NotFound />} />{' '}
+                    </Routes>
+                </Router>
             </ChatProvider>
         </>
     )
