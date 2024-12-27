@@ -17,8 +17,8 @@ const Chat: FC = () => {
         setShowChat(true)
     }
     // Function to handle chat open/close
-    const handleChat = (isOpen: boolean) => {
-        setIsChatOpen(isOpen)
+    const handleChat = () => {
+        setIsChatOpen(!isChatOpen)
     }
     // Function to handle input field changes
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,7 +27,7 @@ const Chat: FC = () => {
 
     return (
         <>
-            <div className="lottie-container" onClick={() => handleChat(true)}>
+            <div className="lottie-container" onClick={handleChat}>
                 <Lottie animationData={animation} className="lottie-icon" />
             </div>
 
@@ -39,18 +39,15 @@ const Chat: FC = () => {
                         </>
                     ) : (
                         <>
-                            <ChatHeader
-                                status={status}
-                                onClose={() => handleChat(false)}
-                            />
+                            <ChatHeader status={status} onClose={handleChat} />
                             <div className="chat-content max-h-max overflow-y-auto p-4">
                                 {messages.map((message, index) => (
                                     <p
                                         key={index}
                                         className={`border-2 rounded-3xl p-2 m-4 ${
                                             message.isUser
-                                                ? 'text-left bg-[#3369FF] rounded-2xl rounded-tr-none text-white p-5 m-2'
-                                                : 'text-right rounded-2xl rounded-tl-none bg-[#EEEEEE]'
+                                                ? 'text-left sm:p-5 sm:m-2  p-3 m-1 bg-[#3369FF] rounded-2xl rounded-tr-none text-white'
+                                                : 'text-right sm:p-5 sm:m-2  p-3 m-1 rounded-2xl rounded-tl-none bg-[#EEEEEE]'
                                         }`}
                                     >
                                         {message.text}
