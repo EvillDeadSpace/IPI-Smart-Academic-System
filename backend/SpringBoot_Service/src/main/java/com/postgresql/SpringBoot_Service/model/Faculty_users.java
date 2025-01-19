@@ -11,15 +11,18 @@ import lombok.Setter;
 @Setter
 public class Faculty_users {
 
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  // Generiše automatski jedinstveni ID
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private String ime;
     private String prezime;
     private String email;
-    private String tipUsera; // Ako koristite ENUM, možete ga zameniti sa enum tipom
+    private String tipUsera;
+    private String password;
+
+    //GETTER AND SETTT FOR USERS BCS LOMBOK DON'T WORK
+
 
     // Getter za 'id'
     public int getId() {
@@ -39,6 +42,16 @@ public class Faculty_users {
     // Setter za 'ime'
     public void setIme(String ime) {
         this.ime = ime;
+    }
+
+    // Getter za 'ime'
+    public String getPassword() {
+        return password;
+    }
+
+    // Setter za 'ime'
+    public void getPassword(String password) {
+        this.password = password;
     }
 
     // Getter za 'prezime'
