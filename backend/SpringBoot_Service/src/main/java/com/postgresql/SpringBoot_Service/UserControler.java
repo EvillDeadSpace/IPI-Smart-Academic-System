@@ -1,10 +1,13 @@
 package com.postgresql.SpringBoot_Service;
 
+import com.postgresql.SpringBoot_Service.LoginService.LoginRequest;
 import com.postgresql.SpringBoot_Service.model.FacultyStudent;
 import com.postgresql.SpringBoot_Service.model.Faculty_users;
 import com.postgresql.SpringBoot_Service.repo.FacultyStudentRepo;
 import com.postgresql.SpringBoot_Service.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,16 +40,18 @@ public class UserControler {
             if (faculty_users.getEmail() == null || faculty_users.getEmail().isEmpty()) {
                 throw new IllegalArgumentException("Email je obavezan!");
             }
+            
 
             userRepo.save(faculty_users);
             System.out.println(faculty_users + " je dodan u bazu podataka");
 
+            //if user is student, add to faculty_student table
             if ("STUDENT".equalsIgnoreCase(faculty_users.getTipUsera())) {
                 FacultyStudent facultyStudent = new FacultyStudent();
                 // Postavi atribute za FacultyStudent
                 facultyStudent.setGodinaStudija("Student treba upisati godinu"); // primjer
                 facultyStudent.setSmjerStudija("Student treba upisati smjer"); // primjer
-                facultyStudent.setIndeks("123451"); // primjer
+                facultyStudent.setIndeks(String.valueOf(facultyStudent.getId()));
                 facultyStudent.setFacultyUser(faculty_users);
 
                 facultyStudentRepo.save(facultyStudent);
@@ -57,6 +62,8 @@ public class UserControler {
         }
 
     }
+
+    //End point for adding student
     @PostMapping("/add_student")
     public void addStudent(@RequestParam int facultyUserId, @RequestBody FacultyStudent facultyStudent) {
         Faculty_users facultyUser = userRepo.findById(facultyUserId)
@@ -78,4 +85,19 @@ public class UserControler {
             System.out.println(facultyStudent + " je dodan u tabelu faculty_student");
         }
     }
+
+
+    //endpoint to login
+    @PostMapping("/login")
+    public ResponseEntity<String> loginRequest(@RequestBody LoginRequest loginRequest ) {
+        Faculty_users user = userRepo.findByEmailAndPassword(loginRequest.getEmail(), loginRequest.getPassword());
+        if ( user != null) {
+             return ResponseEntity.ok("Login successful");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login failed");
+        }
+
+    }
+
+
 }
