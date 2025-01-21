@@ -5,6 +5,10 @@ interface ChatContextType {
     setStatus: React.Dispatch<React.SetStateAction<boolean>>
     isChatOpen: boolean
     setIsChatOpen: React.Dispatch<React.SetStateAction<boolean>>
+    studentName: string
+    setStudentName: React.Dispatch<React.SetStateAction<string>>
+    studentMail: string
+    login: (userMail: string) => void
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined)
@@ -16,6 +20,13 @@ interface ChatProviderProps {
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [status, setStatus] = useState<boolean>(false)
     const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
+    const [studentName, setStudentName] = useState<string>('')
+    const [studentMail, setStudentMail] = useState<string>('')
+
+    const login = (userMail: string) => {
+        setStudentMail(userMail)
+        localStorage.setItem('student mail', userMail)
+    }
 
     // Fetching the status from the server
     useEffect(() => {
@@ -30,7 +41,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                     setStatus(data.status) // Update status based on the response
                 }
             } catch (error) {
-                console.error('There was an error fetching the status!', error)
+                // console.error('There was an error fetching the status!', error)
                 setStatus(false) // Set status to false in case of an error
             }
         }
@@ -41,7 +52,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         // Set interval to fetch status every 5 seconds
         const interval = setInterval(() => {
             fetchStatus()
-        }, 5000) // 5000 milliseconds = 5 seconds
+        }, 100000000) // 5000 milliseconds = 5 seconds
 
         // Cleanup function to clear interval when component is unmounted
         return () => {
@@ -51,7 +62,16 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     return (
         <ChatContext.Provider
-            value={{ status, setStatus, isChatOpen, setIsChatOpen }}
+            value={{
+                status,
+                setStatus,
+                isChatOpen,
+                setIsChatOpen,
+                studentName,
+                setStudentName,
+                login,
+                studentMail,
+            }}
         >
             {children}
         </ChatContext.Provider>
