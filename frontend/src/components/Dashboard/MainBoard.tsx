@@ -1,10 +1,17 @@
 import type { FC } from 'react'
+import { useChat } from '../../Context'
 
 const MainBoard: FC = () => {
+    const { studentName } = useChat()
+    console.log(studentName)
+
     return (
         <>
             <h1 className="text-center mt-4 font-semibold text-4xl ">
                 Dashboard za studenta
+            </h1>
+            <h1 className="text-center mt-4 font-medium text-2xl ">
+                Dobro dosli {studentName}
             </h1>
             <div className="flex justify-center items-center h-screen m-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-10">

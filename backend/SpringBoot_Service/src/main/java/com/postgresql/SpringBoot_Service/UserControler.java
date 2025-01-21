@@ -8,13 +8,16 @@ import com.postgresql.SpringBoot_Service.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
+import java.util.HashMap;
+import java.util.Map;
+
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 public class UserControler {
+
 
     @Autowired
     UserRepo userRepo;
@@ -89,14 +92,18 @@ public class UserControler {
 
     //endpoint to login
     @PostMapping("/login")
-    public ResponseEntity<String> loginRequest(@RequestBody LoginRequest loginRequest ) {
+    public ResponseEntity<Map<String, String>> loginRequest(@RequestBody LoginRequest loginRequest) {
         Faculty_users user = userRepo.findByEmailAndPassword(loginRequest.getEmail(), loginRequest.getPassword());
-        if ( user != null) {
-             return ResponseEntity.ok("Login successful");
+        Map<String, String> response = new HashMap<>();
+        if (user != null) {
+            response.put("message", "Success");
+            response.put("userEmail", user.getEmail());
+            response.put("StudentName", user.getIme());
+            return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login failed");
+            response.put("message", "Login failed");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
-
     }
 
 
