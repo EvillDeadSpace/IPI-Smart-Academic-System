@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { GiHamburgerMenu } from 'react-icons/gi'
+import { useChat } from '../../Context'
 
 const Header = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -7,6 +8,10 @@ const Header = () => {
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen)
     }
+
+    const { studentMail } = useChat()
+
+    console.log(studentMail + 'test')
 
     return (
         <header className="bg-blue-500 shadow-sm sticky top-0 z-50">
@@ -31,23 +36,10 @@ const Header = () => {
                         onClick={toggleSidebar}
                     />
                 </div>
-                <div className="hidden lg:flex lg:gap-x-12  ">
-                    <div className="relative">
-                        <button
-                            type="button"
-                            className="flex text-sm/6 font-semibold text-white"
-                            aria-expanded="false"
-                        >
-                            Pocetna
-                            <svg
-                                className="size-5 flex-none text-gray-400"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                                aria-hidden="true"
-                                data-slot="icon"
-                            ></svg>
-                        </button>
-                    </div>
+                <div className="hidden lg:flex lg:gap-x-12">
+                    <a href="#" className="text-sm/6 font-semibold text-white">
+                        Pocetna
+                    </a>
                     <a href="#" className="text-sm/6 font-semibold text-white">
                         O nama
                     </a>
@@ -61,7 +53,19 @@ const Header = () => {
                         Kontakt
                     </a>
                 </div>
-                <div className="hidden sm:justify-end lg:flex lg:flex-1 lg:justify-end"></div>
+                <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+                    {studentMail ? (
+                        <div className="w-full text-center bg-blue-500 text-white font-semibold py-2 rounded-lg">
+                            {studentMail}
+                        </div>
+                    ) : (
+                        <div className="py-6">
+                            <button className="w-full text-center bg-blue-500 text-white font-semibold py-2 rounded-lg hover:bg-blue-600">
+                                Login
+                            </button>
+                        </div>
+                    )}
+                </div>
             </nav>
             <div className="lg:hidden" role="dialog" aria-modal="true">
                 {isSidebarOpen && (
@@ -89,13 +93,13 @@ const Header = () => {
                                         className="size-6"
                                         fill="none"
                                         viewBox="0 0 24 24"
-                                        stroke-width="1.5"
+                                        strokeWidth="1.5"
                                         stroke="currentColor"
                                         aria-hidden="true"
                                     >
                                         <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
                                             d="M6 18L18 6M6 6l12 12"
                                         />
                                     </svg>
@@ -104,49 +108,48 @@ const Header = () => {
                             <div className="mt-6 flow-root">
                                 <div className="-my-6 divide-y divide-gray-500/10">
                                     <div className="space-y-2 py-6">
-                                        <div className="-mx-3">
-                                            <button
-                                                type="button"
-                                                className="flex w-full items-center justify-between rounded-lg py-2 pl-3 pr-3.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-                                                aria-controls="disclosure-1"
-                                                aria-expanded="false"
-                                            >
-                                                Pocetna
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="flex w-full items-center justify-between rounded-lg py-2 pl-3 pr-3.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-                                                aria-controls="disclosure-1"
-                                                aria-expanded="false"
-                                            >
-                                                O nama
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="flex w-full items-center justify-between rounded-lg py-2 pl-3 pr-3.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-                                                aria-controls="disclosure-1"
-                                                aria-expanded="false"
-                                            >
-                                                Studijski programi
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="flex w-full items-center justify-between rounded-lg py-2 pl-3 pr-3.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-                                                aria-controls="disclosure-1"
-                                                aria-expanded="false"
-                                            >
-                                                Novosti
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="flex w-full items-center justify-between rounded-lg py-2 pl-3 pr-3.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-                                                aria-controls="disclosure-1"
-                                                aria-expanded="false"
-                                            >
-                                                Kontakt
+                                        <button
+                                            type="button"
+                                            className="flex w-full items-center justify-between rounded-lg py-2 pl-3 pr-3.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
+                                        >
+                                            Pocetna
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="flex w-full items-center justify-between rounded-lg py-2 pl-3 pr-3.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
+                                        >
+                                            O nama
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="flex w-full items-center justify-between rounded-lg py-2 pl-3 pr-3.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
+                                        >
+                                            Studijski programi
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="flex w-full items-center justify-between rounded-lg py-2 pl-3 pr-3.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
+                                        >
+                                            Novosti
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="flex w-full items-center justify-between rounded-lg py-2 pl-3 pr-3.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
+                                        >
+                                            Kontakt
+                                        </button>
+                                    </div>
+                                    {studentMail ? (
+                                        <div className="w-full text-center bg-blue-500 text-white font-semibold py-2 rounded-lg hover:bg-blue-600">
+                                            {studentMail}
+                                        </div>
+                                    ) : (
+                                        <div className="py-6">
+                                            <button className="w-full text-center bg-blue-500 text-white font-semibold py-2 rounded-lg hover:bg-blue-600">
+                                                Login
                                             </button>
                                         </div>
-                                    </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
