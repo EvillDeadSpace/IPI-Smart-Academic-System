@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-
+import { useNavigate } from 'react-router-dom'
 interface ChatContextType {
     status: boolean
     setStatus: React.Dispatch<React.SetStateAction<boolean>>
@@ -8,7 +8,8 @@ interface ChatContextType {
     studentName: string
     setStudentName: React.Dispatch<React.SetStateAction<string>>
     studentMail: string
-    login: (userMail: string) => void
+    login: (userMail: string, userName: string) => void
+    logout: (navigate: ReturnType<typeof useNavigate>) => void
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined)
@@ -23,11 +24,34 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [studentName, setStudentName] = useState<string>('')
     const [studentMail, setStudentMail] = useState<string>('')
 
-    const login = (userMail: string) => {
+    //useNavigate
+
+    // check user if login
+    useEffect(() => {
+        const storedMail = localStorage.getItem('student mail')
+        const storedName = localStorage.getItem('student name')
+        if (storedMail) {
+            setStudentMail(storedMail)
+            setStudentName(storedName || '')
+        }
+    }, [])
+
+    // Function to login the user
+    const login = (userMail: string, userName: string) => {
         setStudentMail(userMail)
+        setStudentName(userName)
         localStorage.setItem('student mail', userMail)
+        localStorage.setItem('student name', userName)
     }
 
+    // Function to logout the user
+    const logout = (nav: ReturnType<typeof useNavigate>) => {
+        setStudentMail('')
+        setStudentName('')
+        localStorage.removeItem('student mail')
+        localStorage.removeItem('studentName')
+        nav('/')
+    }
     // Fetching the status from the server
     useEffect(() => {
         // Function to fetch status from the backend
@@ -41,7 +65,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                     setStatus(data.status) // Update status based on the response
                 }
             } catch (error) {
-                // console.error('There was an error fetching the status!', error)
+                console.error('There was an error fetching the status!', error)
                 setStatus(false) // Set status to false in case of an error
             }
         }
@@ -71,6 +95,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 setStudentName,
                 login,
                 studentMail,
+                logout,
             }}
         >
             {children}

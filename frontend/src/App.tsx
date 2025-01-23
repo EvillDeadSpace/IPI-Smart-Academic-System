@@ -10,20 +10,18 @@ import Header from './components/Header/Header'
 
 function App() {
     return (
-        <>
-            <ChatProvider>
+        <ChatProvider>
+            <Router>
                 <Header />
-                <Router>
-                    <Routes>
-                        <Route path="/samojaznam" element={<Header></Header>} />
-                        <Route path="/" element={<HeroSite></HeroSite>} />
-                        <Route path="*" element={<NotFound />} />{' '}
-                        <Route path="/dashboard" element={<MainBoard />} />{' '}
-                        <Route path="/login" element={<Login />} />
-                    </Routes>
-                </Router>
-            </ChatProvider>
-        </>
+                <Routes>
+                    <Route path="/samojaznam" element={<Header />} />
+                    <Route path="/" element={<HeroSite />} />
+                    <Route path="*" element={<NotFound />} />
+                    <Route path="/dashboard" element={<MainBoard />} />
+                    <Route path="/login" element={<Login />} />
+                </Routes>
+            </Router>
+        </ChatProvider>
     )
 }
 
