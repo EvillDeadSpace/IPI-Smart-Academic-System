@@ -1,4 +1,4 @@
-import { FC, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useChat } from '../../Context'
 
@@ -8,11 +8,22 @@ const Login: FC = () => {
     const [message, setMessage] = useState<string>('')
     const [loading, setLoading] = useState<boolean>(false)
 
-    //navigation
+    //nav
     const nav = useNavigate()
 
     //context
-    const { setStudentName, login } = useChat()
+    const { setStudentName, login, studentMail } = useChat()
+
+    // Chech if user is already logged in
+    useEffect(() => {
+        if (studentMail) {
+            alert('You are already logged in.')
+            setMessage('You are already logged in.')
+            setTimeout(() => {
+                nav('/dashboard')
+            }, 1000) // Redirect after 3 seconds
+        }
+    }, [studentMail, nav])
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
@@ -33,7 +44,7 @@ const Login: FC = () => {
             console.log(data)
             if (data.message === 'Success') {
                 setStudentName(data.StudentName)
-                login(data.userEmail)
+                login(data.userEmail, data.StudentName)
                 nav('/dashboard')
             }
         } else {
