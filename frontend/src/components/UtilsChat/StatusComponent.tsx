@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import { FC } from 'react'
 import { IoIosClose } from 'react-icons/io'
 import { LuDot } from 'react-icons/lu'
 import { RiRobot2Line } from 'react-icons/ri'

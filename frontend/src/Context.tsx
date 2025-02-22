@@ -8,8 +8,23 @@ interface ChatContextType {
     studentName: string
     setStudentName: React.Dispatch<React.SetStateAction<string>>
     studentMail: string
-    login: (userMail: string, userName: string) => void
+    setStudentMail: React.Dispatch<React.SetStateAction<string>>
+    userType: string
+    setUserType: React.Dispatch<React.SetStateAction<string>>
+    login: (userMail: string, userName: string, userType: string) => void
     logout: (navigate: ReturnType<typeof useNavigate>) => void
+    userDetails: UserDetails | null
+    setUserDetails: (details: UserDetails | null) => void
+}
+
+interface UserDetails {
+    ime: string
+    prezime: string
+    email: string
+    tipUsera: string
+    indeks?: string
+    godinaStudija?: string
+    smjerStudija?: string
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined)
@@ -23,33 +38,63 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
     const [studentName, setStudentName] = useState<string>('')
     const [studentMail, setStudentMail] = useState<string>('')
-
+    const [userType, setUserType] = useState<string>('')
+    const [userDetails, setUserDetails] = useState<UserDetails | null>(null)
     //useNavigate
 
     // check user if login
     useEffect(() => {
         const storedMail = localStorage.getItem('student mail')
         const storedName = localStorage.getItem('student name')
+        const storedUserType = localStorage.getItem('userType')
+
         if (storedMail) {
             setStudentMail(storedMail)
             setStudentName(storedName || '')
+            setUserType(storedUserType || '')
         }
     }, [])
 
     // Function to login the user
-    const login = (userMail: string, userName: string) => {
+    const login = (userMail: string, userName: string, userType: string) => {
         setStudentMail(userMail)
         setStudentName(userName)
+        setUserType(userType)
         localStorage.setItem('student mail', userMail)
         localStorage.setItem('student name', userName)
+        localStorage.setItem('userType', userType)
+    }
+
+    //fetching user details for dashboard
+    useEffect(() => {
+        const storedMail = localStorage.getItem('student mail')
+        if (storedMail) {
+            fetchUserDetails(storedMail)
+        }
+    }, [studentMail])
+
+    const fetchUserDetails = async (email: string) => {
+        try {
+            const response = await fetch(`http://localhost:8080/user/${email}`)
+            if (response.ok) {
+                const details = await response.json()
+                setUserDetails(details)
+                console.log(details + 'details')
+                localStorage.setItem('userDetails', JSON.stringify(details))
+            }
+        } catch (error) {
+            console.error('Error fetching user details:', error)
+        }
     }
 
     // Function to logout the user
     const logout = (nav: ReturnType<typeof useNavigate>) => {
         setStudentMail('')
         setStudentName('')
+        setUserType('')
         localStorage.removeItem('student mail')
-        localStorage.removeItem('studentName')
+        localStorage.removeItem('student name')
+        localStorage.removeItem('userType')
         nav('/')
     }
     // Fetching the status from the server
@@ -76,7 +121,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         // Set interval to fetch status every 5 seconds
         const interval = setInterval(() => {
             fetchStatus()
-        }, 100000000) // 5000 milliseconds = 5 seconds
+        }, 5000000) // 5000 milliseconds = 5 seconds
 
         // Cleanup function to clear interval when component is unmounted
         return () => {
@@ -95,7 +140,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 setStudentName,
                 login,
                 studentMail,
+                setStudentMail,
                 logout,
+                userType,
+                setUserType,
+                userDetails,
+                setUserDetails,
             }}
         >
             {children}

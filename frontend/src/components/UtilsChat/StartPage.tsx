@@ -1,4 +1,6 @@
-import Lottie from 'lottie-react'
+import { lazy, Suspense } from 'react'
+// Lazy load Lottie
+const Lottie = lazy(() => import('lottie-react'))
 import animationRobot from '../../assets/AnimationChat.json'
 
 interface StartPageProps {
@@ -16,10 +18,12 @@ function StartPage({ onContinue }: StartPageProps) {
                     Koristeći ovaj chat, možeš pitati bilo koje pitanje koje
                     želiš, i ja ću ti brzo naći odgovor.
                 </p>
-                <Lottie
-                    animationData={animationRobot}
-                    className="w-1/2 mx-auto mt-8"
-                />
+                <Suspense fallback={<div>Loading...</div>}>
+                    <Lottie
+                        animationData={animationRobot}
+                        className="w-1/2 mx-auto mt-8"
+                    />
+                </Suspense>
             </div>
             <div className="flex justify-center mt-auto">
                 <button

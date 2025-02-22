@@ -20,5 +20,6 @@
   },
   "[svg]": {
     "editor.defaultFormatter": "jock.svg"
-  }
+  },
+  "discord.enabled": true
 }

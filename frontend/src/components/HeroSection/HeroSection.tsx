@@ -1,8 +1,17 @@
 import type { FC } from 'react'
-
+import AnimatedContent from '../ui/animation-content'
 const HeroSection: FC<object> = () => {
     return (
-        <>
+        <AnimatedContent
+            distance={150}
+            direction="horizontal"
+            reverse={false}
+            config={{ tension: 80, friction: 20 }}
+            initialOpacity={0.2}
+            animateOpacity
+            scale={1.1}
+            threshold={0.2}
+        >
             <section className="text-gray-600 body-font h-screen w-screen flex justify-center items-center">
                 <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
                     <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6 mb-10 md:mb-0">
@@ -30,7 +39,7 @@ const HeroSection: FC<object> = () => {
                     </div>
                 </div>
             </section>
-        </>
+        </AnimatedContent>
     )
 }
 

@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react'
+import { FC, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useChat } from '../../Context'
 
@@ -8,48 +8,65 @@ const Login: FC = () => {
     const [message, setMessage] = useState<string>('')
     const [loading, setLoading] = useState<boolean>(false)
 
-    //nav
+    // Navigation
     const nav = useNavigate()
 
-    //context
-    const { setStudentName, login, studentMail } = useChat()
-
-    // Chech if user is already logged in
-    useEffect(() => {
-        if (studentMail) {
-            alert('You are already logged in.')
-            setMessage('You are already logged in.')
-            setTimeout(() => {
-                nav('/dashboard')
-            }, 1000) // Redirect after 3 seconds
-        }
-    }, [studentMail, nav])
+    // Context
+    const { setStudentName, login, setUserType } = useChat()
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
+        setLoading(true)
+        setMessage('')
 
-        const response = await fetch('http://localhost:8080/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password,
-            }),
-        })
+        try {
+            const response = await fetch('http://localhost:8080/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                }),
+            })
 
-        if (response.ok) {
+            if (!response.ok) {
+                throw new Error('Network response was not ok')
+            }
+
             const data = await response.json()
             console.log(data)
-            if (data.message === 'Success') {
-                setStudentName(data.StudentName)
-                login(data.userEmail, data.StudentName)
-                nav('/dashboard')
+
+            if (data.message !== 'Success') {
+                throw new Error('Login failed: ' + data.message)
             }
-        } else {
-            const errorData = await response.json()
-            console.log(errorData) //
+
+            if (!data.userEmail || !data.StudentName || !data.TipUsera) {
+                throw new Error('Invalid response data')
+            }
+
+            const isProfessor = data.TipUsera === 'PROFESOR'
+            setUserType(data.TipUsera) // Set user type instead of isProfessor
+            setStudentName(data.StudentName)
+            login(data.userEmail, data.StudentName, data.TipUsera)
+
+            setMessage('Login successful! Redirecting...')
+
+            setTimeout(() => {
+                if (isProfessor) {
+                    nav('/profesor') // Redirect to professor dashboard
+                } else {
+                    nav('/dashboard') // Redirect to student dashboard
+                }
+            }, 1000) // 1 second delay
+        } catch (error) {
+            console.error('Došlo je do greške:', error)
+            setMessage(
+                'Login failed. Please check your credentials and try again.'
+            )
+        } finally {
+            setLoading(false)
         }
     }
 

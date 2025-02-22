@@ -6,6 +6,12 @@ import { Link, useNavigate } from 'react-router-dom'
 const Header = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
+    const [isOpen, setIsOpen] = useState(false)
+
+    const toggleMenu = () => {
+        setIsOpen(!isOpen)
+    }
+
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen)
     }
@@ -15,7 +21,7 @@ const Header = () => {
     const { studentMail, logout } = useChat()
 
     return (
-        <header className="bg-blue-500 shadow-sm sticky top-0 z-50">
+        <header className="bg-blue-500 shadow-sm sticky top-0 z-50 ">
             <nav
                 className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8"
                 aria-label="Global"
@@ -69,13 +75,30 @@ const Header = () => {
                 <div className="hidden lg:flex lg:flex-1 lg:justify-end">
                     {studentMail ? (
                         <div className="w-full text-center bg-blue-500 text-white font-semibold py-2 rounded-lg">
-                            {studentMail}
-                            <button
-                                onClick={() => logout(nav)}
-                                className="w-14 ml-4 text-center bg-blue-500 text-white font-semibold py-2 rounded-lg hover:bg-red-600"
-                            >
-                                Odjava
-                            </button>
+                            <div className="relative inline-block">
+                                <button
+                                    onClick={toggleMenu}
+                                    className="text-white font-semibold py-2 rounded-lg"
+                                >
+                                    {studentMail}
+                                </button>
+                                {isOpen && (
+                                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg">
+                                        <Link
+                                            to="/dashboard"
+                                            className="block px-4 py-2 text-gray-800 hover:bg-gray-200 rounded-lg"
+                                        >
+                                            Dashboard
+                                        </Link>
+                                        <button
+                                            onClick={() => logout(nav)}
+                                            className="block w-full text-center px-4 py-2 text-gray-800 rounded-lg hover:bg-gray-200"
+                                        >
+                                            Odjava
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     ) : (
                         <div className="py-6">
