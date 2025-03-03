@@ -2,10 +2,12 @@ package com.postgresql.SpringBoot_Service;
 
 import com.postgresql.SpringBoot_Service.model.*;
 import com.postgresql.SpringBoot_Service.repo.*;
+import com.postgresql.SpringBoot_Service.util.GradeCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,17 +17,14 @@ import java.util.Map;
 public class ExamController {
 
     @Autowired
+    private ExamRepo examRepo;
+
+    @Autowired
     private FacultyStudentRepo facultyStudentRepo;
 
     @Autowired
-    private ExamRepo examRepo;
-    
-    @Autowired
-    private CourseRepo courseRepo;
-    
-    @Autowired
     private StudentExamRegistrationRepo registrationRepo;
-    
+
     @Autowired
     private FacultyProfessorRepo professorRepo;
 
@@ -48,9 +47,9 @@ public class ExamController {
     // Register student for exam
     @PostMapping("/{examId}/register")
     public ResponseEntity<?> registerForExam(
-            @PathVariable Integer examId,
-            @RequestBody Map<String, Integer> request) {
-        Integer studentId = request.get("studentId");
+            @PathVariable Long examId,
+            @RequestBody Map<String, Long> request) {
+        Long studentId = request.get("studentId");
         
         FacultyExam exam = examRepo.findById(examId)
             .orElseThrow(() -> new RuntimeException("Exam not found"));
@@ -67,6 +66,7 @@ public class ExamController {
         registration.setStudent(student);
         registration.setExam(exam);
         registration.setRegistrationDate(LocalDateTime.now());
+        registration.setStatus(StudentExamRegistration.RegistrationStatus.REGISTERED);
 
         return ResponseEntity.ok(registrationRepo.save(registration));
     }
@@ -74,15 +74,15 @@ public class ExamController {
     // Get student's registered exams
     @GetMapping("/student/{studentId}")
     public ResponseEntity<List<StudentExamRegistration>> getStudentExams(
-            @PathVariable Integer studentId) {
+            @PathVariable Long studentId) {
         FacultyStudent student = facultyStudentRepo.findById(studentId)
             .orElseThrow(() -> new RuntimeException("Student not found"));
         return ResponseEntity.ok(registrationRepo.findByStudent(student));
     }
 
     // Get professor's exams
-      @GetMapping("/professor/{professorId}")
-    public ResponseEntity<List<FacultyExam>> getProfessorExams(@PathVariable Integer professorId) {
+    @GetMapping("/professor/{professorId}")
+    public ResponseEntity<List<FacultyExam>> getProfessorExams(@PathVariable Long professorId) {
         FacultyProfessor professor = professorRepo.findById(professorId)
             .orElseThrow(() -> new RuntimeException("Professor not found"));
         return ResponseEntity.ok(examRepo.findByProfessor(professor));
@@ -91,18 +91,42 @@ public class ExamController {
     // Update exam grade
     @PutMapping("/{registrationId}/grade")
     public ResponseEntity<?> updateGrade(
-            @PathVariable Integer registrationId,
+            @PathVariable Long registrationId,
             @RequestBody Map<String, Integer> request) {
-        Integer grade = request.get("grade");
-        
-        StudentExamRegistration registration = registrationRepo.findById(registrationId)
-            .orElseThrow(() -> new RuntimeException("Registration not found"));
+        try {
+            Integer points = request.get("points");
+            if (points == null || points < 0 || points > 100) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Points must be between 0 and 100"));
+            }
             
-        registration.setGrade(grade);
-        registration.setStatus(grade >= 6 ? 
-            StudentExamRegistration.RegistrationStatus.PASSED : 
-            StudentExamRegistration.RegistrationStatus.FAILED);
+            StudentExamRegistration registration = registrationRepo.findById(registrationId)
+                .orElseThrow(() -> new RuntimeException("Registration not found"));
+                
+            // Calculate grade from points
+            int grade = GradeCalculator.calculateGrade(points);
+            boolean isCompleted = GradeCalculator.isSubjectCompleted(grade);
+            String gradeDescription = GradeCalculator.getGradeDescription(points);
+                
+            registration.setPoints(points);
+            registration.setGrade(grade);
+            registration.setStatus(isCompleted ? 
+                StudentExamRegistration.RegistrationStatus.PASSED : 
+                StudentExamRegistration.RegistrationStatus.FAILED);
+                
+            registration = registrationRepo.save(registration);
             
-        return ResponseEntity.ok(registrationRepo.save(registration));
+            Map<String, Object> response = new HashMap<>();
+            response.put("points", points);
+            response.put("grade", grade);
+            response.put("status", registration.getStatus());
+            response.put("description", gradeDescription);
+            response.put("completed", isCompleted);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("error", e.getMessage()));
+        }
     }
 }

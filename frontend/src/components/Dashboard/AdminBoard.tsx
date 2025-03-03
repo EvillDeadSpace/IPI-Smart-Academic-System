@@ -25,8 +25,7 @@ const AdminPanel: React.FC = () => {
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
-        console.log(formData)
-        e.preventDefault() // Spriječi defaultno ponašanje forme
+        e.preventDefault()
 
         try {
             const response = await fetch('http://localhost:8080/add_user', {
@@ -37,8 +36,12 @@ const AdminPanel: React.FC = () => {
                 body: JSON.stringify(formData),
             })
 
+            const data = await response.json()
+
             if (response.ok) {
-                alert('Korisnik uspješno dodan!')
+                alert(
+                    `Korisnik uspješno dodan! ${formData.tipUsera === 'STUDENT' ? '(Enrollment je cleared)' : ''}`
+                )
                 closeModal()
                 setFormData({
                     ime: '',
@@ -46,9 +49,11 @@ const AdminPanel: React.FC = () => {
                     password: '',
                     email: '',
                     tipUsera: 'STUDENT',
-                }) // Reset form
+                })
             } else {
-                alert('Došlo je do greške pri dodavanju korisnika.')
+                alert(
+                    `Greška: ${data.error || 'Došlo je do greške pri dodavanju korisnika.'}`
+                )
             }
         } catch (error) {
             console.error('Greška:', error)

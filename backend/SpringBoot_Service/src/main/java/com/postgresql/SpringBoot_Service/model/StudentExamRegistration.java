@@ -6,33 +6,32 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "student_exam_registrations")
+@Table(name = "student_exam_registration")
 public class StudentExamRegistration {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;  // Changed from Integer to Long
 
     @ManyToOne
-    @JoinColumn(name = "student_id", nullable = false)
+    @JoinColumn(name = "student_id")
     private FacultyStudent student;
 
     @ManyToOne
-    @JoinColumn(name = "exam_id", nullable = false)
+    @JoinColumn(name = "exam_id")
     private FacultyExam exam;
 
-    @Column(name = "registration_date", nullable = false)
-    private LocalDateTime registrationDate;
-
+    private Integer points;
     private Integer grade;
 
+    @Column(name = "registration_date")
+    private LocalDateTime registrationDate;
+
     @Enumerated(EnumType.STRING)
-    private RegistrationStatus status = RegistrationStatus.REGISTERED;
+    private RegistrationStatus status;
 
     public enum RegistrationStatus {
         REGISTERED,
-        WITHDRAWN,
-        COMPLETED,
-        FAILED,
-        PASSED
+        PASSED,
+        FAILED
     }
 }

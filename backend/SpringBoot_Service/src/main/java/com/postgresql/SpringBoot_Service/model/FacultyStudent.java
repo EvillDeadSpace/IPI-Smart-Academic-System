@@ -1,44 +1,42 @@
 package com.postgresql.SpringBoot_Service.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 @Entity
-@Data
-@Getter
-@Setter
+@Table(name = "faculty_student")
 public class FacultyStudent {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
-    private String godinaStudija;
-    private String smjerStudija;
-    private String indeks;
+    private Long id;
 
     @OneToOne
-    @JoinColumn(name = "faculty_user_id", referencedColumnName = "id")
+    @JoinColumn(name = "faculty_user_id")
     private Faculty_users facultyUser;
 
-    // Getter i Setter metode
+    @Column(name = "smjer_studija")
+    private String smjerStudija;
 
-    public int getId() {
+    @Column(name = "indeks")
+    private String indeks;
+
+    @Column(name = "godina_studija")
+    private String godinaStudija;
+
+    // Getters and setters
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getGodinaStudija() {
-        return godinaStudija;
+    public Faculty_users getFacultyUser() {
+        return facultyUser;
     }
 
-    public void setGodinaStudija(String godinaStudija) {
-        this.godinaStudija = godinaStudija;
+    public void setFacultyUser(Faculty_users facultyUser) {
+        this.facultyUser = facultyUser;
     }
 
     public String getSmjerStudija() {
@@ -57,11 +55,11 @@ public class FacultyStudent {
         this.indeks = indeks;
     }
 
-    public Faculty_users getFacultyUser() {
-        return facultyUser;
+    public String getGodinaStudija() {
+        return godinaStudija;
     }
 
-    public void setFacultyUser(Faculty_users facultyUser) {
-        this.facultyUser = facultyUser;
+    public void setGodinaStudija(String godinaStudija) {
+        this.godinaStudija = godinaStudija;
     }
 }

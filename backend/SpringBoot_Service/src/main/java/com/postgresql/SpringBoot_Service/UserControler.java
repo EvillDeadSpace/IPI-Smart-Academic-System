@@ -1,10 +1,7 @@
 package com.postgresql.SpringBoot_Service;
 
 import com.postgresql.SpringBoot_Service.LoginService.LoginRequest;
-import com.postgresql.SpringBoot_Service.model.FacultyExam;
-import com.postgresql.SpringBoot_Service.model.FacultyProfessor;
-import com.postgresql.SpringBoot_Service.model.FacultyStudent;
-import com.postgresql.SpringBoot_Service.model.Faculty_users;
+import com.postgresql.SpringBoot_Service.model.*;
 import com.postgresql.SpringBoot_Service.repo.ExamRepo;
 import com.postgresql.SpringBoot_Service.repo.FacultyProfessorRepo;
 import com.postgresql.SpringBoot_Service.repo.FacultyStudentRepo;
@@ -14,10 +11,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import com.postgresql.SpringBoot_Service.repo.EnrollmentRepo;
+import com.postgresql.SpringBoot_Service.repo.GradeRepo;
+import com.postgresql.SpringBoot_Service.repo.SubjectRepo;
+import com.postgresql.SpringBoot_Service.model.Subject;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 public class UserControler {
@@ -32,9 +35,24 @@ public class UserControler {
     @Autowired
     FacultyStudentRepo facultyStudentRepo;
 
+    @Autowired
+    EnrollmentRepo enrollmentRepo;
+
+    @Autowired
+    private GradeRepo gradeRepo;
+
+    @Autowired
+    private SubjectRepo subjectRepo;
+
     @PostMapping("/add_user")
-    public void addUser(@RequestBody Faculty_users faculty_users) {
-        if (faculty_users != null) {
+    @Transactional
+    public ResponseEntity<?> addUser(@RequestBody Faculty_users faculty_users) {
+        try {
+            if (faculty_users == null) {
+                throw new IllegalArgumentException("Faculty_users objekat je null!");
+            }
+
+            // Validate user data
             if (userRepo.existsByEmail(faculty_users.getEmail())) {
                 throw new IllegalArgumentException("Email je već u upotrebi!");
             }
@@ -51,31 +69,40 @@ public class UserControler {
                 throw new IllegalArgumentException("Email je obavezan!");
             }
             
-
+            // Save the user
             userRepo.save(faculty_users);
-            System.out.println(faculty_users + " je dodan u bazu podataka");
 
-            //if user is student, add to faculty_student table
+            // If it's a student, create basic student record and clear any existing enrollment
             if ("STUDENT".equalsIgnoreCase(faculty_users.getTipUsera())) {
                 FacultyStudent facultyStudent = new FacultyStudent();
-                // Postavi atribute za FacultyStudent
-                facultyStudent.setGodinaStudija("Student treba upisati godinu"); // primjer
-                facultyStudent.setSmjerStudija("Student treba upisati smjer"); // primjer
-                facultyStudent.setIndeks(String.valueOf(facultyStudent.getId()));
                 facultyStudent.setFacultyUser(faculty_users);
+                facultyStudent.setIndeks(String.valueOf(facultyStudent.getId()));
+                facultyStudent = facultyStudentRepo.save(facultyStudent);
 
-                facultyStudentRepo.save(facultyStudent);
-                System.out.println(facultyStudent + " je dodan u tabelu faculty_student");
+                // Clear any existing enrollment for this student
+                Optional<StudentEnrollment> existingEnrollment = enrollmentRepo.findByStudent(facultyStudent);
+                existingEnrollment.ifPresent(enrollment -> enrollmentRepo.delete(enrollment));
             }
-        } else {
-            throw new IllegalArgumentException("Faculty_users objekat je null!");
-        }
 
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Korisnik uspješno dodan");
+            response.put("userId", faculty_users.getId());
+            response.put("email", faculty_users.getEmail());
+            response.put("tipUsera", faculty_users.getTipUsera());
+            response.put("status", "enrollment_cleared");
+
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", "Došlo je do greške: " + e.getMessage()));
+        }
     }
 
     //End point for adding student
     @PostMapping("/add_student")
-    public void addStudent(@RequestParam int facultyUserId, @RequestBody FacultyStudent facultyStudent) {
+    public void addStudent(@RequestParam Long facultyUserId, @RequestBody FacultyStudent facultyStudent) {
         Faculty_users facultyUser = userRepo.findById(facultyUserId)
                 .orElseThrow(() -> new IllegalArgumentException("Faculty_user sa datim ID ne postoji!"));
 
@@ -138,7 +165,7 @@ public class UserControler {
     }
 
     @PostMapping("/add_professor")
-    public ResponseEntity<?> addProfessor(@RequestParam int facultyUserId, @RequestBody FacultyProfessor professor) {
+    public ResponseEntity<?> addProfessor(@RequestParam Long facultyUserId, @RequestBody FacultyProfessor professor) {
         try {
             Faculty_users facultyUser = userRepo.findById(facultyUserId)
                     .orElseThrow(() -> new IllegalArgumentException("Faculty_user sa datim ID ne postoji!"));
@@ -192,17 +219,20 @@ public class UserControler {
     }
 
     @PutMapping("/professors/{id}")
-    public ResponseEntity<?> updateProfessor(@PathVariable int id, @RequestBody Map<String, String> updates) {
+    public ResponseEntity<?> updateProfessor(@PathVariable long id, @RequestBody Map<String, Object> updates) {
         try {
             FacultyProfessor professor = professorRepo.findById(id)
                     .orElseThrow(() -> new RuntimeException("Professor not found with id: " + id));
 
-            // Update professor details
             if (updates.containsKey("titula")) {
-                professor.setTitula(updates.get("titula"));
+                professor.setTitula((String) updates.get("titula"));
             }
             if (updates.containsKey("kabinet")) {
-                professor.setKabinet(updates.get("kabinet"));
+                professor.setKabinet((String) updates.get("kabinet"));
+            }
+            if (updates.containsKey("subjects")) {
+                List<String> subjects = (List<String>) updates.get("subjects");
+                professor.setSubjects(subjects);
             }
 
             professorRepo.save(professor);
@@ -212,6 +242,47 @@ public class UserControler {
             response.put("professor", professor);
             
             return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/students/{studentId}/points")
+    public ResponseEntity<?> givePointsToStudent(
+        @PathVariable Long studentId,  // Changed from int to Long
+        @RequestBody Map<String, Object> request
+    ) {
+        try {
+            Integer points = (Integer) request.get("points");
+            Long subjectId = Long.valueOf(((Integer) request.get("subjectId")));  // Convert to Long
+            Long professorId = Long.valueOf(((Integer) request.get("professorId")));  // Convert to Long
+
+            // Validate points
+            if (points < 0 || points > 100) {
+                return ResponseEntity.badRequest().body("Points must be between 0 and 100");
+            }
+
+            // Find the student
+            FacultyStudent student = facultyStudentRepo.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+            // Find the professor
+            FacultyProfessor professor = professorRepo.findById(professorId)
+                .orElseThrow(() -> new RuntimeException("Professor not found"));
+
+            // Find the subject
+            Subject subject = subjectRepo.findById(subjectId)
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
+
+            // Create and save the grade
+            Grade grade = new Grade();
+            grade.setStudent(student);
+            grade.setProfessor(professor);
+            grade.setSubject(subject);
+            grade.setPoints(points);
+            gradeRepo.save(grade);
+
+            return ResponseEntity.ok(Map.of("message", "Points updated successfully"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

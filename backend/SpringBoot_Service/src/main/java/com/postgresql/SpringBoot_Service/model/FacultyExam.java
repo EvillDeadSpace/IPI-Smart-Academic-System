@@ -8,7 +8,7 @@ public class FacultyExam {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;  // Changed from Long to Integer
+    private Long id;  // Changed from Integer to Long
 
     private String subject;
     private LocalDateTime examTime;
@@ -19,11 +19,11 @@ public class FacultyExam {
     private FacultyProfessor professor;
 
     // Getters and Setters
-    public Integer getId() {  // Changed from Long to Integer
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {  // Changed from Long to Integer
+    public void setId(Long id) {
         this.id = id;
     }
 

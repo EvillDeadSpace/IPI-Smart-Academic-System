@@ -6,7 +6,7 @@ import com.postgresql.SpringBoot_Service.model.FacultyExam;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
-public interface StudentExamRegistrationRepo extends JpaRepository<StudentExamRegistration, Integer > {
+public interface StudentExamRegistrationRepo extends JpaRepository<StudentExamRegistration, Long> {
     List<StudentExamRegistration> findByStudent(FacultyStudent student);
     List<StudentExamRegistration> findByExam(FacultyExam exam);
     boolean existsByStudentAndExam(FacultyStudent student, FacultyExam exam);

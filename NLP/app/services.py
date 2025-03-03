@@ -22,6 +22,7 @@ def generate_response(user_msg):
     client = Mistral(api_key=token, server_url=endpoint)
 
 
+    #Dodati jos jedan jezik zavisnosti od unosa
     response = client.chat.complete(
         model=model_name,
         messages=[
