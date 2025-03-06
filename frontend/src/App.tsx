@@ -95,6 +95,7 @@ function AppContent() {
     const location = useLocation()
     const hideHeaderPaths = [
         '/dashboard',
+        '/profesor',
         '/dashboard/profile',
         '/dashboard/settings',
     ] // Add paths where the header should be hidden

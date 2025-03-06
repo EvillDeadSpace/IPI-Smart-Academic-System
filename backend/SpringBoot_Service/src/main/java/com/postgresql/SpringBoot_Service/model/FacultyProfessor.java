@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.ArrayList;
 
 @Entity
+@Table(name = "faculty_professors")
 public class FacultyProfessor {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id;  // Remove @GeneratedValue since we're using @MapsId
 
     private Long predmetId;
     private String titula; // Dodatni atribut
@@ -22,9 +22,14 @@ public class FacultyProfessor {
     @JoinColumn(name = "id")
     private Faculty_users korisnik;
 
+    @Column(name = "setup_completed")
+    private boolean setupCompleted = false;
+
     @ElementCollection
-    @CollectionTable(name = "professor_subjects", 
-                    joinColumns = @JoinColumn(name = "professor_id"))
+    @CollectionTable(
+        name = "professor_subjects",
+        joinColumns = @JoinColumn(name = "professor_id")
+    )
     @Column(name = "subject")
     private List<String> subjects = new ArrayList<>();
 
@@ -70,10 +75,18 @@ public class FacultyProfessor {
     }
 
     public List<String> getSubjects() {
-        return subjects;
+        return subjects != null ? subjects : new ArrayList<>();
     }
 
     public void setSubjects(List<String> subjects) {
-        this.subjects = subjects;
+        this.subjects = subjects != null ? subjects : new ArrayList<>();
+    }
+
+    public boolean isSetupCompleted() {
+        return setupCompleted;
+    }
+
+    public void setSetupCompleted(boolean setupCompleted) {
+        this.setupCompleted = setupCompleted;
     }
 }

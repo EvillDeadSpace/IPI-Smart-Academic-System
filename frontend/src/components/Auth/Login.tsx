@@ -51,6 +51,11 @@ const Login: FC = () => {
             setStudentName(data.StudentName)
             login(data.userEmail, data.StudentName, data.TipUsera)
 
+            // Add this after successful login
+            console.log('Login response:', data)
+            console.log('User email:', data.userEmail)
+            console.log('User type:', data.TipUsera)
+
             setMessage('Login successful! Redirecting...')
 
             setTimeout(() => {
