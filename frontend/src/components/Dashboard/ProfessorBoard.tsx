@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import './ProfessorBoard.css' // We'll create this next
 import { useChat } from '../../Context'
+import {
+    IconChalkboard,
+    IconUsers,
+    IconClipboardList,
+    IconUserCircle,
+    IconCalendarEvent,
+} from '@tabler/icons-react'
 
 interface Exam {
     id?: number
     subject: string
     examTime: string
     classroom: string
-    maxPoints: number // Added this field
+    maxPoints: number
     professor?: {
         id: number
     }
@@ -18,7 +24,7 @@ interface Professor {
     id?: number
     titula: string
     kabinet: string
-    subjects: string[] // Add subjects array
+    subjects: string[]
 }
 
 interface GradeSubmission {
@@ -39,106 +45,51 @@ interface SubjectStudents {
     [key: string]: Student[]
 }
 
+interface SetupModalProps {
+    isOpen: boolean
+    onClose: () => void
+    onSubmit: (subjects: string[]) => Promise<void>
+    availableSubjects: string[]
+}
+
 const ProfessorBoard: React.FC = () => {
-    const { userType, studentMail } = useChat()
+    const { userType, studentMail, setStudentMail } = useChat()
     const navigate = useNavigate()
-
-    useEffect(() => {
-        // Fetch professor data
-        const fetchProfessorData = async () => {
-            try {
-                const response = await fetch(
-                    `http://localhost:8080/professors/email/${studentMail}`
-                )
-                if (response.ok) {
-                    const data = await response.json()
-                    setProfessorId(data.id)
-                } else {
-                    throw new Error('Failed to fetch professor data')
-                }
-            } catch (error) {
-                console.error('Error:', error)
-                navigate('/login')
-            }
-        }
-
-        fetchProfessorData()
-    }, [userType, studentMail, navigate])
-
-    const [predmeti] = useState([
-        { id: 1, naziv: 'Matematika' },
-        { id: 2, naziv: 'Fizika' },
-        { id: 3, naziv: 'Programiranje' },
-    ])
-
-    const [studenti] = useState([
-        { id: 1, ime: 'Marko', prezime: 'Marković', predmetId: 1 },
-        { id: 2, ime: 'Ivana', prezime: 'Ivanović', predmetId: 1 },
-        { id: 3, ime: 'Ana', prezime: 'Anić', predmetId: 2 },
-    ])
-
-    const [selectedPredmet, setSelectedPredmet] = useState<number | null>(null)
-    const [ocjena, setOcjena] = useState('')
-    const [studentId, setStudentId] = useState<number | null>(null)
-
-    const [professorId, setProfessorId] = useState<number | null>(null)
-
-    const [exams, setExams] = useState<Exam[]>([])
+    const [showProfileModal, setShowProfileModal] = useState(false)
     const [showExamModal, setShowExamModal] = useState(false)
+    const [showGradingModal, setShowGradingModal] = useState(false)
     const [examForm, setExamForm] = useState<Exam>({
         subject: '',
         examTime: '',
         classroom: '',
-        maxPoints: 100, // Default max points
+        maxPoints: 100,
     })
-
-    const [showProfileModal, setShowProfileModal] = useState(false)
     const [professorProfile, setProfessorProfile] = useState<Professor>({
         titula: '',
         kabinet: '',
         subjects: [],
     })
-
+    const [exams, setExams] = useState<Exam[]>([])
+    const [selectedSubjectForGrading, setSelectedSubjectForGrading] =
+        useState('')
+    const [subjectStudents, setSubjectStudents] = useState<SubjectStudents>({})
+    const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
     const [gradeSubmission, setGradeSubmission] = useState<GradeSubmission>({
         points: 0,
         registrationId: 0,
     })
+    const [professorId, setProfessorId] = useState<number>(0)
+    const [isFirstTimeSetup, setIsFirstTimeSetup] = useState(true)
+    const [showSetupModal, setShowSetupModal] = useState(false)
+    const [availableSubjects, setAvailableSubjects] = useState<string[]>([])
 
-    const [subjectStudents, setSubjectStudents] = useState<SubjectStudents>({})
-    const [selectedSubject, setSelectedSubject] = useState<string>('')
-
-    const [studentsInSubjects, setStudentsInSubjects] = useState<Student[]>([])
-    const [selectedSubjectForGrading, setSelectedSubjectForGrading] =
-        useState<string>('')
-    const [showGradingModal, setShowGradingModal] = useState(false)
-
-    const handleDodajOcjenu = (e: React.FormEvent) => {
-        e.preventDefault()
-        if (studentId && ocjena) {
-            alert(`Dodana ocjena ${ocjena} za studenta ID: ${studentId}`)
-            setOcjena('')
-            setStudentId(null)
-        } else {
-            alert('Molimo odaberite studenta i unesite ocjenu.')
+    useEffect(() => {
+        if (studentMail && userType === 'PROFESOR') {
+            checkFirstTimeLogin()
+            fetchAvailableSubjects()
+            fetchExams()
         }
-    }
-
-    //fetch professor's id
-    const fetchProfessorId = async () => {
-        try {
-            const response = await fetch(
-                `http://localhost:8080/professors/email/${studentMail}`
-            )
-            if (response.ok) {
-                const data = await response.json()
-                console.log(data.id)
-                setProfessorId(data.id)
-                return data.id
-            }
-        } catch (error) {
-            console.error('Error fetching professor ID:', error)
-        }
-    }
+    }, [studentMail])
 
     // Fetch professor's exams
     const fetchExams = async () => {
@@ -148,6 +99,7 @@ const ProfessorBoard: React.FC = () => {
             )
             if (response.ok) {
                 const data = await response.json()
+                console.log('testiraj se')
                 console.log(data)
                 setExams(data)
             }
@@ -156,80 +108,67 @@ const ProfessorBoard: React.FC = () => {
         }
     }
 
-    const handleUpdateProfile = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!professorId) return
-
+    const checkFirstTimeLogin = async () => {
         try {
             const response = await fetch(
-                `http://localhost:8080/professors/${professorId}`,
-                {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(professorProfile),
-                }
+                `http://localhost:8080/professors/email/${studentMail}`
             )
+            const data = await response.json()
 
-            if (response.ok) {
-                alert('Profile updated successfully!')
-                setShowProfileModal(false)
+            // Set professor ID first
+            setProfessorId(data.id)
+
+            // If professor has no subjects, consider it first time setup
+            if (!data.subjects || data.subjects.length === 0) {
+                setIsFirstTimeSetup(true)
+                setShowSetupModal(true)
             } else {
-                alert('Failed to update profile')
+                setIsFirstTimeSetup(false)
+                setProfessorProfile({
+                    titula: data.titula,
+                    kabinet: data.kabinet,
+                    subjects: data.subjects || [],
+                })
             }
         } catch (error) {
-            console.error('Error updating profile:', error)
-            alert('Error updating profile')
+            console.error('Error checking first time login:', error)
         }
     }
 
-    useEffect(() => {
-        fetchProfessorId()
-    }, [studentMail])
-
-    useEffect(() => {
-        if (professorId) {
-            fetchExams()
-        }
-    }, [professorId])
-
-    // Fetch students for a specific subject
-    const fetchSubjectStudents = async (subject: string) => {
+    const fetchAvailableSubjects = async () => {
         try {
             const response = await fetch(
-                `http://localhost:8080/api/subjects/${subject}/students`
-            )
+                'http://localhost:8080/api/subjects/all'
+            ) // Updated endpoint
             if (response.ok) {
                 const data = await response.json()
-                setSubjectStudents((prev) => ({
-                    ...prev,
-                    [subject]: data,
-                }))
+                setAvailableSubjects(data.map((subject: any) => subject.name))
             }
         } catch (error) {
-            console.error('Error fetching subject students:', error)
+            console.error('Error fetching available subjects:', error)
         }
     }
 
     const handleCreateExam = async (e: React.FormEvent) => {
         e.preventDefault()
         try {
+            const examData = {
+                ...examForm,
+                professor: {
+                    id: professorId,
+                },
+            }
+
             const response = await fetch('http://localhost:8080/api/exams', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    ...examForm,
-                    professor: {
-                        id: professorId,
-                    },
-                }),
+                body: JSON.stringify(examData),
             })
 
             if (response.ok) {
-                alert('Exam created successfully!')
+                alert('Ispit uspješno kreiran!')
                 setShowExamModal(false)
                 setExamForm({
                     subject: '',
@@ -239,11 +178,11 @@ const ProfessorBoard: React.FC = () => {
                 })
                 fetchExams() // Refresh the exams list
             } else {
-                alert('Failed to create exam')
+                alert('Greška pri kreiranju ispita')
             }
         } catch (error) {
             console.error('Error creating exam:', error)
-            alert('Error creating exam')
+            alert('Greška pri kreiranju ispita')
         }
     }
 
@@ -276,584 +215,573 @@ const ProfessorBoard: React.FC = () => {
         }
     }
 
-    // Fetch professor profile including subjects
-    const fetchProfessorProfile = async () => {
+    const handleProfileUpdate = async () => {
         try {
-            const response = await fetch(
-                `http://localhost:8080/professors/email/${studentMail}`
-            )
-            if (response.ok) {
-                const data = await response.json()
-                setProfessorProfile({
-                    titula: data.titula,
-                    kabinet: data.kabinet,
-                    subjects: data.subjects || [],
-                })
-                setProfessorId(data.id)
-            }
+            // Add your profile update logic here
+            setShowProfileModal(false)
         } catch (error) {
-            console.error('Error fetching professor profile:', error)
+            console.error('Error updating profile:', error)
         }
     }
 
-    // Fetch students for professor's subjects
-    const fetchStudentsForSubject = async (subject: string) => {
-        try {
-            const response = await fetch(
-                `http://localhost:8080/api/subjects/${subject}/students`
-            )
-            if (response.ok) {
-                const data = await response.json()
-                setStudentsInSubjects(data)
-            }
-        } catch (error) {
-            console.error('Error fetching students:', error)
+    const handleSetupSubmit = async (selectedSubjects: string[]) => {
+        if (!professorId) {
+            console.error('Professor ID not set')
+            return
         }
-    }
 
-    // Handle giving points to student
-    const handleGivePoints = async (
-        studentId: number,
-        points: number,
-        subject: string
-    ) => {
         try {
             const response = await fetch(
-                `http://localhost:8080/api/students/${studentId}/points`,
+                `http://localhost:8080/professors/setup/${professorId}`,
                 {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        points,
-                        subject,
-                        professorId,
-                    }),
+                    body: JSON.stringify({ subjects: selectedSubjects }),
                 }
             )
 
             if (response.ok) {
-                alert('Points updated successfully!')
-                fetchStudentsForSubject(selectedSubjectForGrading)
+                // First update the state
+                setProfessorProfile((prev) => ({
+                    ...prev,
+                    subjects: selectedSubjects,
+                }))
+
+                // Then close the modal
+                setIsFirstTimeSetup(false)
+                setShowSetupModal(false)
+
+                // Optional: Show success message
+                alert('Subjects successfully updated!')
+
+                // Refresh the professor data
+                await checkFirstTimeLogin()
             } else {
-                alert('Failed to update points')
+                alert('Failed to update subjects. Please try again.')
             }
         } catch (error) {
-            console.error('Error updating points:', error)
-            alert('Error updating points')
+            console.error('Error submitting setup:', error)
+            alert('Error updating subjects. Please try again.')
         }
     }
 
-    useEffect(() => {
-        if (studentMail) {
-            fetchProfessorProfile()
-        }
-    }, [studentMail])
+    const SetupModal: React.FC<SetupModalProps> = ({
+        isOpen,
+        onClose,
+        onSubmit,
+        availableSubjects,
+    }) => {
+        const [selectedSubjects, setSelectedSubjects] = useState<string[]>([])
 
-    return (
-        <div className="min-h-screen bg-gray-100 p-8">
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold">Profesor Panel</h1>
-                <button
-                    onClick={() => setShowProfileModal(true)}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
-                >
-                    Update Profile
-                </button>
-            </div>
+        // Reset selected subjects when modal opens
+        useEffect(() => {
+            if (isOpen) {
+                setSelectedSubjects([])
+            }
+        }, [isOpen])
 
-            {/* Professor Profile Modal */}
-            {showProfileModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                        <h2 className="text-xl font-semibold mb-4">
-                            Update Professor Profile
+        if (!isOpen) return null
+
+        return (
+            <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+                <div className="bg-[#1a1a1a] rounded-xl p-6 w-full max-w-md border border-neutral-800">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-2xl font-bold text-gray-200">
+                            Dobrodošli! Postavite svoj profil
                         </h2>
-                        <form onSubmit={handleUpdateProfile}>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium mb-1">
-                                    Title (Titula)
-                                </label>
-                                <select
-                                    value={professorProfile.titula}
-                                    onChange={(e) =>
-                                        setProfessorProfile({
-                                            ...professorProfile,
-                                            titula: e.target.value,
-                                        })
-                                    }
-                                    className="w-full px-3 py-2 border rounded-md"
-                                    required
-                                >
-                                    <option value="">Select Title</option>
-                                    <option value="Prof. dr">Prof. dr</option>
-                                    <option value="Doc. dr">Doc. dr</option>
-                                    <option value="Dr">Dr</option>
-                                    <option value="Mr">Mr</option>
-                                </select>
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium mb-1">
-                                    Office (Kabinet)
-                                </label>
+                        <button
+                            onClick={onClose}
+                            className="text-gray-400 hover:text-gray-200"
+                        >
+                            ✕
+                        </button>
+                    </div>
+                    <p className="text-gray-400 mb-4">
+                        Molimo odaberite predmete koje predajete:
+                    </p>
+                    <div className="space-y-2 mb-6">
+                        {availableSubjects.map((subject) => (
+                            <label
+                                key={subject}
+                                className="flex items-center space-x-2"
+                            >
                                 <input
-                                    type="text"
-                                    value={professorProfile.kabinet}
-                                    onChange={(e) =>
-                                        setProfessorProfile({
-                                            ...professorProfile,
-                                            kabinet: e.target.value,
-                                        })
-                                    }
-                                    className="w-full px-3 py-2 border rounded-md"
-                                    required
-                                />
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium mb-1">
-                                    Subjects
-                                </label>
-                                <select
-                                    multiple
-                                    value={professorProfile.subjects}
+                                    type="checkbox"
+                                    checked={selectedSubjects.includes(subject)}
                                     onChange={(e) => {
-                                        const selected = Array.from(
-                                            e.target.selectedOptions,
-                                            (option) => option.value
-                                        )
-                                        setProfessorProfile({
-                                            ...professorProfile,
-                                            subjects: selected,
-                                        })
+                                        if (e.target.checked) {
+                                            setSelectedSubjects([
+                                                ...selectedSubjects,
+                                                subject,
+                                            ])
+                                        } else {
+                                            setSelectedSubjects(
+                                                selectedSubjects.filter(
+                                                    (s) => s !== subject
+                                                )
+                                            )
+                                        }
                                     }}
-                                    className="w-full px-3 py-2 border rounded-md"
-                                    required
-                                >
-                                    {predmeti.map((predmet) => (
-                                        <option
-                                            key={predmet.id}
-                                            value={predmet.naziv}
-                                        >
-                                            {predmet.naziv}
-                                        </option>
-                                    ))}
-                                </select>
-                                <p className="text-sm text-gray-500 mt-1">
-                                    Hold Ctrl/Cmd to select multiple subjects
-                                </p>
-                            </div>
-
-                            <div className="flex justify-end gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowProfileModal(false)}
-                                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                >
-                                    Update Profile
-                                </button>
-                            </div>
-                        </form>
+                                    className="form-checkbox text-blue-500"
+                                />
+                                <span className="text-gray-300">{subject}</span>
+                            </label>
+                        ))}
+                    </div>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={onClose}
+                            className="w-1/2 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={() => onSubmit(selectedSubjects)}
+                            className="w-1/2 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
+                            disabled={selectedSubjects.length === 0}
+                        >
+                            Potvrdi
+                        </button>
                     </div>
                 </div>
-            )}
+            </div>
+        )
+    }
 
-            {/* Exams Section */}
-            <div className="mb-8">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold">Exams</h2>
-                    <button
-                        onClick={() => setShowExamModal(true)}
-                        className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors"
-                    >
-                        Create New Exam
-                    </button>
+    return (
+        <div className="min-h-screen bg-neutral-900 text-gray-300">
+            <SetupModal
+                isOpen={showSetupModal}
+                onClose={() => setShowSetupModal(false)}
+                onSubmit={handleSetupSubmit}
+                availableSubjects={availableSubjects}
+            />
+            {/* Top Welcome Section */}
+            <div className="p-6 pb-6 flex flex-col gap-6">
+                <div className="bg-gradient-to-r from-blue-900 to-indigo-900 rounded-2xl p-8 text-gray-200">
+                    <h1 className="text-3xl font-bold mb-2">
+                        Dobrodošli, Professor {studentMail}
+                    </h1>
+                    <p className="text-gray-300">
+                        Upravljajte ispitima i ocjenama sa jednog mjesta
+                    </p>
                 </div>
 
-                {/* Exams List */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {exams.map((exam) => (
-                        <div
-                            key={exam.id}
-                            className="bg-white p-4 rounded-lg shadow-md"
-                        >
-                            <h3 className="text-lg font-medium mb-2">
-                                {exam.subject}
-                            </h3>
-                            <p className="text-gray-600">
-                                Date: {new Date(exam.examTime).toLocaleString()}
-                            </p>
-                            <p className="text-gray-600">
-                                Location: {exam.classroom}
-                            </p>
+                {/* Quick Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="bg-[#1a1a1a] p-6 rounded-xl hover:bg-[#252525] transition-all cursor-pointer border border-neutral-800">
+                        <div className="flex items-center gap-4">
+                            <IconChalkboard className="h-8 w-8 text-blue-400" />
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-200">
+                                    Aktivni Ispiti
+                                </h3>
+                                <p className="text-2xl font-bold text-blue-400">
+                                    {exams.length}
+                                </p>
+                            </div>
                         </div>
-                    ))}
+                    </div>
+
+                    <div className="bg-[#1a1a1a] p-6 rounded-xl hover:bg-[#252525] transition-all cursor-pointer border border-neutral-800">
+                        <div className="flex items-center gap-4">
+                            <IconUsers className="h-8 w-8 text-green-400" />
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-200">
+                                    Studenti
+                                </h3>
+                                <p className="text-2xl font-bold text-green-400">
+                                    {
+                                        Object.values(subjectStudents).flat()
+                                            .length
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-[#1a1a1a] p-6 rounded-xl hover:bg-[#252525] transition-all cursor-pointer border border-neutral-800">
+                        <div className="flex items-center gap-4">
+                            <IconClipboardList className="h-8 w-8 text-purple-400" />
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-200">
+                                    Predmeti
+                                </h3>
+                                <p className="text-2xl font-bold text-purple-400">
+                                    {professorProfile.subjects.length}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        className="bg-[#1a1a1a] p-6 rounded-xl hover:bg-[#252525] transition-all cursor-pointer border border-neutral-800"
+                        onClick={() => setShowProfileModal(true)}
+                    >
+                        <div className="flex items-center gap-4">
+                            <IconUserCircle className="h-8 w-8 text-orange-400" />
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-200">
+                                    Profil
+                                </h3>
+                                <p className="text-sm text-orange-400">
+                                    Ažuriraj podatke
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Main Actions Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                    {/* Create Exam Card */}
+                    <div
+                        className="bg-[#1a1a1a] rounded-xl p-6 hover:bg-[#252525] transition-all cursor-pointer border border-neutral-800"
+                        onClick={() => setShowExamModal(true)}
+                    >
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] to-transparent"></div>
+                            <img
+                                src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1000"
+                                alt="Create Exam"
+                                className="w-full h-48 object-cover rounded-lg mb-4 opacity-60"
+                            />
+                        </div>
+                        <h3 className="text-xl font-bold mb-2 text-gray-200">
+                            Kreiraj Ispit
+                        </h3>
+                        <p className="text-gray-400">
+                            Dodaj novi ispit i upravljaj prijavama studenata
+                        </p>
+                    </div>
+
+                    {/* Grade Students Card */}
+                    <div
+                        className="bg-[#1a1a1a] rounded-xl p-6 hover:bg-[#252525] transition-all cursor-pointer border border-neutral-800"
+                        onClick={() =>
+                            setSelectedSubjectForGrading(
+                                professorProfile.subjects[0]
+                            )
+                        }
+                    >
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] to-transparent"></div>
+                            <img
+                                src="https://images.unsplash.com/photo-1544717297-fa95b6ee9643?q=80&w=1000"
+                                alt="Grade Students"
+                                className="w-full h-48 object-cover rounded-lg mb-4 opacity-60"
+                            />
+                        </div>
+                        <h3 className="text-xl font-bold mb-2 text-gray-200">
+                            Ocjenjivanje
+                        </h3>
+                        <p className="text-gray-400">
+                            Pregledaj i ocijeni rezultate studenata
+                        </p>
+                    </div>
+
+                    {/* View Reports Card */}
+                    <div className="bg-[#1a1a1a] rounded-xl p-6 hover:bg-[#252525] transition-all cursor-pointer border border-neutral-800">
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] to-transparent"></div>
+                            <img
+                                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000"
+                                alt="View Reports"
+                                className="w-full h-48 object-cover rounded-lg mb-4 opacity-60"
+                            />
+                        </div>
+                        <h3 className="text-xl font-bold mb-2 text-gray-200">
+                            Izvještaji
+                        </h3>
+                        <p className="text-gray-400">
+                            Pregled statistike i generisanje izvještaja
+                        </p>
+                    </div>
+                </div>
+                <div className="mt-8">
+                    <h2 className="text-2xl font-bold text-gray-200 mb-6">
+                        Raspored Ispita
+                    </h2>
+                    <div className="grid grid-cols-1 gap-4">
+                        {exams.map((exam) => (
+                            <div
+                                key={exam.id}
+                                className="bg-[#1a1a1a] rounded-xl p-6 hover:bg-[#252525] transition-all border border-neutral-800"
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div className="space-y-4">
+                                        <div>
+                                            <h3 className="text-xl font-bold text-gray-200">
+                                                {exam.subject}
+                                            </h3>
+                                            <div className="flex items-center gap-2 mt-2">
+                                                <IconCalendarEvent className="h-4 w-4 text-blue-400" />
+                                                <span className="text-gray-400">
+                                                    {exam.examTime}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-6">
+                                            <div>
+                                                <p className="text-sm text-gray-400">
+                                                    Učionica
+                                                </p>
+                                                <p className="text-gray-200 font-medium">
+                                                    {exam.classroom}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-gray-400">
+                                                    Maksimalni Bodovi
+                                                </p>
+                                                <p className="text-gray-200 font-medium">
+                                                    {exam.maxPoints} bodova
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm">
+                                            Aktivan
+                                        </span>
+                                        <button className="bg-[#252525] hover:bg-[#303030] text-gray-200 px-4 py-2 rounded-lg transition-all border border-neutral-700">
+                                            Detalji
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
 
-            {/* Create Exam Modal */}
+            {/* Exam Creation Modal */}
             {showExamModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                        <h2 className="text-xl font-semibold mb-4">
-                            Create New Exam
+                <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4">
+                    <div className="bg-[#1a1a1a] rounded-xl p-6 w-full max-w-md border border-neutral-800">
+                        <h2 className="text-2xl font-bold mb-4 text-gray-200">
+                            Kreiraj Novi Ispit
                         </h2>
                         <form onSubmit={handleCreateExam}>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium mb-1">
-                                    Subject
-                                </label>
-                                <select
-                                    className="w-full p-2 border rounded"
-                                    value={examForm.subject}
-                                    onChange={(e) => {
-                                        setExamForm({
-                                            ...examForm,
-                                            subject: e.target.value,
-                                        })
-                                        setSelectedSubject(e.target.value)
-                                        fetchSubjectStudents(e.target.value)
-                                    }}
-                                    required
-                                >
-                                    <option value="">Select Subject</option>
-                                    {predmeti.map((predmet) => (
-                                        <option
-                                            key={predmet.id}
-                                            value={predmet.naziv}
-                                        >
-                                            {predmet.naziv}
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-gray-200 mb-2">
+                                        Predmet:
+                                    </label>
+                                    <select
+                                        value={examForm.subject}
+                                        onChange={(e) =>
+                                            setExamForm({
+                                                ...examForm,
+                                                subject: e.target.value,
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-2 w-full"
+                                        required
+                                    >
+                                        <option value="">
+                                            Odaberi predmet
                                         </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium mb-1">
-                                    Max Points
-                                </label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    max="100"
-                                    className="w-full p-2 border rounded"
-                                    value={examForm.maxPoints}
-                                    onChange={(e) =>
-                                        setExamForm({
-                                            ...examForm,
-                                            maxPoints: parseInt(e.target.value),
-                                        })
-                                    }
-                                    required
-                                />
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium mb-1">
-                                    Date and Time
-                                </label>
-                                <input
-                                    type="datetime-local"
-                                    className="w-full p-2 border rounded"
-                                    value={examForm.examTime}
-                                    onChange={(e) =>
-                                        setExamForm({
-                                            ...examForm,
-                                            examTime: e.target.value,
-                                        })
-                                    }
-                                    required
-                                />
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium mb-1">
-                                    Classroom
-                                </label>
-                                <input
-                                    type="text"
-                                    className="w-full p-2 border rounded"
-                                    value={examForm.classroom}
-                                    onChange={(e) =>
-                                        setExamForm({
-                                            ...examForm,
-                                            classroom: e.target.value,
-                                        })
-                                    }
-                                    required
-                                />
-                            </div>
-
-                            {/* Show enrolled students for selected subject */}
-                            {selectedSubject &&
-                                subjectStudents[selectedSubject] && (
-                                    <div className="mb-4">
-                                        <label className="block text-sm font-medium mb-2">
-                                            Enrolled Students
-                                        </label>
-                                        <div className="max-h-40 overflow-y-auto border rounded p-2">
-                                            {subjectStudents[
-                                                selectedSubject
-                                            ].map((student) => (
-                                                <div
-                                                    key={student.id}
-                                                    className="py-1"
+                                        {professorProfile.subjects.map(
+                                            (subject) => (
+                                                <option
+                                                    key={subject}
+                                                    value={subject}
                                                 >
-                                                    {student.ime}{' '}
-                                                    {student.prezime} (
-                                                    {student.indeks})
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                            <div className="flex justify-end gap-2">
+                                                    {subject}
+                                                </option>
+                                            )
+                                        )}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-gray-200 mb-2">
+                                        Vrijeme ispita:
+                                    </label>
+                                    <input
+                                        type="datetime-local"
+                                        value={examForm.examTime}
+                                        onChange={(e) =>
+                                            setExamForm({
+                                                ...examForm,
+                                                examTime: e.target.value,
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-2 w-full"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-200 mb-2">
+                                        Učionica:
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={examForm.classroom}
+                                        onChange={(e) =>
+                                            setExamForm({
+                                                ...examForm,
+                                                classroom: e.target.value,
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-2 w-full"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-200 mb-2">
+                                        Maksimalni bodovi:
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={examForm.maxPoints}
+                                        onChange={(e) =>
+                                            setExamForm({
+                                                ...examForm,
+                                                maxPoints: parseInt(
+                                                    e.target.value
+                                                ),
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-2 w-full"
+                                        min="0"
+                                        max="100"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex justify-end gap-2 mt-6">
                                 <button
                                     type="button"
                                     onClick={() => setShowExamModal(false)}
-                                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                                    className="px-4 py-2 text-gray-400 hover:text-gray-200"
                                 >
-                                    Cancel
+                                    Odustani
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
                                 >
-                                    Create Exam
+                                    Kreiraj Ispit
                                 </button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
-
-            {/* Prikaz predmeta */}
-            <div className="mb-8">
-                <h2 className="text-xl font-semibold mb-4">Moji Predmeti</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {predmeti.map((predmet) => (
-                        <div
-                            key={predmet.id}
-                            className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
-                            onClick={() => setSelectedPredmet(predmet.id)}
-                        >
-                            <h3 className="text-lg font-medium">
-                                {predmet.naziv}
-                            </h3>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Prikaz studenata za odabrani predmet */}
-            {selectedPredmet && (
-                <div className="mb-8">
-                    <h2 className="text-xl font-semibold mb-4">
-                        Studenti na predmetu
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {studenti
-                            .filter(
-                                (student) =>
-                                    student.predmetId === selectedPredmet
-                            )
-                            .map((student) => (
-                                <div
-                                    key={student.id}
-                                    className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow"
-                                >
-                                    <h3 className="text-lg font-medium">
-                                        {student.ime} {student.prezime}
-                                    </h3>
-                                    <button
-                                        className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
-                                        onClick={() => setStudentId(student.id)}
-                                    >
-                                        Dodaj Ocjenu
-                                    </button>
-                                </div>
-                            ))}
-                    </div>
-                </div>
-            )}
-
-            {/* Forma za dodavanje ocjene */}
-            {studentId && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                        <h2 className="text-xl font-semibold mb-4">
-                            Dodaj Ocjenu
-                        </h2>
-                        <form onSubmit={handleDodajOcjenu}>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium mb-1">
-                                    Ocjena
-                                </label>
-                                <input
-                                    type="text"
-                                    value={ocjena}
-                                    onChange={(e) => setOcjena(e.target.value)}
-                                    className="w-full px-3 py-2 border rounded-md"
-                                    placeholder="Unesi ocjenu"
-                                    required
-                                />
-                            </div>
-                            <div className="flex justify-end">
-                                <button
-                                    type="button"
-                                    className="bg-gray-500 text-white px-4 py-2 rounded-md mr-2 hover:bg-gray-600"
-                                    onClick={() => setStudentId(null)}
-                                >
-                                    Zatvori
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-                                >
-                                    Spremi
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {/* Students Grading Section */}
-            <div className="mt-8 bg-white rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold mb-4">Student Grading</h2>
-
-                <div className="mb-4">
-                    <select
-                        value={selectedSubjectForGrading}
-                        onChange={(e) => {
-                            setSelectedSubjectForGrading(e.target.value)
-                            fetchStudentsForSubject(e.target.value)
-                        }}
-                        className="w-full md:w-64 px-3 py-2 border rounded-md"
-                    >
-                        <option value="">Select Subject</option>
-                        {professorProfile.subjects.map((subject, index) => (
-                            <option key={index} value={subject}>
-                                {subject}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                {selectedSubjectForGrading && (
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full">
-                            <thead>
-                                <tr className="bg-gray-50">
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Student
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Index
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Points
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {studentsInSubjects.map((student) => (
-                                    <tr key={student.id}>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            {student.ime} {student.prezime}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            {student.indeks}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            {student.points || 0}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <button
-                                                onClick={() => {
-                                                    setGradeSubmission({
-                                                        points: 0,
-                                                        registrationId:
-                                                            student.id,
-                                                    })
-                                                    setShowGradingModal(true)
-                                                }}
-                                                className="text-blue-600 hover:text-blue-900"
-                                            >
-                                                Give Points
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </div>
 
             {/* Grading Modal */}
             {showGradingModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                        <h2 className="text-xl font-semibold mb-4">
-                            Give Points
+                <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4">
+                    <div className="bg-[#1a1a1a] rounded-xl p-6 w-full max-w-md border border-neutral-800">
+                        <h2 className="text-2xl font-bold mb-4 text-gray-200">
+                            Dodijeli Bodove
+                        </h2>
+                        <div className="mb-4">
+                            <p className="text-gray-200">
+                                Student: {selectedStudent?.ime}{' '}
+                                {selectedStudent?.prezime}
+                            </p>
+                            <p className="text-gray-400">
+                                Indeks: {selectedStudent?.indeks}
+                            </p>
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-gray-200 mb-2">
+                                Bodovi:
+                            </label>
+                            <input
+                                type="number"
+                                value={gradeSubmission.points}
+                                onChange={(e) =>
+                                    setGradeSubmission({
+                                        ...gradeSubmission,
+                                        points: parseInt(e.target.value),
+                                    })
+                                }
+                                className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-2 w-full"
+                            />
+                        </div>
+                        <div className="flex justify-end gap-2">
+                            <button
+                                onClick={() => setShowGradingModal(false)}
+                                className="px-4 py-2 text-gray-400 hover:text-gray-200"
+                            >
+                                Odustani
+                            </button>
+                            <button
+                                onClick={handleGradeSubmission}
+                                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
+                            >
+                                Potvrdi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Profile Modal */}
+            {showProfileModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4">
+                    <div className="bg-[#1a1a1a] rounded-xl p-6 w-full max-w-md border border-neutral-800">
+                        <h2 className="text-2xl font-bold mb-4 text-gray-200">
+                            Ažuriraj Profil
                         </h2>
                         <form
                             onSubmit={(e) => {
                                 e.preventDefault()
-                                handleGivePoints(
-                                    gradeSubmission.registrationId,
-                                    gradeSubmission.points,
-                                    selectedSubjectForGrading
-                                )
-                                setShowGradingModal(false)
+                                handleProfileUpdate()
                             }}
                         >
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium mb-1">
-                                    Points (0-100)
-                                </label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    max="100"
-                                    value={gradeSubmission.points}
-                                    onChange={(e) =>
-                                        setGradeSubmission({
-                                            ...gradeSubmission,
-                                            points: parseInt(e.target.value),
-                                        })
-                                    }
-                                    className="w-full px-3 py-2 border rounded-md"
-                                    required
-                                />
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-gray-200 mb-2">
+                                        Titula:
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={professorProfile.titula}
+                                        onChange={(e) =>
+                                            setProfessorProfile({
+                                                ...professorProfile,
+                                                titula: e.target.value,
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-2 w-full"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-200 mb-2">
+                                        Kabinet:
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={professorProfile.kabinet}
+                                        onChange={(e) =>
+                                            setProfessorProfile({
+                                                ...professorProfile,
+                                                kabinet: e.target.value,
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-2 w-full"
+                                    />
+                                </div>
                             </div>
-
-                            <div className="flex justify-end gap-2">
+                            <div className="flex justify-end gap-2 mt-6">
                                 <button
                                     type="button"
-                                    onClick={() => setShowGradingModal(false)}
-                                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                                    onClick={() => setShowProfileModal(false)}
+                                    className="px-4 py-2 text-gray-400 hover:text-gray-200"
                                 >
-                                    Cancel
+                                    Odustani
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
                                 >
-                                    Submit Points
+                                    Sačuvaj
                                 </button>
                             </div>
                         </form>

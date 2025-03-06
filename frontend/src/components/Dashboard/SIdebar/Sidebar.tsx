@@ -6,7 +6,7 @@ import { Sidebar, SidebarBody, SidebarLink } from '../../ui/sidebar'
 import {
     IconArrowLeft,
     IconBrandTabler,
-    IconSettings,
+    IconSchool,
     IconUserBolt,
 } from '@tabler/icons-react'
 import { motion } from 'motion/react'
@@ -16,7 +16,7 @@ export const Logo = () => {
     const { studentMail } = useChat()
     return (
         <Link
-            to="/home" // Use 'to' instead of 'href'
+            to="/home"
             className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
         >
             <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
@@ -54,10 +54,10 @@ export function SidebarDemo() {
             ),
         },
         {
-            label: 'Settings',
+            label: 'Upis na godinu',
             to: '/dashboard/settings',
             icon: (
-                <IconSettings className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+                <IconSchool className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
             ),
         },
         {

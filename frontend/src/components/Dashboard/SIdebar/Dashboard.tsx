@@ -1,12 +1,16 @@
-import { i } from 'motion/react-client'
 import { useNavigate } from 'react-router-dom'
 import Profile from '../Profile/Profile'
 import Settings from '../Profile/ProfileSettings'
+import {
+    IconBook2,
+    IconCalendarEvent,
+    IconCertificate,
+    IconChartBar,
+} from '@tabler/icons-react'
 
 const Dashboard = ({ currentRoute }: { currentRoute: string }) => {
     const navigate = useNavigate()
 
-    // Render different content based on the current route
     if (currentRoute === '/dashboard/settings') {
         return <Settings />
     }
@@ -14,84 +18,170 @@ const Dashboard = ({ currentRoute }: { currentRoute: string }) => {
     if (currentRoute === '/dashboard/profile') {
         return <Profile />
     }
+
     return (
-        <div className="flex flex-1 ">
-            <div className="p-2 md:p-5 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white flex flex-col gap-2 flex-1 w-full h-full">
-                <div className="flex gap-2">
-                    {[...new Array(4)].map((i) => (
+        // Outer container with background
+        <div className="flex flex-1 h-screen bg-white dark:bg-neutral-900">
+            {/* Scrollable container with border */}
+            <div className="flex flex-1 overflow-auto border-l border-neutral-200 dark:border-neutral-700">
+                {/* Content container with padding */}
+                <div className="p-6 pb-6 flex flex-col gap-6 flex-1 w-full min-h-full">
+                    {/* Welcome Section */}
+                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white">
+                        <h1 className="text-2xl font-semibold mb-2">
+                            Dobrodošli na Studentski Portal
+                        </h1>
+                        <p className="opacity-90">
+                            Pristupite svim važnim informacijama na jednom
+                            mjestu
+                        </p>
+                    </div>
+
+                    {/* Quick Stats */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        {[
+                            {
+                                title: 'Položeni Ispiti',
+                                value: '12/15',
+                                icon: <IconBook2 className="h-6 w-6" />,
+                                color: 'bg-green-100 text-green-600 dark:bg-green-900/30',
+                            },
+                            {
+                                title: 'Prosjek Ocjena',
+                                value: '8.5',
+                                icon: <IconChartBar className="h-6 w-6" />,
+                                color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30',
+                            },
+                            {
+                                title: 'ECTS Bodovi',
+                                value: '120/180',
+                                icon: <IconCertificate className="h-6 w-6" />,
+                                color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30',
+                            },
+                            {
+                                title: 'Sljedeći Ispit',
+                                value: '15 Dana',
+                                icon: <IconCalendarEvent className="h-6 w-6" />,
+                                color: 'bg-orange-100 text-orange-600 dark:bg-orange-900/30',
+                            },
+                        ].map((stat, index) => (
+                            <div
+                                key={index}
+                                className="bg-white dark:bg-neutral-800 rounded-xl p-4 shadow-sm border border-neutral-200 dark:border-neutral-700"
+                            >
+                                <div
+                                    className={`rounded-lg w-12 h-12 flex items-center justify-center mb-4 ${stat.color}`}
+                                >
+                                    {stat.icon}
+                                </div>
+                                <h3 className="text-neutral-600 dark:text-neutral-400 text-sm font-medium">
+                                    {stat.title}
+                                </h3>
+                                <p className="text-2xl font-semibold mt-1 text-neutral-900 dark:text-white">
+                                    {stat.value}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Main Actions */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div
-                            key={'first' + i}
-                            className="h-20 w-full rounded-lg bg-gray-100 dark:bg-neutral-800"
+                            onClick={() => navigate('/studentexams')}
+                            className="group cursor-pointer relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-700 aspect-[16/9] bg-white dark:bg-neutral-800"
                         >
-                            p
+                            <img
+                                src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+                                alt="Upis Ispita"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20 flex items-end p-6">
+                                <div>
+                                    <h3 className="text-xl font-semibold text-white mb-2">
+                                        Upis Ispita
+                                    </h3>
+                                    <p className="text-neutral-200 text-sm">
+                                        Prijavite ispite za naredni ispitni rok
+                                    </p>
+                                </div>
+                            </div>
                         </div>
-                    ))}
-                </div>
-                <div className="flex gap-2 flex-1">
-                    <div
-                        key={'second' + i}
-                        className=" w-full rounded-lg bg-gray-100 dark:bg-neutral-800 relative"
-                    >
-                        <img
-                            src="https://www.moje-znanje.com/userfiles/jezicni%20savjetnik%2022-207_ispit%20ili%20test.jpg"
-                            alt="User 2"
-                            className="w-full h-full object-cover rounded-lg"
-                        />
 
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-50 rounded-lg">
-                            <h3 className="text-4xl font-semibold text-white">
-                                Upis ispita za studente
-                            </h3>
+                        <div
+                            onClick={() => navigate('/schedule')}
+                            className="group cursor-pointer relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-700 aspect-[16/9] bg-white dark:bg-neutral-800"
+                        >
+                            <img
+                                src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+                                alt="Raspored Predavanja"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20 flex items-end p-6">
+                                <div>
+                                    <h3 className="text-xl font-semibold text-white mb-2">
+                                        Raspored Predavanja
+                                    </h3>
+                                    <p className="text-neutral-200 text-sm">
+                                        Pregledajte raspored predavanja i
+                                        konsultacija
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div
-                        key={'second' + i}
-                        onClick={() => navigate('/studentexams')}
-                        className=" w-full rounded-lg bg-gray-100 dark:bg-neutral-800 relative"
-                    >
-                        <img
-                            src="https://cdn.create.microsoft.com/catalog-assets/en-us/78f3d7f2-0b23-4757-9ed6-de5f9512ff7d/thumbnails/1200/pastel-wall-calendar-3-1-DXIDDARGAY-8bcb72cce37d.webp"
-                            alt="User 2"
-                            className="object-cover rounded-lg w-full h-full"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-50 rounded-lg">
-                            <h3 className="text-4xl font-semibold text-white">
-                                Raspored predavanja za studenta
-                            </h3>
-                        </div>
-                    </div>
-                </div>
-                <div className="flex gap-2 flex-1 ">
-                    <div
-                        key={'second' + i}
-                        className=" w-full rounded-lg bg-gray-100 dark:bg-neutral-800 relative"
-                    >
-                        <img
-                            src="https://www.moje-znanje.com/userfiles/jezicni%20savjetnik%2022-207_ispit%20ili%20test.jpg"
-                            alt="User 2"
-                            className="w-full h-full object-cover rounded-lg"
-                        />
 
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-50 rounded-lg">
-                            <h3 className="text-4xl font-semibold text-white">
-                                Upis ispita za studente
-                            </h3>
-                        </div>
-                    </div>
-                    <div
-                        key={'second' + i}
-                        onClick={() => navigate('/studentexams')}
-                        className=" w-full rounded-lg bg-gray-100 dark:bg-neutral-800 relative"
-                    >
-                        <img
-                            src="https://cdn.create.microsoft.com/catalog-assets/en-us/78f3d7f2-0b23-4757-9ed6-de5f9512ff7d/thumbnails/1200/pastel-wall-calendar-3-1-DXIDDARGAY-8bcb72cce37d.webp"
-                            alt="User 2"
-                            className="object-cover rounded-lg w-full h-full"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-50 rounded-lg">
-                            <h3 className="text-4xl font-semibold text-white">
-                                Raspored predavanja za studenta
-                            </h3>
+                    {/* Recent Activity */}
+                    <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700">
+                        <h2 className="text-lg font-semibold mb-4 text-neutral-900 dark:text-white">
+                            Nedavne Aktivnosti
+                        </h2>
+                        <div className="space-y-4">
+                            {[
+                                {
+                                    title: 'Položen ispit: Matematika 2',
+                                    date: 'Prije 2 dana',
+                                    grade: '9',
+                                },
+                                {
+                                    title: 'Prijavljen ispit: Programiranje 3',
+                                    date: 'Prije 5 dana',
+                                    status: 'Na čekanju',
+                                },
+                                {
+                                    title: 'Ovjeren semestar',
+                                    date: 'Prije 7 dana',
+                                    semester: 'Ljetni 2023/24',
+                                },
+                            ].map((activity, index) => (
+                                <div
+                                    key={index}
+                                    className="flex items-center justify-between py-3 border-b border-neutral-200 dark:border-neutral-700 last:border-0"
+                                >
+                                    <div>
+                                        <p className="text-neutral-900 dark:text-white font-medium">
+                                            {activity.title}
+                                        </p>
+                                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                            {activity.date}
+                                        </p>
+                                    </div>
+                                    {activity.grade && (
+                                        <span className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-3 py-1 rounded-full text-sm font-medium">
+                                            Ocjena: {activity.grade}
+                                        </span>
+                                    )}
+                                    {activity.status && (
+                                        <span className="bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 px-3 py-1 rounded-full text-sm font-medium">
+                                            {activity.status}
+                                        </span>
+                                    )}
+                                    {activity.semester && (
+                                        <span className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 px-3 py-1 rounded-full text-sm font-medium">
+                                            {activity.semester}
+                                        </span>
+                                    )}
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>

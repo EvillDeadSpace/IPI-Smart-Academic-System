@@ -121,7 +121,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         // Set interval to fetch status every 5 seconds
         const interval = setInterval(() => {
             fetchStatus()
-        }, 500) // 5000 milliseconds = 5 seconds
+        }, 500000000) // 5000 milliseconds = 5 seconds
 
         // Cleanup function to clear interval when component is unmounted
         return () => {

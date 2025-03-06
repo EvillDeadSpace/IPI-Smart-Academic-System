@@ -23,6 +23,9 @@ public class SubjectController {
     @Autowired
     private FacultyStudentRepo facultyStudentRepo;
 
+    @Autowired
+    private FacultyProfessorRepo professorRepo;
+
     @GetMapping("/{subjectName}/students")
     public ResponseEntity<?> getStudentsForSubject(@PathVariable String subjectName) {
         try {
@@ -74,6 +77,40 @@ public class SubjectController {
             }
 
             return ResponseEntity.ok(studentList);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Map<String, Object>>> getAllSubjects() {
+        List<Subject> subjects = subjectRepo.findAll();
+        List<Map<String, Object>> subjectList = subjects.stream()
+            .map(subject -> {
+                Map<String, Object> subjectMap = new HashMap<>();
+                subjectMap.put("id", subject.getId());
+                subjectMap.put("name", subject.getName());
+                return subjectMap;
+            })
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(subjectList);
+    }
+
+    @PostMapping("/professors/setup/{professorId}")
+    public ResponseEntity<?> setupProfessorSubjects(
+        @PathVariable Long professorId,
+        @RequestBody Map<String, List<String>> request
+    ) {
+        try {
+            List<String> subjects = request.get("subjects");
+            FacultyProfessor professor = professorRepo.findById(professorId)
+                .orElseThrow(() -> new RuntimeException("Professor not found"));
+            
+            // Update professor's subjects
+            professor.setSubjects(subjects);
+            professorRepo.save(professor);
+            
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }

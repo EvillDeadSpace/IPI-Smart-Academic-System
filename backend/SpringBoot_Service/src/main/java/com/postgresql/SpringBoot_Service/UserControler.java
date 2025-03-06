@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173"}, allowCredentials = "true")
 public class UserControler {
 
 
@@ -174,7 +175,11 @@ public class UserControler {
                 return ResponseEntity.badRequest().body("User must be of type PROFESOR");
             }
 
+            // Make sure to set the ID properly
+            professor.setId(facultyUserId);
             professor.setKorisnik(facultyUser);
+            professor.setSetupCompleted(false);
+            
             FacultyProfessor savedProfessor = professorRepo.save(professor);
             
             Map<String, Object> response = new HashMap<>();
@@ -185,38 +190,17 @@ public class UserControler {
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error creating professor: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 
+    /*
     @GetMapping("/professors/email/{email}")
     public ResponseEntity<?> getProfessorByEmail(@PathVariable String email) {
-        try {
-            // Option 1: Using findByEmail
-            Faculty_users user = userRepo.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-            
-            // Verify the user is a professor
-            if (!"PROFESOR".equals(user.getTipUsera())) {
-                throw new RuntimeException("User is not a professor");
-            }
-
-            // Then find the professor record
-            FacultyProfessor professor = professorRepo.findByKorisnik(user)
-                    .orElseThrow(() -> new RuntimeException("Professor record not found"));
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("id", professor.getId());
-            response.put("name", user.getIme() + " " + user.getPrezime());
-            response.put("email", user.getEmail());
-            response.put("titula", professor.getTitula());
-            response.put("kabinet", professor.getKabinet());
-            
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        // ... remove this entire method ...
     }
+    */
 
     @PutMapping("/professors/{id}")
     public ResponseEntity<?> updateProfessor(@PathVariable long id, @RequestBody Map<String, Object> updates) {
