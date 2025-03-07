@@ -82,37 +82,25 @@ const ProfessorBoard: React.FC = () => {
     const [isFirstTimeSetup, setIsFirstTimeSetup] = useState(true)
     const [showSetupModal, setShowSetupModal] = useState(false)
     const [availableSubjects, setAvailableSubjects] = useState<string[]>([])
+    const [examCount, setExamCount] = useState<number>(0)
+    const [isLoading, setIsLoading] = useState<boolean>(true)
 
     useEffect(() => {
         if (studentMail && userType === 'PROFESOR') {
             checkFirstTimeLogin()
-            fetchAvailableSubjects()
             fetchExams()
         }
     }, [studentMail])
-
-    // Fetch professor's exams
-    const fetchExams = async () => {
-        try {
-            const response = await fetch(
-                `http://localhost:8080/api/exams/professor/${professorId}`
-            )
-            if (response.ok) {
-                const data = await response.json()
-                console.log('testiraj se')
-                console.log(data)
-                setExams(data)
-            }
-        } catch (error) {
-            console.error('Error fetching exams:', error)
-        }
-    }
 
     const checkFirstTimeLogin = async () => {
         try {
             const response = await fetch(
                 `http://localhost:8080/professors/email/${studentMail}`
             )
+            if (!response.ok) {
+                throw new Error('Failed to fetch professor data')
+            }
+
             const data = await response.json()
 
             // Set professor ID first
@@ -130,10 +118,44 @@ const ProfessorBoard: React.FC = () => {
                     subjects: data.subjects || [],
                 })
             }
+
+            await fetchAvailableSubjects()
         } catch (error) {
             console.error('Error checking first time login:', error)
         }
     }
+
+    const fetchExams = async () => {
+        if (!professorId) {
+            console.log('No professor ID available yet')
+            return
+        }
+
+        setIsLoading(true)
+        try {
+            const response = await fetch(
+                `http://localhost:8080/api/exams/professor/${professorId}`
+            )
+            if (response.ok) {
+                const data = await response.json()
+                setExams(data)
+            } else {
+                const errorData = await response.json()
+                console.error('Error fetching exams:', errorData)
+            }
+        } catch (error) {
+            console.error('Error fetching exams:', error)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    // Add a useEffect to fetch exams whenever professorId changes
+    useEffect(() => {
+        if (professorId) {
+            fetchExams()
+        }
+    }, [professorId])
 
     const fetchAvailableSubjects = async () => {
         try {
@@ -176,7 +198,8 @@ const ProfessorBoard: React.FC = () => {
                     classroom: '',
                     maxPoints: 100,
                 })
-                fetchExams() // Refresh the exams list
+                // Fetch exams to update the count
+                await fetchExams()
             } else {
                 alert('Greška pri kreiranju ispita')
             }
@@ -350,6 +373,17 @@ const ProfessorBoard: React.FC = () => {
         )
     }
 
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-neutral-900 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+                    <p className="text-gray-300 mt-4">Loading exams...</p>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="min-h-screen bg-neutral-900 text-gray-300">
             <SetupModal
@@ -371,14 +405,14 @@ const ProfessorBoard: React.FC = () => {
 
                 {/* Quick Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="bg-[#1a1a1a] p-6 rounded-xl hover:bg-[#252525] transition-all cursor-pointer border border-neutral-800">
+                    <div className="bg-gradient-to-r from-blue-900/20 to-blue-900/10 p-6 rounded-xl">
                         <div className="flex items-center gap-4">
-                            <IconChalkboard className="h-8 w-8 text-blue-400" />
+                            <IconClipboardList className="w-8 h-8 text-blue-500" />
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-200">
-                                    Aktivni Ispiti
+                                <h3 className="text-lg font-semibold">
+                                    Total Exams
                                 </h3>
-                                <p className="text-2xl font-bold text-blue-400">
+                                <p className="text-2xl font-bold text-blue-500">
                                     {exams.length}
                                 </p>
                             </div>

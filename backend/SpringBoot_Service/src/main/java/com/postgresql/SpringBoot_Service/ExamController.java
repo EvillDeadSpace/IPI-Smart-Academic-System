@@ -81,12 +81,12 @@ public class ExamController {
     }
 
     // Get professor's exams
-    @GetMapping("/professor/{professorId}")
-    public ResponseEntity<List<FacultyExam>> getProfessorExams(@PathVariable Long professorId) {
-        FacultyProfessor professor = professorRepo.findById(professorId)
-            .orElseThrow(() -> new RuntimeException("Professor not found"));
-        return ResponseEntity.ok(examRepo.findByProfessor(professor));
-    }
+ @GetMapping("/professor/{professorId}")
+public ResponseEntity<List<FacultyExam>> getProfessorExams(@PathVariable Long professorId) {
+    FacultyProfessor professor = professorRepo.findById(professorId)
+        .orElseThrow(() -> new RuntimeException("Professor not found"));
+    return ResponseEntity.ok(examRepo.findByProfessor(professor));
+}
 
     // Update exam grade
     @PutMapping("/{registrationId}/grade")
