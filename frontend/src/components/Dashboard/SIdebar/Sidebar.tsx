@@ -5,9 +5,11 @@ import { useState } from 'react'
 import { Sidebar, SidebarBody, SidebarLink } from '../../ui/sidebar'
 import {
     IconArrowLeft,
-    IconBrandTabler,
-    IconSchool,
-    IconUserBolt,
+    IconLayoutDashboard,
+    IconUserCircle,
+    IconCalendarEvent,
+    IconClipboardList,
+    IconCalendarTime,
 } from '@tabler/icons-react'
 import { motion } from 'motion/react'
 import Dashboard from './Dashboard'
@@ -43,35 +45,35 @@ export function SidebarDemo() {
             label: 'Dashboard',
             to: '/dashboard',
             icon: (
-                <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+                <IconLayoutDashboard className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
             ),
         },
         {
             label: 'Profile',
             to: '/dashboard/profile',
             icon: (
-                <IconUserBolt className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+                <IconUserCircle className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
             ),
         },
         {
             label: 'Upis na godinu',
             to: '/dashboard/settings',
             icon: (
-                <IconSchool className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+                <IconClipboardList className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
             ),
         },
         {
             label: 'Nadolazeci ispiti',
             to: '/dashboard/scheduleexam',
             icon: (
-                <IconSchool className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+                <IconCalendarEvent className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
             ),
         },
         {
             label: 'Raspored predavanja',
             to: '/dashboard/studentschedule',
             icon: (
-                <IconSchool className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+                <IconCalendarTime className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
             ),
         },
         {
