@@ -18,6 +18,7 @@ import StudentExams from './components/Faculty/StudentExams'
 import Profile from './components/Dashboard/Profile/Profile'
 import Settings from './components/Dashboard/Profile/ProfileSettings'
 import { useState, useEffect } from 'react'
+import StudentSchedule from './components/Faculty/StudentSchedule'
 
 // Create a protected route component
 const ProtectedProfessorRoute = ({
@@ -98,6 +99,8 @@ function AppContent() {
         '/profesor',
         '/dashboard/profile',
         '/dashboard/settings',
+        '/dashboard/scheduleexam',
+        '/dashboard/studentschedule',
     ] // Add paths where the header should be hidden
 
     const shouldRenderHeader = !hideHeaderPaths.includes(location.pathname)
@@ -120,9 +123,13 @@ function AppContent() {
                 <Route path="/dashboard" element={<MainBoard />}>
                     <Route path="settings" element={<Settings />} />
                     <Route path="profile" element={<Profile />} />
+                    <Route path="scheduleexam" element={<StudentExams />} />
+                    <Route
+                        path="studentschedule"
+                        element={<StudentSchedule />}
+                    />
                 </Route>
                 <Route path="/login" element={<Login />} />
-                <Route path="/studentexams" element={<StudentExams />} />
             </Routes>
         </>
     )

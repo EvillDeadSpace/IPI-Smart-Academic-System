@@ -61,6 +61,20 @@ export function SidebarDemo() {
             ),
         },
         {
+            label: 'Nadolazeci ispiti',
+            to: '/dashboard/scheduleexam',
+            icon: (
+                <IconSchool className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+            ),
+        },
+        {
+            label: 'Raspored predavanja',
+            to: '/dashboard/studentschedule',
+            icon: (
+                <IconSchool className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+            ),
+        },
+        {
             label: 'Logout',
             to: '',
             onclick: () => logout(nav),
