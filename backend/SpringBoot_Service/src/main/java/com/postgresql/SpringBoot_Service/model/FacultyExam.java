@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "faculty_exam")
 public class FacultyExam {
 
     @Id
@@ -14,7 +15,7 @@ public class FacultyExam {
     private LocalDateTime examTime;
     private String classroom;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "professor_id", nullable = false)
     private FacultyProfessor professor;
 
