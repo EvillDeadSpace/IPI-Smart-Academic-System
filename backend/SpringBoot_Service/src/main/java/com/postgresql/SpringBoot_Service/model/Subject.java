@@ -11,6 +11,7 @@ public class Subject {
 
     private String name;
     private Integer ects;
+    private Integer year;
     
     @Column(name = "is_required")
     private Boolean isRequired;
@@ -58,5 +59,13 @@ public class Subject {
 
     public void setMajor(Major major) {
         this.major = major;
+    }
+
+    public Integer getYear() {
+        return year;
+    }
+
+    public void setYear(Integer year) {
+        this.year = year;
     }
 }

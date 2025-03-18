@@ -80,9 +80,11 @@ public class UserControler {
                 facultyStudent.setIndeks(String.valueOf(facultyStudent.getId()));
                 facultyStudent = facultyStudentRepo.save(facultyStudent);
 
-                // Clear any existing enrollment for this student
-                Optional<StudentEnrollment> existingEnrollment = enrollmentRepo.findByStudent(facultyStudent);
-                existingEnrollment.ifPresent(enrollment -> enrollmentRepo.delete(enrollment));
+                // Clear any existing enrollments for this student
+                List<StudentEnrollment> existingEnrollments = enrollmentRepo.findAllByStudent(facultyStudent);
+                if (!existingEnrollments.isEmpty()) {
+                    enrollmentRepo.deleteAll(existingEnrollments);
+                }
             }
 
             Map<String, Object> response = new HashMap<>();

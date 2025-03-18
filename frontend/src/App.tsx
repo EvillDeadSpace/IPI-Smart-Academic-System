@@ -101,7 +101,7 @@ function AppContent() {
         '/dashboard/settings',
         '/dashboard/scheduleexam',
         '/dashboard/studentschedule',
-    ] // Add paths where the header should be hidden
+    ]
 
     const shouldRenderHeader = !hideHeaderPaths.includes(location.pathname)
 
