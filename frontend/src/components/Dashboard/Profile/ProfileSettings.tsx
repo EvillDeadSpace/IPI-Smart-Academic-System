@@ -18,14 +18,14 @@ interface Major {
 }
 
 const Settings = () => {
-    const { studentMail } = useChat()
+    const [error, setError] = useState<string | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [majors, setMajors] = useState<Major[]>([])
+    const [selectedElectives, setSelectedElectives] = useState<number[]>([])
     const [selectedMajor, setSelectedMajor] = useState<string>('')
     const [selectedYear, setSelectedYear] = useState<string>('')
-    const [selectedElectives, setSelectedElectives] = useState<number[]>([])
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const [error, setError] = useState<string | null>(null)
-    const [majors, setMajors] = useState<Major[]>([])
-    const [isLoading, setIsLoading] = useState(true)
+    const { studentMail } = useChat()
 
     // Fetch majors and subjects from the backend
     useEffect(() => {
