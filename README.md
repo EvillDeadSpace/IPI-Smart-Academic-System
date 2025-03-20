@@ -150,12 +150,7 @@ Key entities:
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## 📞 Contact
 
 For any inquiries, please reach out to:
 - Email: info@ipi-akademija.ba
-- Phone: +387 35 258 454
