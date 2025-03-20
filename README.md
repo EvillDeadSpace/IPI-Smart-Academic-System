@@ -153,4 +153,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## 📞 Contact
 
 For any inquiries, please reach out to:
-- Email: info@ipi-akademija.ba
+- Email: amartubic1@gmail.com
