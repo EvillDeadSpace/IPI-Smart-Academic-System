@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useChat } from '../../Context'
 import {
-    IconChalkboard,
     IconUsers,
     IconClipboardList,
     IconUserCircle,
@@ -53,8 +51,7 @@ interface SetupModalProps {
 }
 
 const ProfessorBoard: React.FC = () => {
-    const { userType, studentMail, setStudentMail } = useChat()
-    const navigate = useNavigate()
+    const { userType, studentMail } = useChat()
     const [showProfileModal, setShowProfileModal] = useState(false)
     const [showExamModal, setShowExamModal] = useState(false)
     const [showGradingModal, setShowGradingModal] = useState(false)
@@ -247,12 +244,12 @@ const ProfessorBoard: React.FC = () => {
         }
     }
 
+    //first time when login this function was calling
     const handleSetupSubmit = async (selectedSubjects: string[]) => {
         if (!professorId) {
             console.error('Professor ID not set')
             return
         }
-
         try {
             const response = await fetch(
                 `http://localhost:8080/professors/setup/${professorId}`,

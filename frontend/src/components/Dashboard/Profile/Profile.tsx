@@ -37,7 +37,7 @@ const Profile = () => {
                     throw new Error('Failed to fetch progress')
                 }
                 const data = await response.json()
-                setProgress(data)
+                setProgress(data) // This will now only contain enrolled subjects
             } catch (err) {
                 setError(
                     err instanceof Error ? err.message : 'An error occurred'

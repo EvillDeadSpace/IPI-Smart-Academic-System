@@ -7,6 +7,8 @@ import {
     IconCertificate,
     IconChartBar,
 } from '@tabler/icons-react'
+import StudentExams from '../../Faculty/StudentExams'
+import StudentSchedule from '../../Faculty/StudentSchedule'
 
 const Dashboard = ({ currentRoute }: { currentRoute: string }) => {
     const navigate = useNavigate()
@@ -17,6 +19,14 @@ const Dashboard = ({ currentRoute }: { currentRoute: string }) => {
 
     if (currentRoute === '/dashboard/profile') {
         return <Profile />
+    }
+
+    if (currentRoute === '/dashboard/scheduleexam') {
+        return <StudentExams />
+    }
+
+    if (currentRoute === '/dashboard/studentschedule') {
+        return <StudentSchedule />
     }
 
     return (
@@ -87,7 +97,7 @@ const Dashboard = ({ currentRoute }: { currentRoute: string }) => {
                     {/* Main Actions */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div
-                            onClick={() => navigate('/studentexams')}
+                            onClick={() => navigate('/dashboard/scheduleexam')}
                             className="group cursor-pointer relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-700 aspect-[16/9] bg-white dark:bg-neutral-800"
                         >
                             <img
@@ -108,7 +118,9 @@ const Dashboard = ({ currentRoute }: { currentRoute: string }) => {
                         </div>
 
                         <div
-                            onClick={() => navigate('/schedule')}
+                            onClick={() =>
+                                navigate('/dashboard/studentschedule')
+                            }
                             className="group cursor-pointer relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-700 aspect-[16/9] bg-white dark:bg-neutral-800"
                         >
                             <img
