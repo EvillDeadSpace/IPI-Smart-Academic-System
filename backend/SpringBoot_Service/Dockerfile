@@ -5,9 +5,9 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # Copy only necessary files first
-COPY backend/SpringBoot_Service/mvnw .
-COPY backend/SpringBoot_Service/.mvn .mvn
-COPY backend/SpringBoot_Service/pom.xml .
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
 
 # Fix line endings and make mvnw executable
 RUN apt-get update && \
@@ -16,7 +16,7 @@ RUN apt-get update && \
     chmod +x mvnw
 
 # Copy the source code
-COPY backend/SpringBoot_Service/src src
+COPY src src
 
 # Download dependencies
 RUN ./mvnw dependency:go-offline
@@ -29,5 +29,6 @@ EXPOSE 8080
 
 # Run the application
 CMD ["java", "-jar", "target/SpringBoot_Service-0.0.1-SNAPSHOT.jar"]
+
 
 
