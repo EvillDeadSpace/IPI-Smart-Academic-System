@@ -4,6 +4,7 @@ FROM openjdk:17-jdk-slim
 # Set working directory
 WORKDIR /app
 
+#Test
 # Copy the entire project first
 COPY . .
 
