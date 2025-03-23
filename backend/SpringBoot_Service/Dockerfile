@@ -4,10 +4,8 @@ FROM openjdk:17-jdk-slim
 # Set working directory
 WORKDIR /app
 
-# Copy only necessary files first
-COPY mvnw .
-COPY .mvn .mvn
-COPY pom.xml .
+# Copy the entire project
+COPY . .
 
 # Fix line endings and make mvnw executable
 RUN apt-get update && \
@@ -15,20 +13,15 @@ RUN apt-get update && \
     dos2unix mvnw && \
     chmod +x mvnw
 
-# Copy the source code
-COPY src src
-
-# Download dependencies
-RUN ./mvnw dependency:go-offline
-
-# Build the application
-RUN ./mvnw package -DskipTests
+# Download dependencies and build
+RUN ./mvnw clean package -DskipTests
 
 # Expose port 8080
 EXPOSE 8080
 
 # Run the application
 CMD ["java", "-jar", "target/SpringBoot_Service-0.0.1-SNAPSHOT.jar"]
+
 
 
 

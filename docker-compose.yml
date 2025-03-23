@@ -8,19 +8,34 @@ services:
     image: frontend_image
     ports:
       - "5173:5173"
+    depends_on:
+      - backend_service
 
   backend_service:
     build:
       context: ./backend/SpringBoot_Service
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8080:8080" # TEst this port if not wokring try first 8081
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/faculty_database
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=admin
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+
+  nlp_service:
+    build:
+      context: ./NLP
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=main.py
+      - FLASK_ENV=development
+    depends_on:
+      - backend_service
 
   postgres:
     image: postgres:latest
@@ -32,6 +47,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  - "5000:5000"
+  postgres_data:
