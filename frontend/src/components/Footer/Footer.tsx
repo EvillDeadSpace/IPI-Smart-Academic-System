@@ -1,145 +1,241 @@
+import { FC } from 'react'
+import { Link } from 'react-router-dom'
 import {
     CiMail,
     CiPhone,
     CiLocationOn,
     CiFacebook,
     CiInstagram,
+    CiLinkedin,
+    CiYoutube,
 } from 'react-icons/ci'
-import {
-    TiSocialYoutubeCircular,
-    TiSocialLinkedinCircular,
-} from 'react-icons/ti'
+import { motion } from 'framer-motion'
+import { cn } from '../../lib/utils'
 
-const Footer = () => {
-    const pictureSize: number = 24
+const Footer: FC = () => {
+    const socialLinks = [
+        {
+            icon: CiYoutube,
+            href: '#',
+            label: 'YouTube',
+            color: 'hover:text-red-400',
+        },
+        {
+            icon: CiFacebook,
+            href: '#',
+            label: 'Facebook',
+            color: 'hover:text-blue-400',
+        },
+        {
+            icon: CiLinkedin,
+            href: '#',
+            label: 'LinkedIn',
+            color: 'hover:text-blue-300',
+        },
+        {
+            icon: CiInstagram,
+            href: '#',
+            label: 'Instagram',
+            color: 'hover:text-pink-400',
+        },
+    ]
+
+    const quickLinks = [
+        { text: 'O nama', href: '/about' },
+        { text: 'Studijski programi', href: '/programs' },
+        { text: 'Novosti', href: '/news' },
+        { text: 'Kontakt', href: '/contact' },
+        { text: 'Upis', href: '/enrollment' },
+        { text: 'Student portal', href: '/portal' },
+    ]
+
+    const containerAnimation = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0 },
+    }
 
     return (
-        <section
-            className="bg-blue-500 text-gray-600 body-font relative "
-            style={{ zIndex: 1 }}
-        >
-            <img
-                src="../../../public/ipizgrada.jpg"
-                alt="Pozadinska slika"
-                className="absolute inset-0 w-full h-full opacity-25 object-cover z-0 pointer-events-none"
-            />
-            <div className="container px-5 py-24 mx-auto flex sm:flex-nowrap flex-wrap">
-                <div className="lg:w-2/3 md:w-1/2 bg-blue-300 rounded-lg overflow-hidden sm:mr-10 p-10 flex items-end justify-start relative">
-                    <img
-                        src="../../../public/Screenshot 2024-12-27 224233.png"
-                        alt="Pozadinska slika"
-                        className="absolute inset-0 w-full h-full object-cover"
-                    />
-                    <div className="bg-blue-500 relative flex flex-wrap py-6 rounded shadow-md">
-                        <div className="lg:w-1/2 px-6">
-                            <h2 className="title-font font-semibold text-white tracking-widest text-xs">
-                                Adresa
-                            </h2>
-                            <p className="mt-1 text-gray-300">
-                                IPI Akademija se nalazi u Tuzli,Bosne i
-                                Hercegovine. Adresa je Kulina bana br.2 75000
-                                Tuzla
-                            </p>
-                        </div>
-                        <div className="lg:w-1/2 px-6 mt-4 lg:mt-0">
-                            <h2 className="title-font font-semibold text-white tracking-widest text-xs">
-                                EMAIL
-                            </h2>
-                            <a className=" text-gray-300 leading-relaxed">
-                                info@ipi-akademija.ba
-                            </a>
-                            <h2 className="title-font font-semibold text-white tracking-widest text-xs mt-4">
-                                Telefon
-                            </h2>
-                            <p className="leading-relaxed text-gray-300">
-                                +387 35 258 454
-                            </p>
-                        </div>
-                    </div>
+        <footer className="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white">
+            {/* Decorative top border */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600" />
+
+            {/* Main content */}
+            <div className="container mx-auto px-6 py-16 relative z-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+                    {/* Logo and Description */}
+                    <motion.div
+                        variants={containerAnimation}
+                        initial="hidden"
+                        whileInView="visible"
+                        transition={{ duration: 0.5 }}
+                        className="space-y-6"
+                    >
+                        <img
+                            src="/logo.png"
+                            alt="IPI Akademija Logo"
+                            className="h-16 w-auto filter brightness-110"
+                        />
+                        <p className="text-blue-100 leading-relaxed">
+                            IPI Akademija je vodeća visokoškolska ustanova koja
+                            pruža kvalitetno obrazovanje i priprema studente za
+                            uspješnu karijeru u digitalnom dobu.
+                        </p>
+                    </motion.div>
+
+                    {/* Quick Links */}
+                    <motion.div
+                        variants={containerAnimation}
+                        initial="hidden"
+                        whileInView="visible"
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className="space-y-6"
+                    >
+                        <h3 className="text-xl font-semibold text-white">
+                            Brzi linkovi
+                        </h3>
+                        <ul className="space-y-3">
+                            {quickLinks.map((link, index) => (
+                                <li key={index}>
+                                    <Link
+                                        to={link.href}
+                                        className="text-blue-100 hover:text-white transition-all duration-300 
+                                            hover:translate-x-1 inline-block"
+                                    >
+                                        {link.text}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </motion.div>
+
+                    {/* Contact Information */}
+                    <motion.div
+                        variants={containerAnimation}
+                        initial="hidden"
+                        whileInView="visible"
+                        transition={{ duration: 0.5, delay: 0.4 }}
+                        className="space-y-6"
+                    >
+                        <h3 className="text-xl font-semibold text-white">
+                            Kontakt
+                        </h3>
+                        <ul className="space-y-4">
+                            <li className="flex items-start space-x-3 group">
+                                <CiLocationOn
+                                    className="text-2xl text-blue-300 group-hover:text-white 
+                                    transition-colors duration-300 mt-1"
+                                />
+                                <span className="text-blue-100 group-hover:text-white transition-colors duration-300">
+                                    Kulina bana br. 2,
+                                    <br />
+                                    75000 Tuzla, BiH
+                                </span>
+                            </li>
+                            <li className="flex items-center space-x-3 group">
+                                <CiPhone
+                                    className="text-2xl text-blue-300 group-hover:text-white 
+                                    transition-colors duration-300"
+                                />
+                                <span className="text-blue-100 group-hover:text-white transition-colors duration-300">
+                                    +387 35 258 454
+                                </span>
+                            </li>
+                            <li className="flex items-center space-x-3 group">
+                                <CiMail
+                                    className="text-2xl text-blue-300 group-hover:text-white 
+                                    transition-colors duration-300"
+                                />
+                                <a
+                                    href="mailto:info@ipi-akademija.ba"
+                                    className="text-blue-100 group-hover:text-white transition-colors duration-300"
+                                >
+                                    info@ipi-akademija.ba
+                                </a>
+                            </li>
+                        </ul>
+                    </motion.div>
+
+                    {/* Newsletter Signup */}
+                    <motion.div
+                        variants={containerAnimation}
+                        initial="hidden"
+                        whileInView="visible"
+                        transition={{ duration: 0.5, delay: 0.6 }}
+                        className="space-y-6"
+                    >
+                        <h3 className="text-xl font-semibold text-white">
+                            Ostanite informisani
+                        </h3>
+                        <p className="text-blue-100">
+                            Prijavite se na naš newsletter i budite u toku sa
+                            najnovijim vijestima.
+                        </p>
+                        <form className="space-y-4">
+                            <div className="relative">
+                                <input
+                                    type="email"
+                                    placeholder="Vaša email adresa"
+                                    className="w-full px-4 py-3 rounded-lg bg-blue-800/50 border border-blue-700 
+                                        text-white placeholder-blue-300 focus:outline-none focus:ring-2 
+                                        focus:ring-blue-400 focus:border-transparent transition-all duration-300"
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                className="w-full px-4 py-3 bg-blue-500 text-white rounded-lg font-semibold
+                                    hover:bg-blue-400 transform hover:-translate-y-0.5 transition-all duration-300"
+                            >
+                                Prijavi se
+                            </button>
+                        </form>
+                    </motion.div>
                 </div>
-                <div className="lg:w-1/3 md:w-1/2 bg-blue-500 p-4 flex flex-col md:ml-auto w-full md:py-8 mt-8 md:mt-0 relative z-10">
-                    <h2 className="text-white font-semibold text-center text-lg mb-4  title-font">
-                        Kontakt
-                    </h2>
-                    <p className="leading-relaxed mb-2  text-gray-300 flex justify-center">
-                        <CiPhone className="mx-1 " /> +387 35 258 454
-                    </p>
-                    <p className="leading-relaxed mb-2 text-gray-300 flex  justify-center">
-                        <CiPhone className="mx-1" /> +387 62 062 657
-                    </p>
-                    <p className="leading-relaxed mb-2 text-gray-300 flex  justify-center">
-                        <CiMail className="mx-1" /> info@ipi-akademija.ba
-                    </p>
-                    <p className="leading-relaxed mb-2 text-gray-300 flex flex-col items-center text-center">
-                        <CiLocationOn className="mx-1" />
-                        <span>Kulina bana br. 2,</span>
-                        <span>75000 Tuzla, Bosna i Hercegovina</span>
-                    </p>
-                    <p className="leading-relaxed mb-2 text-gray-300 flex  justify-center items-center text-center">
-                        <TiSocialYoutubeCircular
-                            className="mx-1 rounded-full 
-                            "
-                            size={pictureSize}
-                            color=""
-                        />
-                        <CiFacebook
-                            className="mx-1 rounded-full 
-                            "
-                            size={pictureSize}
-                            color=""
-                        />
-                        <TiSocialLinkedinCircular
-                            className="  
-                            "
-                            size={pictureSize}
-                            color=""
-                        />
-                        <CiInstagram
-                            className="  
-                            "
-                            size={pictureSize}
-                            color=""
-                        />
-                    </p>
-                    <div className="relative mb-4">
-                        <label className="leading-7 text-sm text-gray-300">
-                            Ime
-                        </label>
-                        <input
-                            type="text"
-                            id="name"
-                            name="name"
-                            className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-                        />
+
+                {/* Social Links & Copyright */}
+                <motion.div
+                    variants={containerAnimation}
+                    initial="hidden"
+                    whileInView="visible"
+                    transition={{ duration: 0.5, delay: 0.8 }}
+                    className="mt-16 pt-8 border-t border-blue-700"
+                >
+                    <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                        <div className="text-blue-200 text-sm">
+                            © {new Date().getFullYear()} IPI Akademija. Sva
+                            prava zadržana.
+                        </div>
+                        <div className="flex space-x-6">
+                            {socialLinks.map((social, index) => {
+                                const Icon = social.icon
+                                return (
+                                    <a
+                                        key={index}
+                                        href={social.href}
+                                        aria-label={social.label}
+                                        className={cn(
+                                            'text-blue-300 transition-all duration-300 transform hover:-translate-y-1',
+                                            social.color
+                                        )}
+                                    >
+                                        <Icon size={32} />
+                                    </a>
+                                )
+                            })}
+                        </div>
                     </div>
-                    <div className="relative mb-4">
-                        <label className="leading-7 text-sm text-gray-300">
-                            Email
-                        </label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-                        />
-                    </div>
-                    <div className="relative mb-4">
-                        <label className="leading-7 text-sm text-gray-300">
-                            Poruka
-                        </label>
-                        <textarea
-                            id="message"
-                            name="message"
-                            placeholder="Posalji poruku ako te nesto zanima u vezi naseg fakulteta"
-                            className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 h-32 text-base outline-none text-gray-700 py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"
-                        ></textarea>
-                    </div>
-                    <button className="text-white bg-white border-0 py-2 px-6 focus:outline-none hover:bg-indigo-400 rounded text-lg">
-                        <p className="text-gray-700">Send</p>
-                    </button>
-                </div>
+                </motion.div>
             </div>
-        </section>
+
+            {/* Decorative background elements */}
+            <div
+                className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500 rounded-full 
+                opacity-10 transform translate-x-1/2 translate-y-1/2 blur-3xl"
+            />
+            <div
+                className="absolute top-0 left-0 w-64 h-64 bg-blue-400 rounded-full 
+                opacity-10 transform -translate-x-1/2 -translate-y-1/2 blur-3xl"
+            />
+        </footer>
     )
 }
 
