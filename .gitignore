@@ -1,10 +1,11 @@
+# Virtual Environment
+venv/
+NLP/venv/
+
+# Existing entries
 __pycache__/
 __pycache__/*
-
 .idea/
-
-__pycache__/
-__pycache__/*
 *.pyc
 *.pyo
 /__pycache/*
