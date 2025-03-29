@@ -1,5 +1,18 @@
+html,
 body {
     font-family: 'Nunito', sans-serif;
+    overflow-x: hidden;
+    max-width: 100%;
+    position: relative;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 .lottie-container {

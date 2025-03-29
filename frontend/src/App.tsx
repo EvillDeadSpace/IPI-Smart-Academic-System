@@ -84,11 +84,13 @@ function App() {
     }
 
     return (
-        <ChatProvider>
-            <Router>
-                <AppContent />
-            </Router>
-        </ChatProvider>
+        <div className="overflow-x-hidden hide-scrollbar">
+            <ChatProvider>
+                <Router>
+                    <AppContent />
+                </Router>
+            </ChatProvider>
+        </div>
     )
 }
 
@@ -106,32 +108,34 @@ function AppContent() {
     const shouldRenderHeader = !hideHeaderPaths.includes(location.pathname)
 
     return (
-        <>
+        <div className="min-h-screen flex flex-col">
             {shouldRenderHeader && <Header />}
-            <Routes>
-                <Route path="/admin" element={<AdminPanel />} />
-                <Route
-                    path="/profesor"
-                    element={
-                        <ProtectedProfessorRoute>
-                            <ProfessorBoard />
-                        </ProtectedProfessorRoute>
-                    }
-                />
-                <Route path="/" element={<HeroSite />} />
-                <Route path="*" element={<NotFound />} />
-                <Route path="/dashboard" element={<MainBoard />}>
-                    <Route path="settings" element={<Settings />} />
-                    <Route path="profile" element={<Profile />} />
-                    <Route path="scheduleexam" element={<StudentExams />} />
+            <main className="flex-1">
+                <Routes>
+                    <Route path="/admin" element={<AdminPanel />} />
                     <Route
-                        path="studentschedule"
-                        element={<StudentSchedule />}
+                        path="/profesor"
+                        element={
+                            <ProtectedProfessorRoute>
+                                <ProfessorBoard />
+                            </ProtectedProfessorRoute>
+                        }
                     />
-                </Route>
-                <Route path="/login" element={<Login />} />
-            </Routes>
-        </>
+                    <Route path="/" element={<HeroSite />} />
+                    <Route path="*" element={<NotFound />} />
+                    <Route path="/dashboard" element={<MainBoard />}>
+                        <Route path="settings" element={<Settings />} />
+                        <Route path="profile" element={<Profile />} />
+                        <Route path="scheduleexam" element={<StudentExams />} />
+                        <Route
+                            path="studentschedule"
+                            element={<StudentSchedule />}
+                        />
+                    </Route>
+                    <Route path="/login" element={<Login />} />
+                </Routes>
+            </main>
+        </div>
     )
 }
 
