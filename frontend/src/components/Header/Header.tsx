@@ -1,218 +1,289 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { GiHamburgerMenu } from 'react-icons/gi'
+import { IoClose } from 'react-icons/io5'
 import { useChat } from '../../Context'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 
 const Header = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-
     const [isOpen, setIsOpen] = useState(false)
-
-    const toggleMenu = () => {
-        setIsOpen(!isOpen)
-    }
-
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen)
-    }
-
+    const [scrolled, setScrolled] = useState(false)
     const nav = useNavigate()
-
+    const location = useLocation()
     const { studentMail, logout } = useChat()
 
+    // Handle scroll effect
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 20)
+        }
+        window.addEventListener('scroll', handleScroll)
+        return () => window.removeEventListener('scroll', handleScroll)
+    }, [])
+
+    const toggleMenu = () => setIsOpen(!isOpen)
+    const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
+
+    const navLinks = [
+        { to: '/', text: 'Početna' },
+        { to: '/about', text: 'O nama' },
+        { to: '/programs', text: 'Studijski programi' },
+        { to: '/news', text: 'Novosti' },
+        { to: '/contact', text: 'Kontakt' },
+    ]
+
+    const headerVariants = {
+        initial: { y: -100 },
+        animate: {
+            y: 0,
+            transition: { type: 'spring', stiffness: 100, damping: 20 },
+        },
+    }
+
+    const dropdownVariants = {
+        hidden: { opacity: 0, y: -20 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: { type: 'spring', stiffness: 400, damping: 30 },
+        },
+        exit: {
+            opacity: 0,
+            y: -20,
+            transition: { duration: 0.2 },
+        },
+    }
+
+    const sidebarVariants = {
+        hidden: { x: '100%' },
+        visible: {
+            x: 0,
+            transition: { type: 'spring', stiffness: 300, damping: 30 },
+        },
+        exit: {
+            x: '100%',
+            transition: { duration: 0.3 },
+        },
+    }
+
     return (
-        <header className="bg-blue-500 shadow-sm sticky top-0 z-50 ">
-            <nav
-                className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8"
-                aria-label="Global"
-            >
-                <div className="flex lg:flex-1">
-                    <Link to="/" className="-m-1.5 p-1.5">
-                        <span className="sr-only">IPIA</span>
-                        <img
-                            className="h-14 w-auto"
-                            src="../../../public/logo.png"
-                            alt=""
-                        />
-                    </Link>
-                </div>
-                <div className="flex lg:hidden">
-                    <GiHamburgerMenu
-                        color="white"
-                        className="ml-auto m-4 block md:hidden"
-                        onClick={toggleSidebar}
-                    />
-                </div>
-                <div className="hidden lg:flex lg:gap-x-12">
-                    <Link to="/" className="text-sm/6 font-semibold text-white">
-                        Pocetna
-                    </Link>
-                    <Link
-                        to="/about"
-                        className="text-sm/6 font-semibold text-white"
+        <motion.header
+            variants={headerVariants}
+            initial="initial"
+            animate="animate"
+            className={`fixed w-full top-0 z-50 transition-all duration-300 ${
+                scrolled
+                    ? 'bg-white/90 backdrop-blur-md shadow-lg'
+                    : 'bg-blue-500'
+            }`}
+        >
+            <nav className="mx-auto max-w-7xl px-6 lg:px-8 py-4">
+                <div className="flex items-center justify-between">
+                    {/* Logo */}
+                    <motion.div
+                        className="flex-shrink-0"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                     >
-                        O nama
-                    </Link>
-                    <Link
-                        to="/programs"
-                        className="text-sm/6 font-semibold text-white"
-                    >
-                        Studijski programi
-                    </Link>
-                    <Link
-                        to="/news"
-                        className="text-sm/6 font-semibold text-white"
-                    >
-                        Novosti
-                    </Link>
-                    <Link
-                        to="/contact"
-                        className="text-sm/6 font-semibold text-white"
-                    >
-                        Kontakt
-                    </Link>
-                </div>
-                <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-                    {studentMail ? (
-                        <div className="w-full text-center bg-blue-500 text-white font-semibold py-2 rounded-lg">
-                            <div className="relative inline-block">
-                                <button
+                        <Link to="/" className="flex items-center">
+                            <img
+                                className="h-12 w-auto"
+                                src="/logo.png"
+                                alt="IPI Akademija"
+                            />
+                        </Link>
+                    </motion.div>
+
+                    {/* Desktop Navigation */}
+                    <div className="hidden lg:flex lg:gap-x-8">
+                        {navLinks.map((link) => (
+                            <motion.div
+                                key={link.to}
+                                whileHover={{ y: -2 }}
+                                whileTap={{ y: 0 }}
+                            >
+                                <Link
+                                    to={link.to}
+                                    className={`text-sm font-semibold transition-colors duration-300 ${
+                                        location.pathname === link.to
+                                            ? scrolled
+                                                ? 'text-blue-600'
+                                                : 'text-white'
+                                            : scrolled
+                                              ? 'text-gray-600 hover:text-blue-600'
+                                              : 'text-white/80 hover:text-white'
+                                    }`}
+                                >
+                                    {link.text}
+                                </Link>
+                            </motion.div>
+                        ))}
+                    </div>
+
+                    {/* User Menu */}
+                    <div className="hidden lg:flex items-center gap-4">
+                        {studentMail ? (
+                            <div className="relative">
+                                <motion.button
                                     onClick={toggleMenu}
-                                    className="text-white font-semibold py-2 rounded-lg"
+                                    className={`px-4 py-2 rounded-full font-semibold transition-colors duration-300 ${
+                                        scrolled
+                                            ? 'bg-blue-500 text-white hover:bg-blue-600'
+                                            : 'bg-white/10 text-white hover:bg-white/20'
+                                    }`}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
                                 >
                                     {studentMail}
-                                </button>
-                                {isOpen && (
-                                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg">
-                                        <Link
-                                            to="/dashboard"
-                                            className="block px-4 py-2 text-gray-800 hover:bg-gray-200 rounded-lg"
+                                </motion.button>
+
+                                <AnimatePresence>
+                                    {isOpen && (
+                                        <motion.div
+                                            variants={dropdownVariants}
+                                            initial="hidden"
+                                            animate="visible"
+                                            exit="exit"
+                                            className="absolute right-0 mt-2 w-48 rounded-xl bg-white shadow-xl ring-1 ring-black ring-opacity-5 overflow-hidden"
                                         >
-                                            Dashboard
-                                        </Link>
-                                        <button
-                                            onClick={() => logout(nav)}
-                                            className="block w-full text-center px-4 py-2 text-gray-800 rounded-lg hover:bg-gray-200"
-                                        >
-                                            Odjava
-                                        </button>
-                                    </div>
-                                )}
+                                            <div className="py-1">
+                                                <Link
+                                                    to="/dashboard"
+                                                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 transition-colors duration-300"
+                                                >
+                                                    Dashboard
+                                                </Link>
+                                                <button
+                                                    onClick={() => logout(nav)}
+                                                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-300"
+                                                >
+                                                    Odjava
+                                                </button>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                             </div>
-                        </div>
-                    ) : (
-                        <div className="py-6">
-                            <button
+                        ) : (
+                            <motion.button
                                 onClick={() => nav('/login')}
-                                className="w-full text-center bg-blue-500 text-white font-semibold py-2 rounded-lg hover:bg-blue-600"
+                                className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${
+                                    scrolled
+                                        ? 'bg-blue-500 text-white hover:bg-blue-600'
+                                        : 'bg-white text-blue-500 hover:bg-blue-50'
+                                }`}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                             >
                                 Login
-                            </button>
-                        </div>
-                    )}
+                            </motion.button>
+                        )}
+                    </div>
+
+                    {/* Mobile Menu Button */}
+                    <motion.button
+                        className="lg:hidden"
+                        onClick={toggleSidebar}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                    >
+                        <GiHamburgerMenu
+                            className={`w-6 h-6 ${scrolled ? 'text-blue-500' : 'text-white'}`}
+                        />
+                    </motion.button>
                 </div>
             </nav>
-            <div className="lg:hidden" role="dialog" aria-modal="true">
+
+            {/* Mobile Sidebar */}
+            <AnimatePresence>
                 {isSidebarOpen && (
                     <>
-                        <div className="fixed inset-0 z-10"></div>
-                        <div className="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
-                            <div className="flex items-center justify-between">
-                                <Link to="/" className="-m-1.5 p-1.5">
-                                    <span className="sr-only">
-                                        Your Company
-                                    </span>
-                                    <img
-                                        className="h-8 w-auto"
-                                        src="../../../public/logo.png"
-                                        alt=""
-                                    />
-                                </Link>
-                                <button
-                                    type="button"
-                                    className="-m-2.5 rounded-md p-2.5 text-gray-700"
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+                            onClick={toggleSidebar}
+                        />
+                        <motion.div
+                            variants={sidebarVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            className="fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-xl"
+                        >
+                            <div className="px-6 py-4 flex items-center justify-between">
+                                <img
+                                    className="h-8 w-auto"
+                                    src="/logo.png"
+                                    alt="IPI Akademija"
+                                />
+                                <motion.button
                                     onClick={toggleSidebar}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
                                 >
-                                    <span className="sr-only">Close menu</span>
-                                    <svg
-                                        className="size-6"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth="1.5"
-                                        stroke="currentColor"
-                                        aria-hidden="true"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M6 18L18 6M6 6l12 12"
-                                        />
-                                    </svg>
-                                </button>
+                                    <IoClose className="w-6 h-6 text-gray-500" />
+                                </motion.button>
                             </div>
-                            <div className="mt-6 flow-root">
-                                <div className="-my-6 divide-y divide-gray-500/10">
-                                    <div className="space-y-2 py-6">
-                                        <Link
-                                            to="/"
-                                            className="flex w-full items-center justify-between rounded-lg py-2 pl-3 pr-3.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-                                        >
-                                            Pocetna
-                                        </Link>
-                                        <Link
-                                            to="/about"
-                                            className="flex w-full items-center justify-between rounded-lg py-2 pl-3 pr-3.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-                                        >
-                                            O nama
-                                        </Link>
-                                        <Link
-                                            to="/programs"
-                                            className="flex w-full items-center justify-between rounded-lg py-2 pl-3 pr-3.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-                                        >
-                                            Studijski programi
-                                        </Link>
-                                        <Link
-                                            to="/news"
-                                            className="flex w-full items-center justify-between rounded-lg py-2 pl-3 pr-3.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-                                        >
-                                            Novosti
-                                        </Link>
-                                        <Link
-                                            to="/contact"
-                                            className="flex w-full items-center justify-between rounded-lg py-2 pl-3 pr-3.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-                                        >
-                                            Kontakt
-                                        </Link>
-                                    </div>
+
+                            <div className="px-6 py-4">
+                                {navLinks.map((link) => (
+                                    <Link
+                                        key={link.to}
+                                        to={link.to}
+                                        onClick={toggleSidebar}
+                                        className="block py-3 text-base font-medium text-gray-900 hover:text-blue-600 transition-colors duration-300"
+                                    >
+                                        {link.text}
+                                    </Link>
+                                ))}
+
+                                <div className="mt-6 pt-6 border-t border-gray-200">
                                     {studentMail ? (
                                         <>
-                                            <div className="w-full text-center bg-blue-500 text-white font-semibold py-2 rounded-lg hover:bg-blue-600">
-                                                {studentMail}
+                                            <div className="px-4 py-2 text-sm text-gray-500">
+                                                Prijavljeni kao:
+                                                <div className="font-medium text-gray-900">
+                                                    {studentMail}
+                                                </div>
                                             </div>
+                                            <Link
+                                                to="/dashboard"
+                                                onClick={toggleSidebar}
+                                                className="block w-full px-4 py-2 mt-4 text-center text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors duration-300"
+                                            >
+                                                Dashboard
+                                            </Link>
                                             <button
-                                                onClick={() => logout(nav)}
-                                                className="w-full mt-4 text-center bg-blue-500 text-white font-semibold py-2 rounded-lg hover:bg-red-600"
+                                                onClick={() => {
+                                                    logout(nav)
+                                                    toggleSidebar()
+                                                }}
+                                                className="block w-full px-4 py-2 mt-2 text-center text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-300"
                                             >
                                                 Odjava
                                             </button>
                                         </>
                                     ) : (
-                                        <div className="py-6">
-                                            <button
-                                                onClick={() => nav('/login')}
-                                                className="w-full text-center bg-blue-500 text-white font-semibold py-2 rounded-lg hover:bg-blue-600"
-                                            >
-                                                Login
-                                            </button>
-                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                nav('/login')
+                                                toggleSidebar()
+                                            }}
+                                            className="block w-full px-4 py-2 text-center text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors duration-300"
+                                        >
+                                            Login
+                                        </button>
                                     )}
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
                     </>
                 )}
-            </div>
-        </header>
+            </AnimatePresence>
+        </motion.header>
     )
 }
 

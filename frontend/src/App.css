@@ -1,29 +1,85 @@
+html,
 body {
     font-family: 'Nunito', sans-serif;
+    overflow-x: hidden;
+    max-width: 100%;
+    position: relative;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 .lottie-container {
     position: fixed;
-    bottom: 10px;
-    right: 10px;
-    width: 65px;
-    height: 65px;
-    border-radius: 80%;
-    overflow: hidden;
-    border: 2px solid #000;
-    /* Boja kruga */
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
     z-index: 9999;
-    background-color: whitesmoke;
-    /* Dodaje pokazivač ruke pri prelasku miša */
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.5);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.lottie-container::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    padding: 2px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+.lottie-container:hover {
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6);
+    transform: translateY(-2px);
 }
 
 .lottie-icon {
+    width: 65%;
+    height: 65%;
+    filter: brightness(0) invert(1);
+}
+
+/* Add a pulse animation */
+@keyframes pulse-ring {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(1.3);
+        opacity: 0;
+    }
+}
+
+.lottie-container::after {
+    content: '';
+    position: absolute;
     width: 100%;
     height: 100%;
+    border-radius: 50%;
+    background: #3b82f6;
+    z-index: -1;
+    animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
 }
 
 .chat-window {
@@ -35,10 +91,13 @@ body {
     right: 40px;
     width: 400px;
     height: 600px;
-    background-color: white;
-    border: 1px solid #ccc;
+    background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.98));
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    box-shadow:
+        0 10px 30px -5px rgba(0, 0, 0, 0.1),
+        0 0 20px -5px rgba(59, 130, 246, 0.15);
     border-radius: 40px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
     z-index: 9999;
     /* Inicijalno sakriven */
@@ -56,4 +115,27 @@ body {
         height: 500px;
         right: 10px;
     }
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.button-shimmer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.2) 50%,
+            rgba(255, 255, 255, 0) 100%);
+    animation: shimmer 2s infinite;
 }

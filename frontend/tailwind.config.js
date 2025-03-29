@@ -12,8 +12,7 @@ export default {
                 nuni: ['Nunito', 'sans-serif'],
             },
             backgroundImage: {
-                'custom-image':
-                    "url('/frontend/public/Screenshot 2024-12-27 224233.png')",
+                'custom-image': "url('/ipizgrada.jpg')",
             },
         },
     },
