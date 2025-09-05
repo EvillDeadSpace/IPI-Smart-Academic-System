@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
-import { useChat } from '../../../Context'
+import { useAuth } from '../../../Context'
 import SubjectList from './SubjectList'
 import { IconBook2, IconSchool } from '@tabler/icons-react'
 
@@ -25,7 +25,7 @@ const Settings = () => {
     const [selectedElectives, setSelectedElectives] = useState<number[]>([])
     const [selectedMajor, setSelectedMajor] = useState<string>('')
     const [selectedYear, setSelectedYear] = useState<string>('')
-    const { studentMail } = useChat()
+    const { studentMail } = useAuth()
 
     // Fetch majors and subjects from the backend
     useEffect(() => {

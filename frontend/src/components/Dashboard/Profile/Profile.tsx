@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useChat } from '../../../Context'
+import { useAuth } from '../../../Context'
 
 interface Subject {
     name: string
@@ -22,7 +22,7 @@ interface StudentProgress {
 }
 
 const Profile = () => {
-    const { studentMail } = useChat()
+    const { studentMail } = useAuth()
     const [progress, setProgress] = useState<StudentProgress | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)

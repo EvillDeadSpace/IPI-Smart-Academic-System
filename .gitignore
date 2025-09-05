@@ -20,3 +20,5 @@ NLP/app/__pycache__/__init__.cpython-312.pyc
 NLP/app/__pycache__/openAiText.cpython-312.pyc
 NLP/app/__pycache__/routes.cpython-312.pyc
 NLP/app/__pycache__/services.cpython-312.pyc
+
+.github/copilot-instructions.md

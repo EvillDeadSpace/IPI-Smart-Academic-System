@@ -1,6 +1,6 @@
 import { FC, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useChat } from '../../Context'
+import { useAuth } from '../../Context'
 import { motion } from 'framer-motion'
 import {
     AiOutlineEye,
@@ -21,7 +21,7 @@ const Login: FC = () => {
     const nav = useNavigate()
 
     // Context
-    const { setStudentName, login, setUserType } = useChat()
+    const { setStudentName, login, setUserType } = useAuth()
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()

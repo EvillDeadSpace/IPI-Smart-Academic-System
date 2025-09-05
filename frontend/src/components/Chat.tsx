@@ -3,68 +3,14 @@ import Lottie from 'lottie-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import animation from '../assets/wired-gradient-981-consultation-hover-conversation.json'
 import { TbArrowBadgeRightFilled } from 'react-icons/tb'
+
+// Chat utils
 import StartPage from './UtilsChat/StartPage'
 import ChatHeader from './UtilsChat/StatusComponent'
-import { useChat } from '../Context'
+import { useChat } from '../contexts/ChatContext'
 import { useChatSubmit } from './Utils/CustomHook'
-
-const LoadingDots = () => (
-    <div className="flex space-x-1 items-center justify-center">
-        {[1, 2, 3].map((dot) => (
-            <motion.div
-                key={dot}
-                className="w-2 h-2 bg-blue-500 rounded-full"
-                initial={{ y: 0 }}
-                animate={{ y: [-2, 2] }}
-                transition={{
-                    duration: 0.4,
-                    repeat: Infinity,
-                    repeatType: 'reverse',
-                    delay: dot * 0.1,
-                }}
-            />
-        ))}
-    </div>
-)
-
-// For animation text
-const MessageText: FC<{ text: string; isUser: boolean }> = ({
-    text,
-    isUser,
-}) => {
-    const [displayedText, setDisplayedText] = useState('')
-    const [currentIndex, setCurrentIndex] = useState(0)
-
-    useEffect(() => {
-        if (isUser) {
-            setDisplayedText(text)
-            return
-        }
-
-        if (currentIndex < text.length) {
-            const timeout = setTimeout(() => {
-                setDisplayedText((prev) => prev + text[currentIndex])
-                setCurrentIndex((prev) => prev + 1)
-            }, 30) // Adjust typing speed here (lower = faster)
-
-            return () => clearTimeout(timeout)
-        }
-    }, [text, currentIndex, isUser])
-
-    return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="whitespace-pre-wrap"
-        >
-            {displayedText}
-            {!isUser && currentIndex < text.length && (
-                <span className="animate-pulse">|</span>
-            )}
-        </motion.div>
-    )
-}
+import { LoadingDots } from './UtilsChat/LoadingDots'
+import { MessageText } from './UtilsChat/MessageText'
 
 const Chat: FC = () => {
     const { status, isChatOpen, setIsChatOpen } = useChat()
