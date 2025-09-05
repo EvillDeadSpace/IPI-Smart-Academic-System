@@ -244,7 +244,7 @@ export const Card = ({
             <motion.button
                 layoutId={layout ? `card-${card.title}` : undefined}
                 onClick={handleOpen}
-                className="rounded-3xl bg-gray-100 h-[500px] w-[350px] md:h-[600px] md:w-[400px] overflow-hidden flex flex-col items-start justify-start relative z-10"
+                className="rounded-3xl bg-gray-100 h-[500px] w-[350px] md:h-[600px] md:w-[400px] overflow-hidden flex flex-col items-start justify-start relative z-10 group"
             >
                 <div className="absolute h-full top-0 inset-x-0 bg-gradient-to-b from-black/50 via-transparent to-transparent z-30 pointer-events-none" />
                 <div className="relative z-40 p-8">
@@ -267,7 +267,7 @@ export const Card = ({
                     src={card.src}
                     alt={card.title}
                     fill
-                    className="object-cover absolute z-10 inset-0 w-full h-full"
+                    className="object-cover absolute z-10 inset-0 w-full h-full transform transition-all duration-500 ease-out group-hover:scale-110 group-hover:brightness-110"
                 />
             </motion.button>
         </>

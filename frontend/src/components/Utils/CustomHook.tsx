@@ -32,16 +32,25 @@ export const useChatSubmit = () => {
             const result = await response.json()
 
             // Dodaj AI odgovor u niz poruka
-            if (result.sentence && result.sentence.length > 0) {
+            if (result.response && result.response.length > 0) {
                 setMessages((prevMessages) => [
                     ...prevMessages,
-                    { text: result.sentence, isUser: false },
+                    { text: result.response, isUser: false },
                 ])
-            } else if (result.message) {
+            } else if (result.error) {
                 // Poruka greške sa API-a
                 setMessages((prevMessages) => [
                     ...prevMessages,
-                    { text: result.message, isUser: false },
+                    { text: result.error, isUser: false },
+                ])
+            } else {
+                // Fallback poruka
+                setMessages((prevMessages) => [
+                    ...prevMessages,
+                    {
+                        text: 'Izvinjavam se, nisam mogao da odgovorim na vaše pitanje.',
+                        isUser: false,
+                    },
                 ])
             }
         } catch (error) {

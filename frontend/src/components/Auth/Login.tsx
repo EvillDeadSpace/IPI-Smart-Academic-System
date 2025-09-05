@@ -1,12 +1,21 @@
 import { FC, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useChat } from '../../Context'
+import { motion } from 'framer-motion'
+import {
+    AiOutlineEye,
+    AiOutlineEyeInvisible,
+    AiOutlineMail,
+    AiOutlineLock,
+    AiOutlineArrowRight,
+} from 'react-icons/ai'
 
 const Login: FC = () => {
     const [password, setPassword] = useState<string>('')
     const [email, setEmail] = useState<string>('')
     const [message, setMessage] = useState<string>('')
     const [loading, setLoading] = useState<boolean>(false)
+    const [showPassword, setShowPassword] = useState<boolean>(false)
 
     // Navigation
     const nav = useNavigate()
@@ -76,101 +85,172 @@ const Login: FC = () => {
     }
 
     return (
-        <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-            <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-                <img
-                    className="mx-auto h-24 w-auto"
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7H4zcd-uwZONKwVlAurlkhYu_9Bve22BRzw&s"
-                    alt="Your Company"
-                />
-                <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-gray-900">
-                    Prijavi se na svoj nalog
-                </h2>
-            </div>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center px-4 pt-24 pb-12 relative overflow-hidden">
+            {/* Background decorative elements */}
+            <div className="absolute top-0 left-0 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-pulse" />
+            <div className="absolute bottom-0 right-0 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-pulse" />
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-indigo-400 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-pulse" />
 
-            <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-                <form className="space-y-6" onSubmit={handleSubmit}>
-                    <div>
-                        <label
-                            htmlFor="email"
-                            className="block text-sm font-medium text-gray-900"
-                        >
-                            Email address
-                        </label>
-                        <div className="mt-2">
-                            <input
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                type="email"
-                                name="email"
-                                id="email"
-                                autoComplete="email"
-                                required
-                                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 shadow-sm outline outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:outline-indigo-600 sm:text-sm"
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="relative z-10 w-full max-w-sm"
+            >
+                {/* Login Card */}
+                <div className="bg-blue-900/90 backdrop-blur-lg rounded-2xl shadow-xl border border-blue-700/50 p-6">
+                    {/* Header */}
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2, duration: 0.6 }}
+                        className="text-center mb-6"
+                    >
+                        <div className="mx-auto flex justify-center mb-4">
+                            <img
+                                className="h-40 w-40 object-contain"
+                                src="/image-17.png"
+                                alt="IPI Akademija"
                             />
                         </div>
-                    </div>
 
-                    <div>
-                        <div className="flex items-center justify-between">
-                            <label
-                                htmlFor="password"
-                                className="block text-sm font-medium text-gray-900"
-                            >
-                                Password
+                        <p className="text-gray-300 mt-1 text-sm">
+                            Prijavite se na svoj nalog
+                        </p>
+                    </motion.div>
+
+                    {/* Form */}
+                    <motion.form
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.4, duration: 0.6 }}
+                        className="space-y-4"
+                        onSubmit={handleSubmit}
+                    >
+                        {/* Email Field */}
+                        <div className="space-y-1">
+                            <label className="text-xs font-semibold text-blue-100 flex items-center gap-2">
+                                <AiOutlineMail className="h-3 w-3 text-blue-300" />
+                                Email adresa
                             </label>
-                            <div className="text-sm">
-                                <a
-                                    href="#"
-                                    className="font-semibold text-indigo-600 hover:text-indigo-500"
-                                >
-                                    Forgot password?
-                                </a>
+                            <div className="relative">
+                                <input
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    type="email"
+                                    name="email"
+                                    id="email"
+                                    autoComplete="email"
+                                    required
+                                    className="w-full px-3 py-3 bg-blue-800/30 border border-blue-600/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 placeholder-blue-200 backdrop-blur-sm text-sm text-white"
+                                    placeholder="vaš@email.com"
+                                />
                             </div>
                         </div>
-                        <div className="mt-2">
-                            <input
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                type="password"
-                                name="password"
-                                id="password"
-                                autoComplete="current-password"
-                                required
-                                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 shadow-sm outline outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:outline-indigo-600 sm:text-sm"
-                            />
-                        </div>
-                    </div>
 
-                    <div>
-                        <button
+                        {/* Password Field */}
+                        <div className="space-y-1">
+                            <label className="text-xs font-semibold text-blue-100 flex items-center gap-2">
+                                <AiOutlineLock className="h-3 w-3 text-blue-300" />
+                                Šifra
+                            </label>
+                            <div className="relative">
+                                <input
+                                    value={password}
+                                    onChange={(e) =>
+                                        setPassword(e.target.value)
+                                    }
+                                    type={showPassword ? 'text' : 'password'}
+                                    name="password"
+                                    id="password"
+                                    autoComplete="current-password"
+                                    required
+                                    className="w-full px-3 py-3 pr-10 bg-blue-800/30 border border-blue-600/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 placeholder-blue-200 backdrop-blur-sm text-sm text-white"
+                                    placeholder="Unesite vašu šifru"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowPassword(!showPassword)
+                                    }
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-300 hover:text-blue-100 transition-colors duration-200"
+                                >
+                                    {showPassword ? (
+                                        <AiOutlineEyeInvisible className="h-4 w-4" />
+                                    ) : (
+                                        <AiOutlineEye className="h-4 w-4" />
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Forgot Password */}
+                        <div className="flex justify-end">
+                            <a
+                                href="#"
+                                className="text-xs text-blue-300 hover:text-blue-100 font-medium transition-colors duration-200"
+                            >
+                                Zaboravili ste šifru?
+                            </a>
+                        </div>
+
+                        {/* Submit Button */}
+                        <motion.button
                             type="submit"
                             disabled={loading}
-                            className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group"
                         >
-                            {loading ? 'Logging in...' : 'Sign in'}
-                        </button>
-                    </div>
-                </form>
+                            {loading ? (
+                                <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                    Prijavljivanje...
+                                </>
+                            ) : (
+                                <>
+                                    Prijavite se
+                                    <AiOutlineArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-200" />
+                                </>
+                            )}
+                        </motion.button>
+                    </motion.form>
 
-                <p className="mt-10 text-center text-sm text-gray-500">
-                    Nemas account?{' '}
-                    <a
-                        href="#"
-                        className="font-semibold text-indigo-600 hover:text-indigo-500"
+                    {/* Footer */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.6, duration: 0.6 }}
+                        className="mt-6 text-center"
                     >
-                        Prijavi se prvo u studensku sluzbu
-                    </a>
-                </p>
+                        <p className="text-blue-100 text-xs">
+                            Nemate nalog?{' '}
+                            <a
+                                href="#"
+                                className="text-blue-300 hover:text-blue-100 font-semibold transition-colors duration-200"
+                            >
+                                Kontaktirajte studentsku službu
+                            </a>
+                        </p>
+                    </motion.div>
 
-                {message && (
-                    <p
-                        className={`mt-4 text-center text-sm ${message.includes('failed') ? 'text-red-500' : 'text-green-500'}`}
-                    >
-                        {message}
-                    </p>
-                )}
-            </div>
+                    {/* Message */}
+                    {message && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className={`mt-4 p-3 rounded-xl text-center text-xs font-medium ${
+                                message.includes('failed') ||
+                                message.includes('Login failed')
+                                    ? 'bg-red-50 text-red-600 border border-red-200'
+                                    : 'bg-green-50 text-green-600 border border-green-200'
+                            }`}
+                        >
+                            {message}
+                        </motion.div>
+                    )}
+                </div>
+            </motion.div>
         </div>
     )
 }

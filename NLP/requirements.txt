@@ -1,6 +1,6 @@
-Flask
-Flask-Cors
-spacy
-mistralai
-python-dotenv
-openai
+Flask==3.1.2
+Flask-Cors==5.0.0
+mistralai==1.2.4
+python-dotenv==1.0.1
+requests==2.32.3
+scikit-learn
