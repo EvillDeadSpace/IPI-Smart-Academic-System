@@ -1,52 +1,27 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-interface ChatContextType {
-    status: boolean
-    setStatus: React.Dispatch<React.SetStateAction<boolean>>
-    isChatOpen: boolean
-    setIsChatOpen: React.Dispatch<React.SetStateAction<boolean>>
-    studentName: string
-    setStudentName: React.Dispatch<React.SetStateAction<string>>
-    studentMail: string
-    setStudentMail: React.Dispatch<React.SetStateAction<string>>
-    userType: string
-    setUserType: React.Dispatch<React.SetStateAction<string>>
-    login: (userMail: string, userName: string, userType: string) => void
-    logout: (navigate: ReturnType<typeof useNavigate>) => void
-    userDetails: UserDetails | null
-    setUserDetails: (details: UserDetails | null) => void
-}
 
-interface UserDetails {
-    ime: string
-    prezime: string
-    email: string
-    tipUsera: string
-    indeks?: string
-    godinaStudija?: string
-    smjerStudija?: string
-}
+import { STORAGE_KEYS, API_ENDPOINTS } from './constants/storage'
+import { UserDetails } from './types/user'
+import { AuthContextType } from './types/auth'
 
-const ChatContext = createContext<ChatContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-interface ChatProviderProps {
+interface AuthProviderProps {
     children: React.ReactNode
 }
 
-export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
-    const [status, setStatus] = useState<boolean>(false)
-    const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [studentName, setStudentName] = useState<string>('')
     const [studentMail, setStudentMail] = useState<string>('')
     const [userType, setUserType] = useState<string>('')
     const [userDetails, setUserDetails] = useState<UserDetails | null>(null)
-    //useNavigate
 
     // check user if login
     useEffect(() => {
-        const storedMail = localStorage.getItem('student mail')
-        const storedName = localStorage.getItem('student name')
-        const storedUserType = localStorage.getItem('userType')
+        const storedMail = localStorage.getItem(STORAGE_KEYS.STUDENT_EMAIL)
+        const storedName = localStorage.getItem(STORAGE_KEYS.STUDENT_NAME)
+        const storedUserType = localStorage.getItem(STORAGE_KEYS.STUDENT_TYPE)
 
         if (storedMail) {
             setStudentMail(storedMail)
@@ -60,14 +35,16 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         setStudentMail(userMail)
         setStudentName(userName)
         setUserType(userType)
-        localStorage.setItem('student mail', userMail)
-        localStorage.setItem('student name', userName)
-        localStorage.setItem('userType', userType)
+
+        // This is from STORAGE KEYS hardcoded text
+        localStorage.setItem(STORAGE_KEYS.STUDENT_EMAIL, userMail)
+        localStorage.setItem(STORAGE_KEYS.STUDENT_NAME, userName)
+        localStorage.setItem(STORAGE_KEYS.STUDENT_TYPE, userType)
     }
 
     //fetching user details for dashboard
     useEffect(() => {
-        const storedMail = localStorage.getItem('student mail')
+        const storedMail = localStorage.getItem(STORAGE_KEYS.STUDENT_EMAIL)
         if (storedMail) {
             fetchUserDetails(storedMail)
         }
@@ -75,12 +52,15 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     const fetchUserDetails = async (email: string) => {
         try {
-            const response = await fetch(`http://localhost:8080/user/${email}`)
+            const response = await fetch(API_ENDPOINTS.USER_DETAILS(email))
             if (response.ok) {
                 const details = await response.json()
                 setUserDetails(details)
                 console.log(details + 'details')
-                localStorage.setItem('userDetails', JSON.stringify(details))
+                localStorage.setItem(
+                    STORAGE_KEYS.USER_DETAILS,
+                    JSON.stringify(details)
+                )
             }
         } catch (error) {
             console.error('Error fetching user details:', error)
@@ -92,50 +72,15 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         setStudentMail('')
         setStudentName('')
         setUserType('')
-        localStorage.removeItem('student mail')
-        localStorage.removeItem('student name')
-        localStorage.removeItem('userType')
+        localStorage.removeItem(STORAGE_KEYS.STUDENT_EMAIL)
+        localStorage.removeItem(STORAGE_KEYS.STUDENT_NAME)
+        localStorage.removeItem(STORAGE_KEYS.STUDENT_TYPE)
         nav('/')
     }
-    // Fetching the status from the server
-    useEffect(() => {
-        // Function to fetch status from the backend
-        const fetchStatus = async () => {
-            try {
-                const response = await fetch('http://127.0.0.1:5000/status')
-                const data = await response.json()
-
-                // Only update the status if it's different from the current one
-                if (data.status !== status) {
-                    setStatus(data.status) // Update status based on the response
-                }
-            } catch (error) {
-                console.error('There was an error fetching the status!', error)
-                setStatus(false) // Set status to false in case of an error
-            }
-        }
-
-        // Fetch status initially
-        fetchStatus()
-
-        // Set interval to fetch status every 5 seconds
-        const interval = setInterval(() => {
-            fetchStatus()
-        }, 500000000) // 5000 milliseconds = 5 seconds
-
-        // Cleanup function to clear interval when component is unmounted
-        return () => {
-            clearInterval(interval) // Clear interval when the component is unmounted
-        }
-    }, [status])
 
     return (
-        <ChatContext.Provider
+        <AuthContext.Provider
             value={{
-                status,
-                setStatus,
-                isChatOpen,
-                setIsChatOpen,
                 studentName,
                 setStudentName,
                 login,
@@ -149,14 +94,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             }}
         >
             {children}
-        </ChatContext.Provider>
+        </AuthContext.Provider>
     )
 }
 
-export const useChat = () => {
-    const context = useContext(ChatContext)
+export const useAuth = () => {
+    const context = useContext(AuthContext)
     if (!context) {
-        throw new Error('useChat must be used within a ChatProvider')
+        throw new Error('useAuth must be used within an AuthProvider')
     }
     return context
 }

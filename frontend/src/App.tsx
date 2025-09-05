@@ -1,5 +1,6 @@
 import './App.css'
-import { ChatProvider, useChat } from './Context'
+import { AuthProvider, useAuth } from './Context'
+import { ChatProvider } from './contexts/ChatContext'
 import HeroSite from './components/HeroSite'
 import {
     BrowserRouter as Router,
@@ -26,7 +27,7 @@ const ProtectedProfessorRoute = ({
 }: {
     children: React.ReactNode
 }) => {
-    const { userType } = useChat()
+    const { userType } = useAuth()
 
     if (userType !== 'PROFESOR') {
         return <Navigate to="/login" replace />
@@ -85,11 +86,13 @@ function App() {
 
     return (
         <div className="overflow-x-hidden hide-scrollbar">
-            <ChatProvider>
-                <Router>
-                    <AppContent />
-                </Router>
-            </ChatProvider>
+            <AuthProvider>
+                <ChatProvider>
+                    <Router>
+                        <AppContent />
+                    </Router>
+                </ChatProvider>
+            </AuthProvider>
         </div>
     )
 }

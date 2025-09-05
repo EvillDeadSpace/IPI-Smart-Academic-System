@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useChat } from '../../Context'
+import { useAuth } from '../../Context'
 import {
     IconUsers,
     IconClipboardList,
@@ -51,7 +51,7 @@ interface SetupModalProps {
 }
 
 const ProfessorBoard: React.FC = () => {
-    const { userType, studentMail } = useChat()
+    const { userType, studentMail } = useAuth()
     const [showProfileModal, setShowProfileModal] = useState(false)
     const [showExamModal, setShowExamModal] = useState(false)
     const [showGradingModal, setShowGradingModal] = useState(false)

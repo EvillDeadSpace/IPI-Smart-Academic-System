@@ -1,5 +1,5 @@
 import { cn } from '../../../lib/utils'
-import { useChat } from '../../../Context'
+import { useAuth } from '../../../Context'
 import { useNavigate, useLocation, Link } from 'react-router-dom' // Import Link from react-router-dom
 import { useState } from 'react'
 import { Sidebar, SidebarBody, SidebarLink } from '../../ui/sidebar'
@@ -15,7 +15,7 @@ import { motion } from 'motion/react'
 import Dashboard from './Dashboard'
 
 export const Logo = () => {
-    const { studentMail } = useChat()
+    const { studentMail } = useAuth()
     return (
         <Link
             to="/home"
@@ -38,7 +38,7 @@ export function SidebarDemo() {
 
     const location = useLocation()
 
-    const { studentName, logout } = useChat()
+    const { studentName, logout } = useAuth()
     const nav = useNavigate()
     const links = [
         {
