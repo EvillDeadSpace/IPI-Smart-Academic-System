@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 
 __pycache__/
+
+.github
+.github/*
+.github/copilot-instructions.md
