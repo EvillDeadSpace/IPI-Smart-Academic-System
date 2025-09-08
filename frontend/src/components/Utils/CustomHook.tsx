@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { API_ENDPOINTS } from '../../constants/storage'
 
 export const useChatSubmit = () => {
     const [word, setWord] = useState<string>('')
@@ -22,7 +23,7 @@ export const useChatSubmit = () => {
         setIsLoading(true)
 
         try {
-            const response = await fetch('http://127.0.0.1:5000/search', {
+            const response = await fetch(API_ENDPOINTS.NLP_SEARCH, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -27,6 +27,19 @@ services:
           name: faculty-db
           property: password
 
+  - type: web
+    name: faculty-nlp
+    env: python
+    buildCommand: cd NLP && pip install -r requirements.txt
+    startCommand: cd NLP && python main.py
+    envVars:
+      - key: GITHUB_TOKEN
+        value: YOUR_GITHUB_TOKEN_HERE
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 5000
+
 databases:
   - name: faculty-db
     plan: free
