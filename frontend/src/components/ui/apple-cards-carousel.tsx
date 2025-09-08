@@ -5,13 +5,14 @@ import React, {
     useState,
     createContext,
     useContext,
+    useCallback,
 } from 'react'
 import {
     IconArrowNarrowLeft,
     IconArrowNarrowRight,
     IconX,
 } from '@tabler/icons-react'
-import { cn } from '../../lib/utils'
+import { cn } from '../../../src/lib/utils'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useOutsideClick } from '../ui/use-outside-click'
 
@@ -116,12 +117,11 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
                                 animate={{
                                     opacity: 1,
                                     y: 0,
-                                    transition: {
-                                        duration: 0.5,
-                                        delay: 0.2 * index,
-                                        ease: 'easeOut',
-                                        once: true,
-                                    },
+                                }}
+                                transition={{
+                                    duration: 0.5,
+                                    delay: 0.2 * index,
+                                    ease: 'easeOut',
                                 }}
                                 key={'card' + index}
                                 className="last:pr-[5%] md:last:pr-[33%]  rounded-3xl"
@@ -165,6 +165,15 @@ export const Card = ({
     const containerRef = useRef<HTMLDivElement>(null)
     const { onCardClose } = useContext(CarouselContext)
 
+    const handleClose = useCallback(() => {
+        setOpen(false)
+        onCardClose(index)
+    }, [onCardClose, index])
+
+    const handleOpen = () => {
+        setOpen(true)
+    }
+
     useEffect(() => {
         function onKeyDown(event: KeyboardEvent) {
             if (event.key === 'Escape') {
@@ -198,18 +207,9 @@ export const Card = ({
                 header.style.display = 'block'
             }
         }
-    }, [open])
+    }, [open, handleClose])
 
     useOutsideClick(containerRef, () => handleClose())
-
-    const handleOpen = () => {
-        setOpen(true)
-    }
-
-    const handleClose = () => {
-        setOpen(false)
-        onCardClose(index)
-    }
 
     return (
         <>
@@ -287,7 +287,7 @@ export const BlurImage = ({
     src: string
     className?: string
     alt?: string
-    [key: string]: any
+    [key: string]: unknown
 }) => {
     const [isLoading, setLoading] = useState(true)
     return (

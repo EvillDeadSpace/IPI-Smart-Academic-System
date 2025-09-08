@@ -142,7 +142,7 @@ const Settings = () => {
             )
 
             if (response.ok) {
-                const data = await response.json()
+                await response.json()
                 alert('Successfully enrolled in the year!')
                 window.location.reload()
             } else {

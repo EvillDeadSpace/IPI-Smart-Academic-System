@@ -79,9 +79,14 @@ const ProfessorBoard: React.FC = () => {
     const [isFirstTimeSetup, setIsFirstTimeSetup] = useState(true)
     const [showSetupModal, setShowSetupModal] = useState(false)
     const [availableSubjects, setAvailableSubjects] = useState<string[]>([])
-    const [examCount, setExamCount] = useState<number>(0)
     const [isLoading, setIsLoading] = useState<boolean>(true)
 
+    console.log(
+        isFirstTimeSetup,
+        setSelectedStudent,
+        setSubjectStudents,
+        selectedSubjectForGrading
+    )
     useEffect(() => {
         if (studentMail && userType === 'PROFESOR') {
             checkFirstTimeLogin()
@@ -743,7 +748,13 @@ const ProfessorBoard: React.FC = () => {
                                 Odustani
                             </button>
                             <button
-                                onClick={handleGradeSubmission}
+                                onClick={(e) => {
+                                    e.preventDefault()
+                                    handleGradeSubmission(
+                                        gradeSubmission.registrationId,
+                                        gradeSubmission.points
+                                    )
+                                }}
                                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
                             >
                                 Potvrdi

@@ -20,6 +20,7 @@ import Profile from './components/Dashboard/Profile/Profile'
 import Settings from './components/Dashboard/Profile/ProfileSettings'
 import { useState, useEffect } from 'react'
 import StudentSchedule from './components/Faculty/StudentSchedule'
+import About from './components/Pages/About'
 
 // Create a protected route component
 const ProtectedProfessorRoute = ({
@@ -43,7 +44,7 @@ function App() {
         // Simulate initial loading time
         const timer = setTimeout(() => {
             setIsLoading(false)
-        }, 2000) // Adjust time as needed
+        }, 1000) // Adjust time as needed
 
         return () => clearTimeout(timer)
     }, [])
@@ -125,6 +126,7 @@ function AppContent() {
                         }
                     />
                     <Route path="/" element={<HeroSite />} />
+                    <Route path="/about" element={<About />} />
                     <Route path="*" element={<NotFound />} />
                     <Route path="/dashboard" element={<MainBoard />}>
                         <Route path="settings" element={<Settings />} />
