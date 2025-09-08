@@ -7,6 +7,8 @@ export default defineConfig({
     preview: {
         port: 5173,
         strictPort: true,
+        // Add SPA fallback for production preview
+        open: true,
     },
     server: {
         port: 5173,
