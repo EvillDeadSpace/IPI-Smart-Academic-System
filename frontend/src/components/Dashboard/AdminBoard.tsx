@@ -4,11 +4,13 @@ import React, { useState } from 'react'
 const AdminPanel: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [formData, setFormData] = useState({
-        ime: '',
-        prezime: '',
-        password: '',
+        firstName: '',
+        lastName: '',
         email: '',
-        tipUsera: 'STUDENT', // Default role
+        indexNumber: '',
+        dateOfBirth: '',
+        majorId: '1',
+        password: '',
     })
 
     const openModal = () => setIsModalOpen(true)
@@ -28,32 +30,50 @@ const AdminPanel: React.FC = () => {
         e.preventDefault()
 
         try {
-            const response = await fetch('http://localhost:8080/add_user', {
+            const payload: any = {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                dateOfBirth: formData.dateOfBirth,
+                majorId: Number(formData.majorId),
+                password: formData.password,
+            }
+
+            if (formData.indexNumber && formData.indexNumber.trim() !== '') {
+                payload.indexNumber = formData.indexNumber.trim()
+            }
+
+            const response = await fetch('http://localhost:3001/api/students', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(payload),
             })
 
-            const data = await response.json()
+            const text = await response.text()
+            let data: any
+            try {
+                data = JSON.parse(text)
+            } catch {
+                data = text
+            }
 
             if (response.ok) {
-                alert(
-                    `Korisnik uspješno dodan! ${formData.tipUsera === 'STUDENT' ? '(Enrollment je cleared)' : ''}`
-                )
+                alert('Korisnik uspješno dodan!')
                 closeModal()
                 setFormData({
-                    ime: '',
-                    prezime: '',
-                    password: '',
+                    firstName: '',
+                    lastName: '',
                     email: '',
-                    tipUsera: 'STUDENT',
+                    indexNumber: '',
+                    dateOfBirth: '',
+                    majorId: '1',
+                    password: '',
                 })
             } else {
-                alert(
-                    `Greška: ${data.error || 'Došlo je do greške pri dodavanju korisnika.'}`
-                )
+                console.error('Create failed', response.status, data)
+                alert(`Greška: ${data?.error || JSON.stringify(data)}`)
             }
         } catch (error) {
             console.error('Greška:', error)
@@ -93,8 +113,8 @@ const AdminPanel: React.FC = () => {
                                 </label>
                                 <input
                                     type="text"
-                                    name="ime"
-                                    value={formData.ime}
+                                    name="firstName"
+                                    value={formData.firstName}
                                     onChange={handleInputChange}
                                     className="w-full px-3 py-2 border rounded-md"
                                     placeholder="Unesi ime"
@@ -107,25 +127,11 @@ const AdminPanel: React.FC = () => {
                                 </label>
                                 <input
                                     type="text"
-                                    name="prezime"
-                                    value={formData.prezime}
+                                    name="lastName"
+                                    value={formData.lastName}
                                     onChange={handleInputChange}
                                     className="w-full px-3 py-2 border rounded-md"
                                     placeholder="Unesi prezime"
-                                    required
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium mb-1">
-                                    Password
-                                </label>
-                                <input
-                                    type="password"
-                                    name="password"
-                                    value={formData.password}
-                                    onChange={handleInputChange}
-                                    className="w-full px-3 py-2 border rounded-md"
-                                    placeholder="Unesi password"
                                     required
                                 />
                             </div>
@@ -145,19 +151,60 @@ const AdminPanel: React.FC = () => {
                             </div>
                             <div className="mb-4">
                                 <label className="block text-sm font-medium mb-1">
-                                    Rola
+                                    IndexNumber (opcionalno)
                                 </label>
-                                <select
-                                    name="tipUsera"
-                                    value={formData.tipUsera}
+                                <input
+                                    type="text"
+                                    name="indexNumber"
+                                    value={formData.indexNumber}
                                     onChange={handleInputChange}
                                     className="w-full px-3 py-2 border rounded-md"
-                                >
-                                    <option value="STUDENT">Student</option>
-                                    <option value="PROFESOR">Profesor</option>
-                                    <option value="ASISTENT">Asistent</option>
-                                </select>
+                                    placeholder="Unesi index number (ostavi prazno za automatski)"
+                                />
                             </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium mb-1">
+                                    Godina rodenja
+                                </label>
+                                <input
+                                    type="date"
+                                    name="dateOfBirth"
+                                    value={formData.dateOfBirth}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 py-2 border rounded-md"
+                                    placeholder="Unesi godinu rodenja"
+                                    required
+                                />
+                            </div>
+                            <div className="mb-4">
+                                {/* majorId will be sent as number; default 1 */}
+                                <input
+                                    type="hidden"
+                                    name="majorId"
+                                    value={formData.majorId}
+                                />
+                                <label className="block text-sm font-medium mb-1">
+                                    Godina studija
+                                </label>
+                                <div className="text-sm text-gray-600">
+                                    Major ID: {formData.majorId}
+                                </div>
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium mb-1">
+                                    Unesite password
+                                </label>
+                                <input
+                                    type="password"
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 py-2 border rounded-md"
+                                    placeholder="Unesi password"
+                                    required
+                                />
+                            </div>
+
                             <div className="flex justify-end">
                                 <button
                                     type="button"

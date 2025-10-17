@@ -26,24 +26,33 @@
 
 ## Studijski programi
 
+IPI Akademija nudi sledeće studijske smjerove:
+
+### Računarstvo i informatika
+- Fokus na programiranje i razvoj softvera
+- Osnove programiranja u različitim jezicima
+- Razvoj web i mobilnih aplikacija
+- Mrežne tehnologije i administracija sistema
+- Cyber sigurnost i zaštita podataka
+- Baze podataka i analiza podataka
+- Veštačka inteligencija i mašinsko učenje
+
+### Menadžment i poslovne tehnologije
+- Spoj ekonomije i savremenih tehnologija
+- Upravljanje projektima i timovima
+- Digitalni marketing i e-commerce
+- Poslovna analitika i business intelligence
+- Upravljanje organizacijama u digitalnom okruženju
+- Preduzetništvo i inovacije
+
+### Ostale karakteristike studijskih programa:
 - Fokusirani su na razvoj stručnjaka u oblasti informatike, menadžmenta, i poslovnih tehnologija
-
-- Najpopularniji smjerovi uključuju: Računarstvo i informatika: Ovaj program obuhvata osnove programiranja, razvoj softverskih aplikacija, mrežne tehnologije i cyber sigurnost, pružajući studentima vještine koje su tražene u IT industriji
-
-- Menadžment i poslovne tehnologije: Ovaj program se fokusira na spoj ekonomije i savremenih tehnologija, omogućavajući studentima da razviju vještine upravljanja projektima, timovima i organizacijama u digitalnom okruženju
-
 - Cilj IPI Akademije je da postane lider u obrazovanju u oblasti informacionih tehnologija i menadžmenta u regiji
-
 - Rad na projektima: Tokom studija, studenti rade na projektima koji im omogućavaju da povežu teoriju i praksu
-
 - Mogućnost zapošljavanja nakon završetka studija
-
 - Studenti imaju pristup: Biblioteci sa stručnom literaturom iz oblasti IT-a i menadžmenta
-
 - Visoka zapošljivost: Veliki procenat diplomanata uspješno pronalazi posao odmah nakon završetka studija
-
 - Podrška tokom studija: Studentima je osigurana podrška kroz individualni rad s profesorima i mentorima
-
 - Pristupačne cijene: Cijene studija su konkurentne, uz mogućnosti stipendiranja
 
 

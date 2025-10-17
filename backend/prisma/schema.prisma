@@ -1,0 +1,214 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+// =====================
+// CORE ENTITIES
+// =====================
+
+// Student
+model Student {
+  id            Int      @id @default(autoincrement())
+  indexNumber   String   @unique
+  firstName     String
+  lastName      String
+  email         String   @unique
+  password      String
+  dateOfBirth   DateTime
+  currentYear   Int      @default(1)
+  status        StudentStatus @default(ACTIVE)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  majorId       Int
+  major         Major    @relation(fields: [majorId], references: [id])
+  yearEnrollments YearEnrollment[]
+  subjectEnrollments SubjectEnrollment[]
+  grades        Grade[]
+
+  @@index([majorId])
+}
+
+// Smjer (Major/Program)
+model Major {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique // npr. "Računarstvo", "Elektrotehnika"
+  code        String   @unique // npr. "COMP", "ELEC"
+  description String?
+  duration    Int      // Broj godina (obično 3 ili 4)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  students    Student[]
+  subjects    Subject[]
+  yearPlans   YearPlan[]
+
+  @@index([code])
+}
+
+// Godina studija plan (koje godine imaju koji predmeti)
+model YearPlan {
+  id        Int      @id @default(autoincrement())
+  year      Int      // Godina studija (1, 2, 3, 4)
+  semester  Int      // Semestar (1 ili 2)
+  
+  majorId   Int
+  major     Major    @relation(fields: [majorId], references: [id])
+  subjects  Subject[]
+
+  @@unique([majorId, year, semester])
+  @@index([majorId])
+}
+
+// Predmet (Subject/Course)
+model Subject {
+  id          Int      @id @default(autoincrement())
+  name        String   
+  code        String   @unique
+  ects        Int      
+  isElective  Boolean  @default(false)
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  yearPlanId  Int
+  yearPlan    YearPlan @relation(fields: [yearPlanId], references: [id])
+  majorId     Int
+  major       Major    @relation(fields: [majorId], references: [id])
+  
+  subjectEnrollments SubjectEnrollment[]
+  grades      Grade[]
+  professors  ProfessorSubject[]
+
+  @@index([majorId])
+  @@index([yearPlanId])
+}
+
+// =====================
+// ENROLLMENT SYSTEM
+// =====================
+
+// Upis na godinu studija
+model YearEnrollment {
+  id           Int      @id @default(autoincrement())
+  academicYear String   // "2024/2025"
+  year         Int      // Godina na koju se upisuje (1, 2, 3, 4)
+  enrolledAt   DateTime @default(now())
+  
+  studentId    Int
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, academicYear])
+  @@index([studentId])
+}
+
+// Upis predmeta
+model SubjectEnrollment {
+  id           Int      @id @default(autoincrement())
+  academicYear String   
+  semester     Int      // 1 ili 2
+  enrolledAt   DateTime @default(now())
+
+  studentId    Int
+  subjectId    Int
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subject      Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, subjectId, academicYear])
+  @@index([studentId])
+  @@index([subjectId])
+}
+
+// =====================
+// GRADING SYSTEM
+// =====================
+
+// Ocjene
+model Grade {
+  id           Int      @id @default(autoincrement())
+  grade        Int      // 6-10
+  examDate     DateTime
+  examType     ExamType
+  academicYear String
+  points       Int?     // Bodovi ako želiš pracati
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  studentId    Int
+  subjectId    Int
+  professorId  Int?
+  
+  student      Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subject      Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  professor    Professor? @relation(fields: [professorId], references: [id])
+
+  @@index([studentId])
+  @@index([subjectId])
+  @@index([professorId])
+}
+
+// Profesor
+model Professor {
+  id        Int      @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String   @unique
+  password  String   // Za login profesora
+  title     String   // "Dr", "Prof", "Docent"
+  office    String?  // Kabinet/kancelarija
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  grades    Grade[]
+  subjects  ProfessorSubject[]
+
+  @@index([email])
+}
+
+// Many-to-Many veza između profesora i predmeta
+model ProfessorSubject {
+  id          Int      @id @default(autoincrement())
+  professorId Int
+  subjectId   Int
+  assignedAt  DateTime @default(now())
+
+  professor   Professor @relation(fields: [professorId], references: [id], onDelete: Cascade)
+  subject     Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([professorId, subjectId])
+  @@index([professorId])
+  @@index([subjectId])
+}
+
+// =====================
+// ENUMS
+// =====================
+
+enum ExamType {
+  REGULAR       // Redovni
+  FIRST_RETRY   // Prvi popravni
+  SECOND_RETRY  // Drugi popravni
+}
+
+enum StudentStatus {
+  ACTIVE        // Aktivan
+  INACTIVE      // Neaktivan
+  GRADUATED     // Diplomirao
+  EXPELLED      // Ispisao se
+}

@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import Profile from '../Profile/Profile'
 import Settings from '../Profile/ProfileSettings'
+import { useAuth } from '../../../Context'
 import {
     IconBook2,
     IconCalendarEvent,
@@ -10,8 +12,44 @@ import {
 import StudentExams from '../../Faculty/StudentExams'
 import StudentSchedule from '../../Faculty/StudentSchedule'
 
+type ProgressShape = {
+    progress: {
+        passedSubjects: number
+        totalSubjects: number
+        totalECTSEarned: number
+        enrolledECTS: number
+    }
+}
+
+type GradeShape = { grade: number }
+
 const Dashboard = ({ currentRoute }: { currentRoute: string }) => {
     const navigate = useNavigate()
+    const { studentMail } = useAuth()
+
+    const [progress, setProgress] = useState<ProgressShape | null>(null)
+    const [grades, setGrades] = useState<GradeShape[]>([])
+
+    useEffect(() => {
+        if (!studentMail) return
+
+        const fetchData = async () => {
+            try {
+                const p = await fetch(
+                    `http://localhost:3001/api/student/progress/${studentMail}`
+                )
+                if (p.ok) setProgress((await p.json()) as ProgressShape)
+                const g = await fetch(
+                    `http://localhost:3001/api/student/grades/${studentMail}`
+                )
+                if (g.ok) setGrades((await g.json()) as GradeShape[])
+            } catch (e) {
+                console.error('Dashboard fetch error', e)
+            }
+        }
+
+        fetchData()
+    }, [studentMail])
 
     if (currentRoute === '/dashboard/settings') {
         return <Settings />
@@ -51,33 +89,45 @@ const Dashboard = ({ currentRoute }: { currentRoute: string }) => {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         {[
                             {
-                                title: 'Položeni Ispiti',
-                                value: '12/15',
+                                title: 'Položeni predmeti',
+                                value: progress
+                                    ? `${progress.progress.passedSubjects}/${progress.progress.totalSubjects}`
+                                    : '—',
                                 icon: <IconBook2 className="h-6 w-6" />,
                                 color: 'bg-green-100 text-green-600 dark:bg-green-900/30',
                             },
                             {
-                                title: 'Prosjek Ocjena',
-                                value: '8.5',
+                                title: 'Prosjek ocjena',
+                                value:
+                                    grades && grades.length
+                                        ? (
+                                              grades.reduce(
+                                                  (s, g) => s + (g.grade || 0),
+                                                  0
+                                              ) / grades.length
+                                          ).toFixed(2)
+                                        : '—',
                                 icon: <IconChartBar className="h-6 w-6" />,
                                 color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30',
                             },
                             {
-                                title: 'ECTS Bodovi',
-                                value: '120/180',
+                                title: 'ECTS bodovi',
+                                value: progress
+                                    ? `${progress.progress.totalECTSEarned}/${progress.progress.enrolledECTS}`
+                                    : '—',
                                 icon: <IconCertificate className="h-6 w-6" />,
                                 color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30',
                             },
                             {
-                                title: 'Sljedeći Ispit',
-                                value: '15 Dana',
+                                title: 'Sljedeći ispit',
+                                value: 'Provjerite raspored',
                                 icon: <IconCalendarEvent className="h-6 w-6" />,
                                 color: 'bg-orange-100 text-orange-600 dark:bg-orange-900/30',
                             },
                         ].map((stat, index) => (
                             <div
                                 key={index}
-                                className="bg-white dark:bg-neutral-800 rounded-xl p-4 shadow-sm border border-neutral-200 dark:border-neutral-700"
+                                className="bg-white dark:bg-neutral-800 rounded-xl p-4 shadow-md border border-neutral-200 dark:border-neutral-700 transform hover:-translate-y-1 hover:scale-[1.01] transition-all duration-300"
                             >
                                 <div
                                     className={`rounded-lg w-12 h-12 flex items-center justify-center mb-4 ${stat.color}`}
