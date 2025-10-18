@@ -788,6 +788,88 @@ app.delete("/api/professors/:id", async (req, res) => {
   }
 });
 
+// ============================================
+// EXAM SCHEDULING ENDPOINTS
+// ============================================
+
+// POST /api/exams - Professor creates an exam
+app.post("/api/exams", async (req, res) => {
+  try {
+    const { subjectId, professorId, examTime, location, maxPoints } =
+      req.body || {};
+    if (!subjectId || !professorId || !examTime) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const subject = await prisma.subject.findUnique({
+      where: { id: Number(subjectId) },
+    });
+    if (!subject) return res.status(404).json({ error: "Subject not found" });
+
+    const professor = await prisma.professor.findUnique({
+      where: { id: Number(professorId) },
+    });
+    if (!professor)
+      return res.status(404).json({ error: "Professor not found" });
+
+    const exam = await prisma.exam.create({
+      data: {
+        subjectId: Number(subjectId),
+        professorId: Number(professorId),
+        examTime: new Date(examTime),
+        location: location || null,
+        maxPoints: typeof maxPoints === "number" ? maxPoints : 100,
+      },
+    });
+
+    res.json({ message: "Exam created", exam });
+  } catch (err) {
+    console.error("Create exam error:", err);
+    res.status(500).json({ error: "Failed to create exam" });
+  }
+});
+
+// GET /api/exams/professor/:id - Get exams created by professor
+app.get("/api/exams/professor/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const exams = await prisma.exam.findMany({
+      where: { professorId: Number(id) },
+      include: { subject: true },
+      orderBy: { examTime: "asc" },
+    });
+    res.json(exams);
+  } catch (err) {
+    console.error("Fetch exams error:", err);
+    res.status(500).json({ error: "Failed to fetch exams" });
+  }
+});
+
+// GET /api/exams/student/:email - Get upcoming exams for subjects the student is enrolled in
+app.get("/api/exams/student/:email", async (req, res) => {
+  try {
+    const { email } = req.params;
+    const student = await prisma.student.findUnique({
+      where: { email },
+      include: { subjectEnrollments: { include: { subject: true } } },
+    });
+    if (!student) return res.status(404).json({ error: "Student not found" });
+
+    const subjectIds = student.subjectEnrollments.map((e) => e.subjectId);
+
+    const exams = await prisma.exam.findMany({
+      where: { subjectId: { in: subjectIds } },
+      include: { subject: true, professor: true },
+      orderBy: { examTime: "asc" },
+    });
+
+    res.json(exams);
+  } catch (err) {
+    console.error("Fetch student exams error:", err);
+    res.status(500).json({ error: "Failed to fetch student exams" });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

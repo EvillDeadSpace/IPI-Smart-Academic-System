@@ -95,6 +95,7 @@ model Subject {
   subjectEnrollments SubjectEnrollment[]
   grades      Grade[]
   professors  ProfessorSubject[]
+  exams       Exam[]
 
   @@index([majorId])
   @@index([yearPlanId])
@@ -163,6 +164,23 @@ model Grade {
   @@index([professorId])
 }
 
+// Exam schedule created by professors
+model Exam {
+  id          Int      @id @default(autoincrement())
+  subjectId   Int
+  professorId Int
+  examTime    DateTime
+  location    String?
+  maxPoints   Int      @default(100)
+  createdAt   DateTime @default(now())
+
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  professor Professor @relation(fields: [professorId], references: [id], onDelete: Cascade)
+
+  @@index([subjectId])
+  @@index([professorId])
+}
+
 // Profesor
 model Professor {
   id        Int      @id @default(autoincrement())
@@ -177,6 +195,7 @@ model Professor {
 
   grades    Grade[]
   subjects  ProfessorSubject[]
+  exams     Exam[]
 
   @@index([email])
 }

@@ -5,6 +5,9 @@ import {
     IconClipboardList,
     IconUserCircle,
     IconBook,
+    IconCalendarEvent,
+    IconX,
+    IconPlus,
 } from '@tabler/icons-react'
 import { motion } from 'framer-motion'
 import { BACKEND_URL } from '../../constants/storage'
@@ -45,6 +48,26 @@ interface GradeFormData {
     points: number
 }
 
+interface ExamData {
+    id: number
+    subjectId: number
+    examTime: string
+    location: string | null
+    maxPoints: number
+    subject: {
+        id: number
+        name: string
+        code: string
+    }
+}
+
+interface ExamFormData {
+    subjectId: number
+    examTime: string
+    location: string
+    maxPoints: number
+}
+
 const ProfessorBoard: React.FC = () => {
     const { studentMail } = useAuth() // This is professor's email when logged in as PROFESOR
     const [isLoading, setIsLoading] = useState(true)
@@ -59,6 +82,15 @@ const ProfessorBoard: React.FC = () => {
         subjectName: '',
         grade: 6,
         points: 60,
+    })
+    const [showExamModal, setShowExamModal] = useState(false)
+    const [exams, setExams] = useState<ExamData[]>([])
+    const [professorId, setProfessorId] = useState<number | null>(null)
+    const [examForm, setExamForm] = useState<ExamFormData>({
+        subjectId: 0,
+        examTime: '',
+        location: '',
+        maxPoints: 100,
     })
 
     // Convert points (0-100) into grade (5-10) using thresholds
@@ -97,9 +129,13 @@ const ProfessorBoard: React.FC = () => {
 
             if (profResponse.ok) {
                 const profData = await profResponse.json()
+                setProfessorId(profData.id)
                 const subjectIds = profData.subjects.map(
                     (s: { id: number }) => s.id
                 )
+
+                // Fetch exams for this professor
+                await fetchProfessorExams(profData.id)
 
                 // Now fetch all data but filter by professor's subjects
                 await fetchAllData(subjectIds)
@@ -110,6 +146,56 @@ const ProfessorBoard: React.FC = () => {
         } catch (error) {
             console.error('Error fetching professor data:', error)
             setIsLoading(false)
+        }
+    }
+
+    const fetchProfessorExams = async (profId: number) => {
+        try {
+            const response = await fetch(
+                `${BACKEND_URL}/api/exams/professor/${profId}`
+            )
+            if (response.ok) {
+                const data = await response.json()
+                setExams(data)
+            }
+        } catch (error) {
+            console.error('Error fetching exams:', error)
+        }
+    }
+
+    const handleCreateExam = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!professorId) {
+            alert('Professor ID not found')
+            return
+        }
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/exams`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...examForm,
+                    professorId,
+                }),
+            })
+
+            if (response.ok) {
+                alert('Ispit uspješno kreiran!')
+                setShowExamModal(false)
+                setExamForm({
+                    subjectId: 0,
+                    examTime: '',
+                    location: '',
+                    maxPoints: 100,
+                })
+                if (professorId) await fetchProfessorExams(professorId)
+            } else {
+                alert('Greška pri kreiranju ispita')
+            }
+        } catch (error) {
+            console.error('Error creating exam:', error)
+            alert('Greška pri kreiranju ispita')
         }
     }
 
@@ -444,6 +530,77 @@ const ProfessorBoard: React.FC = () => {
                 </motion.div>
             </div>
 
+            {/* Exams Section */}
+            <div className="bg-[#1a1a1a] rounded-xl p-6 border border-neutral-800 mb-8">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-200">
+                        Raspored Ispita
+                    </h2>
+                    <button
+                        onClick={() => setShowExamModal(true)}
+                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all"
+                    >
+                        <IconPlus className="w-5 h-5" />
+                        Kreiraj Ispit
+                    </button>
+                </div>
+
+                {exams.length === 0 ? (
+                    <div className="text-center py-8 text-gray-400">
+                        <IconCalendarEvent className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                        <p>Nema zakazanih ispita</p>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {exams.map((exam) => (
+                            <div
+                                key={exam.id}
+                                className="bg-[#252525] rounded-lg p-4 border border-neutral-700"
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-200 mb-2">
+                                            {exam.subject.name} (
+                                            {exam.subject.code})
+                                        </h3>
+                                        <div className="flex gap-6 text-sm text-gray-400">
+                                            <div className="flex items-center gap-2">
+                                                <IconCalendarEvent className="w-4 h-4" />
+                                                <span>
+                                                    {new Date(
+                                                        exam.examTime
+                                                    ).toLocaleString('bs-BA', {
+                                                        dateStyle: 'medium',
+                                                        timeStyle: 'short',
+                                                    })}
+                                                </span>
+                                            </div>
+                                            {exam.location && (
+                                                <div>
+                                                    <span className="font-medium">
+                                                        Lokacija:
+                                                    </span>{' '}
+                                                    {exam.location}
+                                                </div>
+                                            )}
+                                            <div>
+                                                <span className="font-medium">
+                                                    Max bodova:
+                                                </span>{' '}
+                                                {exam.maxPoints}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm font-medium">
+                                        Zakazan
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
             {/* Subjects with Students */}
             <div className="space-y-6">
                 <h2 className="text-2xl font-bold text-gray-200">
@@ -668,6 +825,138 @@ const ProfessorBoard: React.FC = () => {
                                     className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-all transform hover:scale-105"
                                 >
                                     Potvrdi Ocjenu
+                                </button>
+                            </div>
+                        </form>
+                    </motion.div>
+                </div>
+            )}
+
+            {/* Exam Creation Modal */}
+            {showExamModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-[#1a1a1a] rounded-xl p-6 w-full max-w-md border border-neutral-800"
+                    >
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl font-bold text-gray-200">
+                                Kreiraj Ispit
+                            </h2>
+                            <button
+                                onClick={() => setShowExamModal(false)}
+                                className="text-gray-400 hover:text-gray-200"
+                            >
+                                <IconX className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleCreateExam}>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-gray-200 mb-2 font-semibold">
+                                        Predmet *
+                                    </label>
+                                    <select
+                                        value={examForm.subjectId}
+                                        onChange={(e) =>
+                                            setExamForm({
+                                                ...examForm,
+                                                subjectId: parseInt(
+                                                    e.target.value
+                                                ),
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
+                                        required
+                                    >
+                                        <option value={0}>
+                                            Odaberi predmet
+                                        </option>
+                                        {subjectsWithStudents.map((item) => (
+                                            <option
+                                                key={item.subject.id}
+                                                value={item.subject.id}
+                                            >
+                                                {item.subject.name} (
+                                                {item.subject.code})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-200 mb-2 font-semibold">
+                                        Datum i Vrijeme *
+                                    </label>
+                                    <input
+                                        type="datetime-local"
+                                        value={examForm.examTime}
+                                        onChange={(e) =>
+                                            setExamForm({
+                                                ...examForm,
+                                                examTime: e.target.value,
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-200 mb-2 font-semibold">
+                                        Lokacija (učionica)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={examForm.location}
+                                        onChange={(e) =>
+                                            setExamForm({
+                                                ...examForm,
+                                                location: e.target.value,
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
+                                        placeholder="npr. A101"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-200 mb-2 font-semibold">
+                                        Maksimalni Bodovi
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max="200"
+                                        value={examForm.maxPoints}
+                                        onChange={(e) =>
+                                            setExamForm({
+                                                ...examForm,
+                                                maxPoints: parseInt(
+                                                    e.target.value
+                                                ),
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end gap-3 mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowExamModal(false)}
+                                    className="px-6 py-2 text-gray-400 hover:text-gray-200 font-medium transition-colors"
+                                >
+                                    Odustani
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-all transform hover:scale-105"
+                                >
+                                    Kreiraj Ispit
                                 </button>
                             </div>
                         </form>
