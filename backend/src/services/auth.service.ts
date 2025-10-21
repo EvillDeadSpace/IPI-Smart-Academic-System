@@ -92,8 +92,10 @@ export class AuthService {
         lastName: data.lastName,
         email: data.email,
         password: data.password,
-        title: data.title,
-        office: data.office,
+        // Prisma schema requires `title` (non-nullable). Provide a sensible default.
+        title: data.title ?? "Prof",
+        // `office` is optional in the schema; normalize undefined -> null.
+        office: data.office ?? null,
         subjects: data.subjectIds
           ? {
               create: data.subjectIds.map((subjectId) => ({
