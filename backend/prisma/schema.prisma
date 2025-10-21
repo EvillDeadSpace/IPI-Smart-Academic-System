@@ -39,6 +39,7 @@ model Student {
   yearEnrollments YearEnrollment[]
   subjectEnrollments SubjectEnrollment[]
   grades        Grade[]
+  examRegistrations StudentExamRegistration[]
 
   @@index([majorId])
 }
@@ -176,9 +177,25 @@ model Exam {
 
   subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   professor Professor @relation(fields: [professorId], references: [id], onDelete: Cascade)
+  registrations StudentExamRegistration[]
 
   @@index([subjectId])
   @@index([professorId])
+}
+
+// Student exam registration (prijava na ispit)
+model StudentExamRegistration {
+  id           Int      @id @default(autoincrement())
+  studentId    Int
+  examId       Int
+  registeredAt DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  exam    Exam    @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, examId])
+  @@index([studentId])
+  @@index([examId])
 }
 
 // Profesor
