@@ -31,7 +31,17 @@ const AdminPanel: React.FC = () => {
         e.preventDefault()
 
         try {
-            const payload: any = {
+            interface StudentPayload {
+                firstName: string
+                lastName: string
+                email: string
+                dateOfBirth: string
+                majorId: number
+                password: string
+                indexNumber?: string
+            }
+
+            const payload: StudentPayload = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 email: formData.email,
@@ -53,7 +63,7 @@ const AdminPanel: React.FC = () => {
             })
 
             const text = await response.text()
-            let data: any
+            let data: unknown
             try {
                 data = JSON.parse(text)
             } catch {
@@ -74,7 +84,9 @@ const AdminPanel: React.FC = () => {
                 })
             } else {
                 console.error('Create failed', response.status, data)
-                alert(`Greška: ${data?.error || JSON.stringify(data)}`)
+                const errorMsg =
+                    (data as { error?: string })?.error || JSON.stringify(data)
+                alert(`Greška: ${errorMsg}`)
             }
         } catch (error) {
             console.error('Greška:', error)
