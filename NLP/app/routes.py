@@ -1,11 +1,11 @@
 from flask import Blueprint, request, jsonify
-from app.services import generate_response_with_context
+from app.services import generate_response_with_rag
 from app.nlp_utils import load_text_file, search_in_text
 
 # Kreiranje Blueprint-a za rute
 main_bp = Blueprint('main', __name__)
 
-# Učitaj tekstualni sadržaj jednom prilikom pokretanja aplikacije
+# Učitaj tekstualni sadržaj jednom prilikom pokretanja aplikacije (fallback)
 try:
     raw_text = load_text_file('fakultetski_sadržaj.txt')
     print("✅ Uspešno učitan fakultetski sadržaj")
@@ -13,8 +13,22 @@ except Exception as e:
     print(f"❌ Greška pri učitavanju: {e}")
     raw_text = ""
 
+# Inicijalizuj RAG sistem
+rag_system = None
+try:
+    from rag_system import RAGSystem
+    rag_system = RAGSystem()
+    print("✅ RAG sistem uspešno inicijalizovan!")
+except Exception as e:
+    print(f"⚠️  RAG sistem nije dostupan: {e}")
+    print("📝 Koristiću keyword-based pretraživanje kao fallback")
+
 @main_bp.route('/search', methods=['POST'])
 def search():
+    """
+    Endpoint za pretraživanje i generisanje odgovora
+    Koristi RAG sistem ako je dostupan, inače keyword search
+    """
     data = request.get_json()
     query = data.get('word', '').strip()  
     
@@ -22,46 +36,78 @@ def search():
         return jsonify({'error': 'Pitanje je obavezno!'}), 400
 
     try:
-        # Pretraži relevantne delove teksta
-        relevant_parts = search_in_text(raw_text, query)
-        
-        if relevant_parts:
-            # Kombinuj najrelevantnije delove kao kontekst
-            context = "\n\n".join(relevant_parts[:3])
+        # Pokušaj koristiti RAG sistem
+        if rag_system:
+            # RAG pristup - vector search
+            context = rag_system.get_context_for_llm(query, n_results=3)
             
-            # Generiši odgovor sa kontekstom
-            ai_response = generate_response_with_context(query, context)
+            # Generiši odgovor sa RAG kontekstom
+            ai_response = generate_response_with_rag(query, context)
             
             return jsonify({
                 'response': ai_response,
-                'context_used': relevant_parts[:3],
-                'query': query
+                'method': 'RAG (Vector Search)',
+                'query': query,
+                'context_length': len(context)
             })
         else:
-            # Ako nema rezultata, vrati poruku
-            return jsonify({
-                'response': 'Izvinjavam se, ali ne mogu da pronađem relevantne informacije o vašem pitanju u mojoj bazi znanja o IPI Akademiji.',
-                'context_used': [],
-                'query': query
-            })
+            # Fallback - keyword search
+            relevant_parts = search_in_text(raw_text, query)
+            
+            if relevant_parts:
+                # Kombinuj najrelevantnije delove kao kontekst
+                context = "\n\n".join(relevant_parts[:3])
+                
+                # Generiši odgovor sa kontekstom
+                ai_response = generate_response_with_rag(query, context)
+                
+                return jsonify({
+                    'response': ai_response,
+                    'method': 'Keyword Search (Fallback)',
+                    'context_used': relevant_parts[:3],
+                    'query': query
+                })
+            else:
+                # Ako nema rezultata, vrati poruku
+                return jsonify({
+                    'response': 'Izvinjavam se, ali ne mogu da pronađem relevantne informacije o vašem pitanju u mojoj bazi znanja o IPI Akademiji. 🤔\n\nMožete me pitati o:\n- Studijskim programima\n- Ceni studija\n- Lokaciji fakulteta\n- Profesorima i osoblju\n- Studentskim aktivnostima',
+                    'method': 'No results',
+                    'context_used': [],
+                    'query': query
+                })
                 
     except Exception as e:
+        print(f"❌ Greška: {e}")
         return jsonify({'error': f'Greška pri obradi zahteva: {str(e)}'}), 500
 
 @main_bp.route('/status', methods=['GET'])
 def status():
+    """Proverava status servisa i dostupnost komponenti"""
     return jsonify({
         'status': True,
         'message': 'IPI Akademija NLP servis je aktivan!',
-        'knowledge_base_loaded': len(raw_text) > 0
+        'rag_enabled': rag_system is not None,
+        'knowledge_base_loaded': len(raw_text) > 0,
+        'features': {
+            'vector_search': rag_system is not None,
+            'mistral_ai': True,
+            'multilingual_support': True
+        }
     })
 
 @main_bp.route('/', methods=['GET'])
 def home():
+    """Osnovne informacije o API-ju"""
     return jsonify({
-        'message': 'Dobrodošli u IPI Akademija AI Chatbot API!',
+        'message': 'Dobrodošli u IPI Akademija AI Chatbot API! 🎓',
+        'version': '2.0 - RAG Edition',
         'endpoints': {
             '/search': 'POST - Pošaljite pitanje i dobijte odgovor',
             '/status': 'GET - Proverite status servisa'
+        },
+        'example': {
+            'url': '/search',
+            'method': 'POST',
+            'body': {'word': 'Koje studijske programe nudi IPI Akademija?'}
         }
     })

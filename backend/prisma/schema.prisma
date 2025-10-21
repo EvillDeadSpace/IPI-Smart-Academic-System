@@ -46,10 +46,10 @@ model Student {
 // Smjer (Major/Program)
 model Major {
   id          Int      @id @default(autoincrement())
-  name        String   @unique // npr. "Računarstvo", "Elektrotehnika"
-  code        String   @unique // npr. "COMP", "ELEC"
+  name        String   @unique // "Računarstvo", "Elektrotehnika"
+  code        String   @unique // "COMP", "ELEC"
   description String?
-  duration    Int      // Broj godina (obično 3 ili 4)
+  duration    Int      // 3 or 4 years
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -140,14 +140,14 @@ model SubjectEnrollment {
 // GRADING SYSTEM
 // =====================
 
-// Ocjene
+// Grade
 model Grade {
   id           Int      @id @default(autoincrement())
   grade        Int      // 6-10
   examDate     DateTime
   examType     ExamType
   academicYear String
-  points       Int?     // Bodovi ako želiš pracati
+  points       Int?     // Number of points scored
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

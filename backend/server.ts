@@ -9,12 +9,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Test ruta
+// Test rout for server health
 app.get("/api/health", (_req, res) => {
   res.json({ status: "OK" });
 });
 
-// Ruta: Dohvati sve studente
+// Route:Get all students
 app.get("/api/students", async (_req, res) => {
   try {
     const students = await prisma.student.findMany({
@@ -26,7 +26,7 @@ app.get("/api/students", async (_req, res) => {
   }
 });
 
-// Ruta: Kreiraj studenta
+// Route: Create a new student
 app.post("/api/students", async (req, res) => {
   try {
     const {
@@ -55,6 +55,7 @@ app.post("/api/students", async (req, res) => {
   }
 });
 
+// GET login - accept query params (email, password)
 app.get("/api/login", async (req, res) => {
   const { email, password } = req.query;
   if (!email || !password) {
@@ -136,7 +137,7 @@ app.post("/api/login", async (req, res) => {
 });
 
 // ============================================
-// ENROLLMENT ENDPOINTS (Upis na godinu)
+// ENROLLMENT ENDPOINTS (Add to new year)
 // ============================================
 
 // GET /api/majors/with-subjects - Returns all majors with their subjects grouped by year
