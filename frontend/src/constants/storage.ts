@@ -6,7 +6,7 @@ export const STORAGE_KEYS = {
 }
 
 export const BACKEND_URL = import.meta.env.PROD
-    ? 'https://faculty-backend.onrender.com'
+    ? 'https://ipi-smart-academic-system-dzhc.vercel.app'
     : 'http://localhost:3001'
 
 const NLP_URL = import.meta.env.DEV
