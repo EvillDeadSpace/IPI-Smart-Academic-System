@@ -14,7 +14,9 @@
     "seed": "tsx prisma/main.ts",
     "postinstall": "prisma generate",
     "dev": "tsx src/server.ts",
-    "start": "node ./dist/server.js"
+    "build": "tsc",
+    "start": "node ./dist/server.js",
+    "vercel-build": "prisma generate && tsc"
   },
   "type": "module",
   "name": "backend",
