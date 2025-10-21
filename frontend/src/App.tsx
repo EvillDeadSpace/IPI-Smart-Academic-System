@@ -14,6 +14,7 @@ import MainBoard from './components/Dashboard/MainBoard'
 import Login from './components/Auth/Login'
 import Header from './components/Header/Header'
 import AdminPanel from './components/Dashboard/AdminBoard'
+import AdminProfessorManagement from './components/Dashboard/AdminProfessorManagement'
 import ProfessorBoard from './components/Dashboard/ProfessorBoard'
 import StudentExams from './components/Faculty/StudentExams'
 import Profile from './components/Dashboard/Profile/Profile'
@@ -117,6 +118,10 @@ function AppContent() {
             <main className="flex-1">
                 <Routes>
                     <Route path="/admin" element={<AdminPanel />} />
+                    <Route
+                        path="/admin/professors"
+                        element={<AdminProfessorManagement />}
+                    />
                     <Route
                         path="/profesor"
                         element={

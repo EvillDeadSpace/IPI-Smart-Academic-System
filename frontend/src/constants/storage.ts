@@ -5,11 +5,13 @@ export const STORAGE_KEYS = {
     USER_DETAILS: 'userDetails',
 }
 
-const BACKEND_URL = import.meta.env.PROD
+export const BACKEND_URL = import.meta.env.PROD
     ? 'https://faculty-backend.onrender.com'
-    : 'http://localhost:8080'
+    : 'http://localhost:3001'
 
-const NLP_URL = 'https://amartubic.pythonanywhere.com'
+const NLP_URL = import.meta.env.DEV
+    ? 'http://127.0.0.1:5000' // Development - koristi lokalni
+    : 'https://amartubic.pythonanywhere.com' // Production - koristi PythonAnywhere
 
 // Development use this 'http://127.0.0.1:5000'
 

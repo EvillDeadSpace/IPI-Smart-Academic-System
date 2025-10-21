@@ -15,9 +15,18 @@ app = Flask(__name__)
 CORS(app)
 
 # GitHub Models Configuration
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN") or os.getenv("GITHUB_API_TOKEN") or os.getenv("GH_TOKEN")
 ENDPOINT = "https://models.inference.ai.azure.com"
 MODEL_NAME = "mistralai/Mistral-7B-Instruct-v0.1"
+
+# Debug token setup
+if not GITHUB_TOKEN:
+    print("⚠️  GitHub token not found in environment variables!")
+    print("Checked variables: GITHUB_TOKEN, GITHUB_API_TOKEN, GH_TOKEN")
+else:
+    print(f"✅ GitHub token found: {GITHUB_TOKEN[:10]}...")
+    print(f"🎯 Using model: {MODEL_NAME}")
+    print(f"🔗 Endpoint: {ENDPOINT}")
 
 # Load knowledge base
 def load_knowledge_base():
@@ -117,31 +126,47 @@ def generate_mistral_response(query, context):
         
         # Clean up context
         lines = context_text.split('\n')
-        filtered_lines = [line.strip() for line in lines if line.strip() and not line.startswith('#')]
+        filtered_lines = [line.strip() for line in lines if line.strip() and not line.startswith('#') and not line.startswith('##')]
         
         # Smart responses based on keywords
         query_lower = query.lower()
         
+        # Lokacija/adresa
+        if any(word in query_lower for word in ['lokacija', 'adresa', 'gdje', 'gde', 'nalazi']):
+            location_info = [line for line in filtered_lines if any(word in line.lower() for word in ['zmaja', 'bosne', 'tuzla', 'adresa', 'lokacija'])]
+            if location_info:
+                return f"Naša lokacija je {location_info[0].replace('- ', '')}."
+        
+        # Cijena/košta
         if any(word in query_lower for word in ['cijena', 'cena', 'košta', 'kosta', 'uplata', 'novac']):
-            price_info = [line for line in filtered_lines if any(word in line.lower() for word in ['cijena', 'cena', 'košta', 'kosta', 'uplata', 'din', 'eur', 'novac'])]
+            price_info = [line for line in filtered_lines if any(word in line.lower() for word in ['cijena', 'cena', 'košta', 'kosta', 'uplata', 'din', 'eur', 'novac', 'besplatno'])]
             if price_info:
-                return f"Informacije o cijeni fakulteta:\n\n{' '.join(price_info[:2])}"
+                return f"Informacije o cijeni: {price_info[0].replace('- ', '')}"
         
-        if any(word in query_lower for word in ['program', 'studij', 'smer', 'smjer']):
-            program_info = [line for line in filtered_lines if any(word in line.lower() for word in ['program', 'studij', 'smer', 'smjer', 'informatika', 'ekonomija'])]
+        # Programi/smjerovi
+        if any(word in query_lower for word in ['program', 'studij', 'smer', 'smjer', 'smjerovi', 'smerovi']):
+            program_info = [line for line in filtered_lines if any(word in line.lower() for word in ['program', 'studij', 'smer', 'smjer', 'informatika', 'ekonomija', 'pravo', 'menadžment'])]
             if program_info:
-                return f"Studijski programi IPI Akademije:\n\n{' '.join(program_info[:3])}"
+                programs = '\n'.join([f"• {prog.replace('- ', '')}" for prog in program_info[:4]])
+                return f"IPI Akademija nudi sledeće studijske programe:\n\n{programs}"
         
-        if any(word in query_lower for word in ['kontakt', 'adresa', 'telefon', 'email']):
-            contact_info = [line for line in filtered_lines if any(word in line.lower() for word in ['kontakt', 'adresa', 'telefon', 'email', 'tuzla'])]
+        # Kontakt
+        if any(word in query_lower for word in ['kontakt', 'telefon', 'email', 'mail']):
+            contact_info = [line for line in filtered_lines if any(word in line.lower() for word in ['kontakt', 'telefon', 'email', 'mail', '@', 'tel', 'fax'])]
             if contact_info:
-                return f"Kontakt informacije:\n\n{' '.join(contact_info[:2])}"
+                return f"Kontakt informacije:\n{contact_info[0].replace('- ', '')}"
         
-        # General response - first few relevant lines
-        response = "Na osnovu dostupnih informacija o IPI Akademiji:\n\n"
-        response += '\n'.join(filtered_lines[:3])
+        # Opšte informacije
+        if any(word in query_lower for word in ['šta', 'sta', 'ipi', 'akademija', 'fakultet']):
+            general_info = [line for line in filtered_lines if any(word in line.lower() for word in ['akademija', 'fakultet', 'obrazovanje', 'kvalitetnim'])][:2]
+            if general_info:
+                return f"IPI Akademija je {general_info[0].replace('- ', '').lower()}"
         
-        return response
+        # Default - prva relevantan linija
+        if filtered_lines:
+            return filtered_lines[0].replace('- ', '').strip()
+        
+        return "Na osnovu dostupnih informacija o IPI Akademiji, možete kontaktirati akademiju za detaljnije informacije."
     
     # Try GitHub Models API
     if not GITHUB_TOKEN:
@@ -183,15 +208,23 @@ Odgovori kratko i jasno na srpskom jeziku koristeći samo informacije iz konteks
         response = requests.post(f"{ENDPOINT}/chat/completions", headers=headers, json=data, timeout=30)
         
         print(f"API Response status: {response.status_code}")
+        print(f"Response headers: {dict(response.headers)}")
         
         if response.status_code == 200:
             result = response.json()
             ai_response = result["choices"][0]["message"]["content"]
-            print(f"AI Response received: {ai_response[:100]}...")
+            print(f"✅ AI Response received: {ai_response[:100]}...")
             return ai_response
+        elif response.status_code == 401:
+            print("❌ 401 Unauthorized - GitHub token problem")
+            print(f"Response: {response.text}")
+        elif response.status_code == 429:
+            print("❌ 429 Rate limit exceeded")
+            print(f"Response: {response.text}")
         else:
-            print(f"API Error {response.status_code}: {response.text}")
-            return generate_fallback_response(query, context_text)
+            print(f"❌ API Error {response.status_code}: {response.text}")
+        
+        return generate_fallback_response(query, context_text)
             
     except requests.exceptions.Timeout:
         print("API timeout, using fallback")
@@ -225,8 +258,53 @@ def debug():
         "current_directory": os.getcwd(),
         "files_in_directory": os.listdir('.'),
         "knowledge_base_length": len(KNOWLEDGE_BASE),
-        "knowledge_base_preview": KNOWLEDGE_BASE[:200] + "..." if len(KNOWLEDGE_BASE) > 200 else KNOWLEDGE_BASE
+        "knowledge_base_preview": KNOWLEDGE_BASE[:200] + "..." if len(KNOWLEDGE_BASE) > 200 else KNOWLEDGE_BASE,
+        "github_token_present": bool(GITHUB_TOKEN),
+        "github_token_length": len(GITHUB_TOKEN) if GITHUB_TOKEN else 0,
+        "github_token_preview": GITHUB_TOKEN[:10] + "..." if GITHUB_TOKEN else "None",
+        "endpoint": ENDPOINT,
+        "model_name": MODEL_NAME
     })
+
+@app.route('/test-api')
+def test_api():
+    """Test endpoint za provjeru Mistral API-ja"""
+    if not GITHUB_TOKEN:
+        return jsonify({"error": "GitHub token not found"})
+    
+    try:
+        headers = {
+            "Authorization": f"Bearer {GITHUB_TOKEN}",
+            "Content-Type": "application/json",
+        }
+        
+        data = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "Reci zdravo na srpskom jeziku."
+                }
+            ],
+            "model": MODEL_NAME,
+            "temperature": 0.3,
+            "max_tokens": 50
+        }
+        
+        print(f"Testing API call to {ENDPOINT}")
+        response = requests.post(f"{ENDPOINT}/chat/completions", headers=headers, json=data, timeout=30)
+        
+        return jsonify({
+            "status_code": response.status_code,
+            "response_text": response.text[:500],
+            "headers": dict(response.headers),
+            "url": f"{ENDPOINT}/chat/completions"
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "error": str(e),
+            "error_type": type(e).__name__
+        })
 
 @app.route('/search', methods=['POST'])
 def search():

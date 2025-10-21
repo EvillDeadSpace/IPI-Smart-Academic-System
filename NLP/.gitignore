@@ -18,3 +18,20 @@ NLP/APP/__pycache__/
 /APP/__pycache__/
 
 app/__pycache__
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# FAISS index fajlovi (mogu se regenerisati)
+# faiss_index.bin
+# text_chunks.pkl
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -27,9 +27,18 @@ const Login: FC = () => {
         event.preventDefault()
         setLoading(true)
         setMessage('')
-
+        // Dev shortcut: allow quick professor login with admin/admin
+        if (email === 'admin' && password === 'admin') {
+            // Set context to professor and navigate
+            setStudentName('Admin Profesor')
+            setUserType('PROFESOR')
+            login('admin@local', 'Admin Profesor', 'PROFESOR')
+            nav('/profesor')
+            setLoading(false)
+            return
+        }
         try {
-            const response = await fetch('http://localhost:8080/login', {
+            const response = await fetch('http://localhost:3001/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -55,8 +64,8 @@ const Login: FC = () => {
                 throw new Error('Invalid response data')
             }
 
-            const isProfessor = data.TipUsera === 'PROFESOR'
-            setUserType(data.TipUsera) // Set user type instead of isProfessor
+            //const isProfessor = data.TipUsera === 'PROFESOR'
+            //setUserType(data.TipUsera) // Set user type instead of isProfessor
             setStudentName(data.StudentName)
             login(data.userEmail, data.StudentName, data.TipUsera)
 
@@ -68,7 +77,7 @@ const Login: FC = () => {
             setMessage('Login successful! Redirecting...')
 
             setTimeout(() => {
-                if (isProfessor) {
+                if (data.TipUsera === 'PROFESOR') {
                     nav('/profesor') // Redirect to professor dashboard
                 } else {
                     nav('/dashboard') // Redirect to student dashboard
@@ -137,7 +146,6 @@ const Login: FC = () => {
                                 <input
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    type="email"
                                     name="email"
                                     id="email"
                                     autoComplete="email"

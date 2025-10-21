@@ -6,9 +6,11 @@ import { IconBook2, IconSchool } from '@tabler/icons-react'
 interface Subject {
     id: number
     name: string
+    code: string
     ects: number
-    isRequired: boolean
+    isElective: boolean
     year: number
+    semester: number
 }
 
 interface Major {
@@ -32,16 +34,16 @@ const Settings = () => {
         const fetchMajors = async () => {
             try {
                 const response = await fetch(
-                    'http://localhost:8080/api/subjects/majors/with-subjects'
+                    'http://localhost:3001/api/majors/with-subjects'
                 )
                 if (!response.ok) {
-                    throw new Error('Failed to fetch majors')
+                    throw new Error('Neuspjelo dohvaćanje smjerova')
                 }
                 const data = await response.json()
                 setMajors(data)
             } catch (error) {
                 console.error('Error fetching majors:', error)
-                setError('Failed to load majors and subjects')
+                setError('Neuspjelo učitavanje smjerova i predmeta')
             } finally {
                 setIsLoading(false)
             }
@@ -59,10 +61,10 @@ const Settings = () => {
         const yearNum = parseInt(selectedYear)
         return {
             requiredSubjects: major.subjects.filter(
-                (s) => s.isRequired && s.year === yearNum
+                (s) => !s.isElective && s.year === yearNum
             ),
             electiveSubjects: major.subjects.filter(
-                (s) => !s.isRequired && s.year === yearNum
+                (s) => s.isElective && s.year === yearNum
             ),
         }
     }, [selectedMajor, selectedYear, majors])
@@ -103,7 +105,7 @@ const Settings = () => {
     const handleSignup = useCallback(async () => {
         if (!selectedMajor || !selectedYear || selectedElectives.length === 0) {
             setError(
-                'Please select a major, year, and at least one elective subject'
+                'Molimo odaberite smjer, godinu i bar jedan izborni predmet'
             )
             return
         }
@@ -131,7 +133,7 @@ const Settings = () => {
 
         try {
             const response = await fetch(
-                'http://localhost:8080/api/student/enroll',
+                'http://localhost:3001/api/student/enroll',
                 {
                     method: 'POST',
                     headers: {
@@ -142,18 +144,19 @@ const Settings = () => {
             )
 
             if (response.ok) {
-                await response.json()
-                alert('Successfully enrolled in the year!')
+                const result = await response.json()
+                alert(`Upis uspješan! Ukupno ECTS: ${result.totalECTS}`)
                 window.location.reload()
             } else {
                 const errorData = await response.json()
-                throw new Error(errorData.error || 'Failed to enroll')
+                throw new Error(errorData.error || 'Neuspješan upis')
             }
         } catch (error) {
             if (error instanceof Error) {
-                setError(error.message)
+                // If backend provided a message, show it; otherwise show a friendly Bosnian fallback
+                setError(error.message || 'Neuspješan upis. Pokušajte ponovo.')
             } else {
-                setError('Failed to enroll. Please try again.')
+                setError('Neuspješan upis. Pokušajte ponovo.')
             }
             console.error('Error during enrollment:', error)
         } finally {
@@ -249,11 +252,23 @@ const Settings = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <SubjectList
                                         title="Obavezni predmeti"
-                                        subjects={requiredSubjects}
+                                        subjects={requiredSubjects.map((s) => ({
+                                            id: s.id,
+                                            name: s.name,
+                                            ects: s.ects,
+                                            year: s.year,
+                                            isRequired: !s.isElective,
+                                        }))}
                                     />
                                     <SubjectList
                                         title="Izborni predmeti"
-                                        subjects={electiveSubjects}
+                                        subjects={electiveSubjects.map((s) => ({
+                                            id: s.id,
+                                            name: s.name,
+                                            ects: s.ects,
+                                            year: s.year,
+                                            isRequired: !s.isElective,
+                                        }))}
                                         isElective={true}
                                         selectedElectives={selectedElectives}
                                         onElectiveChange={handleElectiveChange}
@@ -272,7 +287,7 @@ const Settings = () => {
                                         {isSubmitting ? (
                                             <div className="flex items-center justify-center gap-2">
                                                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                                <span>Processing...</span>
+                                                <span>Obrađuje se...</span>
                                             </div>
                                         ) : (
                                             'Potvrdi upis'

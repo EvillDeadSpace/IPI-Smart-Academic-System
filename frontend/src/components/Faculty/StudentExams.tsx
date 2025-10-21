@@ -1,4 +1,4 @@
-import type { FC } from 'react'
+import { FC, useState, useEffect } from 'react'
 import {
     IconCalendarEvent,
     IconClock,
@@ -7,44 +7,96 @@ import {
     IconCheck,
     IconAlertCircle,
 } from '@tabler/icons-react'
+import { useAuth } from '../../Context'
+import { BACKEND_URL } from '../../constants/storage'
 
 interface Exam {
-    subject: string
-    date: string
-    time: string
-    location: string
-    professor: string
-    status: 'upcoming' | 'completed' | 'ongoing'
+    id: number
+    subjectId: number
+    examTime: string
+    location: string | null
+    maxPoints: number
+    subject: {
+        id: number
+        name: string
+        code: string
+    }
+    professor: {
+        id: number
+        firstName: string
+        lastName: string
+        title: string
+    }
 }
 
-const mockExams: Exam[] = [
-    {
-        subject: 'Mathematics 101',
-        date: 'March 15, 2024',
-        time: '10:00 AM - 12:00 PM',
-        location: 'Room A101',
-        professor: 'Dr. Smith',
-        status: 'upcoming',
-    },
-    {
-        subject: 'Physics 201',
-        date: 'March 20, 2024',
-        time: '1:00 PM - 3:00 PM',
-        location: 'Lab B202',
-        professor: 'Dr. Johnson',
-        status: 'upcoming',
-    },
-    {
-        subject: 'Chemistry 301',
-        date: 'March 25, 2024',
-        time: '9:00 AM - 11:00 AM',
-        location: 'Lab C303',
-        professor: 'Dr. Williams',
-        status: 'upcoming',
-    },
-]
-
 const StudentExams: FC = () => {
+    const { studentMail } = useAuth()
+    const [exams, setExams] = useState<Exam[]>([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const fetchExams = async () => {
+            if (!studentMail) return
+
+            try {
+                const response = await fetch(
+                    `${BACKEND_URL}/api/exams/student/${studentMail}`
+                )
+                if (response.ok) {
+                    const data = await response.json()
+                    setExams(data)
+                } else {
+                    console.error('Failed to fetch exams')
+                }
+            } catch (error) {
+                console.error('Error fetching exams:', error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchExams()
+    }, [studentMail])
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString)
+        return date.toLocaleDateString('sr-Latn-RS', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+        })
+    }
+
+    const formatTime = (dateString: string) => {
+        const date = new Date(dateString)
+        return date.toLocaleTimeString('sr-Latn-RS', {
+            hour: '2-digit',
+            minute: '2-digit',
+        })
+    }
+
+    const getExamStatus = (
+        examTime: string
+    ): 'upcoming' | 'completed' | 'ongoing' => {
+        const now = new Date()
+        const exam = new Date(examTime)
+
+        if (exam < now) return 'completed'
+        return 'upcoming'
+    }
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6">
+                <div className="max-w-6xl mx-auto">
+                    <p className="text-center text-gray-600">
+                        Učitavanje ispita...
+                    </p>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="flex flex-1 h-screen bg-white dark:bg-neutral-900">
             <div className="flex flex-1 overflow-auto border-l border-neutral-200 dark:border-neutral-700">
@@ -115,50 +167,97 @@ const StudentExams: FC = () => {
                                 Predstojeći Ispiti
                             </h2>
                             <div className="space-y-4">
-                                {mockExams.map((exam, index) => (
-                                    <div
-                                        key={index}
-                                        className="bg-neutral-50 dark:bg-neutral-900 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-                                    >
-                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                            <div className="space-y-2">
-                                                <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
-                                                    {exam.subject}
-                                                </h3>
-                                                <div className="flex flex-wrap gap-4 text-sm text-neutral-600 dark:text-neutral-400">
-                                                    <div className="flex items-center gap-2">
-                                                        <IconCalendarEvent className="h-4 w-4" />
-                                                        <span>{exam.date}</span>
+                                {exams.length === 0 ? (
+                                    <p className="text-neutral-600 dark:text-neutral-400 text-center py-8">
+                                        Trenutno nema zakazanih ispita za vaše
+                                        predmete.
+                                    </p>
+                                ) : (
+                                    exams.map((exam) => {
+                                        const status = getExamStatus(
+                                            exam.examTime
+                                        )
+                                        return (
+                                            <div
+                                                key={exam.id}
+                                                className="bg-neutral-50 dark:bg-neutral-900 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
+                                            >
+                                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                                    <div className="space-y-2">
+                                                        <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                                            {exam.subject.name}{' '}
+                                                            ({exam.subject.code}
+                                                            )
+                                                        </h3>
+                                                        <div className="flex flex-wrap gap-4 text-sm text-neutral-600 dark:text-neutral-400">
+                                                            <div className="flex items-center gap-2">
+                                                                <IconCalendarEvent className="h-4 w-4" />
+                                                                <span>
+                                                                    {formatDate(
+                                                                        exam.examTime
+                                                                    )}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                <IconClock className="h-4 w-4" />
+                                                                <span>
+                                                                    {formatTime(
+                                                                        exam.examTime
+                                                                    )}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                <IconMapPin className="h-4 w-4" />
+                                                                <span>
+                                                                    {exam.location ||
+                                                                        'Lokacija nije navedena'}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                <IconUserCircle className="h-4 w-4" />
+                                                                <span>
+                                                                    {
+                                                                        exam
+                                                                            .professor
+                                                                            .title
+                                                                    }{' '}
+                                                                    {
+                                                                        exam
+                                                                            .professor
+                                                                            .firstName
+                                                                    }{' '}
+                                                                    {
+                                                                        exam
+                                                                            .professor
+                                                                            .lastName
+                                                                    }
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-sm text-neutral-500 dark:text-neutral-400">
+                                                            Maksimalno poena:{' '}
+                                                            {exam.maxPoints}
+                                                        </div>
                                                     </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <IconClock className="h-4 w-4" />
-                                                        <span>{exam.time}</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <IconMapPin className="h-4 w-4" />
-                                                        <span>
-                                                            {exam.location}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <IconUserCircle className="h-4 w-4" />
-                                                        <span>
-                                                            {exam.professor}
-                                                        </span>
+                                                    <div className="flex gap-3">
+                                                        {status ===
+                                                            'upcoming' && (
+                                                            <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
+                                                                Prijavi se
+                                                            </button>
+                                                        )}
+                                                        {status ===
+                                                            'completed' && (
+                                                            <span className="text-neutral-500 text-sm">
+                                                                Završen
+                                                            </span>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="flex gap-3">
-                                                <button className="bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 text-neutral-900 dark:text-white px-4 py-2 rounded-lg transition-colors">
-                                                    Detalji
-                                                </button>
-                                                <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
-                                                    Prijavi
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
+                                        )
+                                    })
+                                )}
                             </div>
                         </div>
                     </div>
