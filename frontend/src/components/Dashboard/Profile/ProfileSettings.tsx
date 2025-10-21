@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { useAuth } from '../../../Context'
+import { BACKEND_URL } from '../../../constants/storage'
 import SubjectList from './SubjectList'
 import { IconBook2, IconSchool } from '@tabler/icons-react'
 
@@ -34,7 +35,7 @@ const Settings = () => {
         const fetchMajors = async () => {
             try {
                 const response = await fetch(
-                    'http://localhost:3001/api/majors/with-subjects'
+                    `${BACKEND_URL}/api/majors/with-subjects`
                 )
                 if (!response.ok) {
                     throw new Error('Neuspjelo dohvaćanje smjerova')
@@ -133,7 +134,7 @@ const Settings = () => {
 
         try {
             const response = await fetch(
-                'http://localhost:3001/api/student/enroll',
+                `${BACKEND_URL}/api/student/enroll`,
                 {
                     method: 'POST',
                     headers: {

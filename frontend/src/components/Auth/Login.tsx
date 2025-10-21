@@ -1,6 +1,7 @@
 import { FC, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../Context'
+import { BACKEND_URL } from '../../constants/storage'
 import { motion } from 'framer-motion'
 import {
     AiOutlineEye,
@@ -38,7 +39,7 @@ const Login: FC = () => {
             return
         }
         try {
-            const response = await fetch('http://localhost:3001/api/login', {
+            const response = await fetch(`${BACKEND_URL}/api/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../../Context'
+import { BACKEND_URL } from '../../../constants/storage'
 
 interface Subject {
     id: number
@@ -63,7 +64,7 @@ const Profile = () => {
         const fetchProgress = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:3001/api/student/progress/${studentMail}`
+                    `${BACKEND_URL}/api/student/progress/${studentMail}`
                 )
                 if (!response.ok) {
                     throw new Error('Neuspjelo dohvaćanje podataka o napretku')
@@ -83,7 +84,7 @@ const Profile = () => {
         const fetchGrades = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:3001/api/student/grades/${studentMail}`
+                    `${BACKEND_URL}/api/student/grades/${studentMail}`
                 )
                 if (response.ok) {
                     const data = await response.json()
@@ -97,7 +98,7 @@ const Profile = () => {
         const fetchSubjectsLookup = async () => {
             try {
                 const resp = await fetch(
-                    'http://localhost:3001/api/majors/with-subjects'
+                    `${BACKEND_URL}/api/majors/with-subjects`
                 )
                 if (!resp.ok) return
                 const majors = await resp.json()

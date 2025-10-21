@@ -1,5 +1,6 @@
 // src/components/AdminPanel.tsx
 import React, { useState } from 'react'
+import { BACKEND_URL } from '../../constants/storage'
 
 const AdminPanel: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -43,7 +44,7 @@ const AdminPanel: React.FC = () => {
                 payload.indexNumber = formData.indexNumber.trim()
             }
 
-            const response = await fetch('http://localhost:3001/api/students', {
+            const response = await fetch(`${BACKEND_URL}/api/students`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

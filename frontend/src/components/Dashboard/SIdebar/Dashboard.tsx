@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import Profile from '../Profile/Profile'
 import Settings from '../Profile/ProfileSettings'
 import { useAuth } from '../../../Context'
+import { BACKEND_URL } from '../../../constants/storage'
 import {
     IconBook2,
     IconCalendarEvent,
@@ -36,11 +37,11 @@ const Dashboard = ({ currentRoute }: { currentRoute: string }) => {
         const fetchData = async () => {
             try {
                 const p = await fetch(
-                    `http://localhost:3001/api/student/progress/${studentMail}`
+                    `${BACKEND_URL}/api/student/progress/${studentMail}`
                 )
                 if (p.ok) setProgress((await p.json()) as ProgressShape)
                 const g = await fetch(
-                    `http://localhost:3001/api/student/grades/${studentMail}`
+                    `${BACKEND_URL}/api/student/grades/${studentMail}`
                 )
                 if (g.ok) setGrades((await g.json()) as GradeShape[])
             } catch (e) {
