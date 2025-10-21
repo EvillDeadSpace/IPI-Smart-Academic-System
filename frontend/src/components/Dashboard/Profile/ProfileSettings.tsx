@@ -133,16 +133,13 @@ const Settings = () => {
         }
 
         try {
-            const response = await fetch(
-                `${BACKEND_URL}/api/student/enroll`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestData),
-                }
-            )
+            const response = await fetch(`${BACKEND_URL}/api/student/enroll`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData),
+            })
 
             if (response.ok) {
                 const result = await response.json()
