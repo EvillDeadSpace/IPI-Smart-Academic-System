@@ -1,7 +1,7 @@
-﻿import express, { Express, Request, Response, NextFunction } from 'express';
-import cors from 'cors';
-import apiRouter from './routes/index.js';
-import { getPrismaClient } from './config/database.js';
+﻿import express, { Express, Request, Response, NextFunction } from "express";
+import cors from "cors";
+import apiRouter from "./routes/index";
+import { getPrismaClient } from "./config/database";
 
 export function createApp(): Express {
   const app = express();
@@ -12,11 +12,13 @@ export function createApp(): Express {
 
   getPrismaClient();
 
-  app.use('/api', apiRouter);
+  app.use("/api", apiRouter);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    console.error('Error:', err);
-    res.status(err?.status || 500).json({ error: err?.message || 'Internal Server Error' });
+    console.error("Error:", err);
+    res
+      .status(err?.status || 500)
+      .json({ error: err?.message || "Internal Server Error" });
   });
 
   return app;
