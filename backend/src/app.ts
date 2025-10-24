@@ -9,7 +9,6 @@ export function createApp(): Express {
   app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-
   getPrismaClient();
 
   app.use("/api", apiRouter);
