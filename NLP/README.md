@@ -17,13 +17,13 @@ Flask-based NLP microservice za akademski chatbot sa Mistral AI integracijom i k
 
 ## 🛠️ Tech Stack
 
-| Component | Technology |
-|-----------|-----------|
-| **Framework** | Flask 3.1.0 |
-| **Language** | Python 3.10+ |
-| **AI Model** | Mistral AI (GitHub Models) |
-| **HTTP Client** | Requests |
-| **Deployment** | PythonAnywhere |
+| Component       | Technology                 |
+| --------------- | -------------------------- |
+| **Framework**   | Flask 3.1.0                |
+| **Language**    | Python 3.10+               |
+| **AI Model**    | Mistral AI (GitHub Models) |
+| **HTTP Client** | Requests                   |
+| **Deployment**  | PythonAnywhere             |
 
 ## 📦 Installation
 
@@ -105,6 +105,7 @@ GET /status
 ```
 
 **Response:**
+
 ```json
 {
   "status": "running",
@@ -125,6 +126,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "response": "Predmet Matematika 1 nosi 6 ECTS bodova i izvodi se u prvom semestru.",
@@ -155,6 +157,7 @@ print(data['response'])
 ### 1. Knowledge Base Loading
 
 **fakultetski_sadržaj.txt:**
+
 ```text
 # IPI Akademija - Informacije
 
@@ -172,6 +175,7 @@ Programiranje 1
 ```
 
 **services.py:**
+
 ```python
 def load_knowledge_base(file_path: str) -> str:
     with open(file_path, 'r', encoding='utf-8') as file:
@@ -186,14 +190,14 @@ KNOWLEDGE_BASE = load_knowledge_base('fakultetski_sadržaj.txt')
 def search_content(query: str, content: str) -> List[str]:
     keywords = query.lower().split()
     lines = content.split('\n')
-    
+
     relevant_lines = []
     for i, line in enumerate(lines):
         if any(keyword in line.lower() for keyword in keywords):
             # Include context (3 lines before/after)
             context = lines[max(0, i-3):min(len(lines), i+4)]
             relevant_lines.extend(context)
-    
+
     return list(set(relevant_lines))
 ```
 
@@ -205,7 +209,7 @@ def generate_response(query: str, context: str) -> str:
         "Authorization": f"Bearer {GITHUB_TOKEN}",
         "Content-Type": "application/json"
     }
-    
+
     payload = {
         "messages": [
             {
@@ -221,13 +225,13 @@ def generate_response(query: str, context: str) -> str:
         "temperature": 0.7,
         "max_tokens": 500
     }
-    
+
     response = requests.post(
         "https://models.inference.ai.azure.com/chat/completions",
         headers=headers,
         json=payload
     )
-    
+
     return response.json()['choices'][0]['message']['content']
 ```
 
@@ -237,17 +241,17 @@ def generate_response(query: str, context: str) -> str:
 @app.route('/search', methods=['POST'])
 def search():
     query = request.json.get('word', '')
-    
+
     # 1. Search knowledge base
     context_lines = search_content(query, KNOWLEDGE_BASE)
     context = '\n'.join(context_lines)
-    
+
     # 2. Generate AI response
     if context:
         response = generate_response(query, context)
     else:
         response = "Nisam pronašao relevantne informacije u bazi znanja."
-    
+
     return jsonify({
         'response': response,
         'context_used': context_lines,
@@ -265,6 +269,7 @@ def search():
 ## Subsection
 
 Key: Value
+
 - Bullet point
 - Another point
 
@@ -283,6 +288,7 @@ Tip: Obavezni
 
 Opis:
 Uvod u programiranje sa Python jezikom. Studenti uče osnovne koncepte:
+
 - Varijable i tipovi podataka
 - Kontrolne strukture
 - Funkcije i moduli
@@ -301,6 +307,7 @@ Uvod u programiranje sa Python jezikom. Studenti uče osnovne koncepte:
 ### Setup Steps
 
 1. **Upload code**
+
 ```bash
 # Via Git
 git clone https://github.com/your-repo/IPI-Smart-Academic-System.git
@@ -308,6 +315,7 @@ cd IPI-Smart-Academic-System/NLP
 ```
 
 2. **Create virtual environment**
+
 ```bash
 python3.10 -m venv venv
 source venv/bin/activate
@@ -317,6 +325,7 @@ pip install -r requirements.txt
 3. **Configure WSGI**
 
 **wsgi.py:**
+
 ```python
 import sys
 import os
@@ -335,6 +344,7 @@ from main import app as application
 ```
 
 4. **Set environment variables**
+
 - Go to Web tab → Environment Variables
 - Add `GITHUB_TOKEN`, `OPEN_API_KEY_MISTRAL`
 
@@ -345,6 +355,7 @@ from main import app as application
 **Endpoint:** https://amartubic.pythonanywhere.com/search
 
 **Test:**
+
 ```bash
 curl -X POST https://amartubic.pythonanywhere.com/search \
   -H "Content-Type: application/json" \
@@ -394,22 +405,26 @@ if __name__ == "__main__":
 ## 🔍 Troubleshooting
 
 ### "Module not found" errors
+
 ```bash
 pip install -r requirements.txt
 # Ensure virtual environment is activated
 ```
 
 ### Mistral API errors
+
 - Check `GITHUB_TOKEN` is valid (not expired)
 - Verify token has `read:packages` scope
 - Test with: `curl -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/user`
 
 ### Empty responses
+
 - Check `fakultetski_sadržaj.txt` exists and has content
 - Verify file encoding is UTF-8
 - Test keyword search independently
 
 ### CORS errors (frontend integration)
+
 ```python
 # Ensure CORS is enabled in app/__init__.py
 from flask_cors import CORS

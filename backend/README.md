@@ -19,14 +19,14 @@ RESTful API backend za akademski sistem sa Prisma ORM i Vercel serverless deploy
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| **Framework** | Express 5.1.0 |
-| **Language** | TypeScript 5.6.3 |
-| **ORM** | Prisma 6.17.1 |
-| **Database** | PostgreSQL 16 |
-| **Validation** | Zod |
-| **Hosting** | Vercel Serverless |
+| Layer          | Technology        |
+| -------------- | ----------------- |
+| **Framework**  | Express 5.1.0     |
+| **Language**   | TypeScript 5.6.3  |
+| **ORM**        | Prisma 6.17.1     |
+| **Database**   | PostgreSQL 16     |
+| **Validation** | Zod               |
+| **Hosting**    | Vercel Serverless |
 
 ## 📦 Installation
 
@@ -81,13 +81,14 @@ npm run seed
 
 ### Authentication
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/login` | Student/Professor login |
-| POST | `/api/auth/register/student` | Register new student |
-| POST | `/api/auth/register/professor` | Register new professor |
+| Method | Endpoint                       | Description             |
+| ------ | ------------------------------ | ----------------------- |
+| POST   | `/api/auth/login`              | Student/Professor login |
+| POST   | `/api/auth/register/student`   | Register new student    |
+| POST   | `/api/auth/register/professor` | Register new professor  |
 
 **Login Request:**
+
 ```json
 {
   "email": "student@example.com",
@@ -96,6 +97,7 @@ npm run seed
 ```
 
 **Login Response:**
+
 ```json
 {
   "message": "Success",
@@ -107,32 +109,33 @@ npm run seed
 
 ### Student Management
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/students/:email` | Get student details |
-| GET | `/api/students/:email/progress` | Academic progress report |
-| GET | `/api/students/:email/exams` | Enrolled exams |
-| POST | `/api/students/:email/subjects/:subjectId/enroll` | Enroll in subject |
+| Method | Endpoint                                          | Description              |
+| ------ | ------------------------------------------------- | ------------------------ |
+| GET    | `/api/students/:email`                            | Get student details      |
+| GET    | `/api/students/:email/progress`                   | Academic progress report |
+| GET    | `/api/students/:email/exams`                      | Enrolled exams           |
+| POST   | `/api/students/:email/subjects/:subjectId/enroll` | Enroll in subject        |
 
 ### Professor Management
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/professors/:email` | Get professor details |
-| GET | `/api/professors/:email/subjects` | Teaching subjects |
-| POST | `/api/professors/setup` | Setup professor account |
-| POST | `/api/professors/:email/subjects` | Assign subject |
+| Method | Endpoint                          | Description             |
+| ------ | --------------------------------- | ----------------------- |
+| GET    | `/api/professors/:email`          | Get professor details   |
+| GET    | `/api/professors/:email/subjects` | Teaching subjects       |
+| POST   | `/api/professors/setup`           | Setup professor account |
+| POST   | `/api/professors/:email/subjects` | Assign subject          |
 
 ### Exam Management
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/exams` | List all exams |
-| POST | `/api/exams` | Create new exam |
-| POST | `/api/exams/:id/register` | Register student for exam |
-| POST | `/api/exams/:id/grade` | Submit exam grade |
+| Method | Endpoint                  | Description               |
+| ------ | ------------------------- | ------------------------- |
+| GET    | `/api/exams`              | List all exams            |
+| POST   | `/api/exams`              | Create new exam           |
+| POST   | `/api/exams/:id/register` | Register student for exam |
+| POST   | `/api/exams/:id/grade`    | Submit exam grade         |
 
 **Create Exam Request:**
+
 ```json
 {
   "subjectId": 1,
@@ -144,19 +147,19 @@ npm run seed
 
 ### Grade Management
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/grades/:studentEmail` | Student grades |
-| POST | `/api/grades` | Enter grade |
-| GET | `/api/subjects/:id/grades` | Subject grades |
+| Method | Endpoint                    | Description    |
+| ------ | --------------------------- | -------------- |
+| GET    | `/api/grades/:studentEmail` | Student grades |
+| POST   | `/api/grades`               | Enter grade    |
+| GET    | `/api/subjects/:id/grades`  | Subject grades |
 
 ### Utility Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/health` | Health check |
-| GET | `/api/majors` | List all majors |
-| GET | `/api/subjects` | List all subjects |
+| Method | Endpoint        | Description       |
+| ------ | --------------- | ----------------- |
+| GET    | `/api/health`   | Health check      |
+| GET    | `/api/majors`   | List all majors   |
+| GET    | `/api/subjects` | List all subjects |
 
 ## 📊 Database Schema
 
@@ -171,7 +174,7 @@ model Student {
   surname   String
   majorId   Int
   year      Int
-  
+
   major           Major                      @relation(...)
   enrollments     StudentEnrollment[]
   examRegistrations StudentExamRegistration[]
@@ -184,7 +187,7 @@ model Professor {
   password  String
   name      String
   surname   String
-  
+
   subjects  Subject[]
   exams     Exam[]
 }
@@ -195,7 +198,7 @@ model Subject {
   semester    Int
   ects        Int
   professorId Int?
-  
+
   professor   Professor? @relation(...)
   enrollments StudentEnrollment[]
   exams       Exam[]
@@ -207,7 +210,7 @@ model Exam {
   professorId Int
   date        DateTime
   description String?
-  
+
   subject      Subject                     @relation(...)
   professor    Professor                   @relation(...)
   registrations StudentExamRegistration[]
@@ -218,7 +221,7 @@ model Grade {
   studentId Int
   subjectId Int
   grade     Int    // 5-10 scale
-  
+
   student Student @relation(...)
   subject Subject @relation(...)
 }
@@ -273,11 +276,13 @@ backend/
 ### Design Patterns
 
 **Clean Architecture:**
+
 - Controllers → Services → Database
 - Separation of concerns (HTTP layer vs business logic)
 - Dependency injection ready
 
 **Response Utilities:**
+
 ```typescript
 // Centralized response formatting
 ResponseUtil.success(res, data, "Student created");
@@ -286,6 +291,7 @@ ResponseUtil.notFound(res, "Student not found");
 ```
 
 **Type Safety:**
+
 ```typescript
 // DTOs for API contracts
 interface LoginRequest {
@@ -305,6 +311,7 @@ interface ApiResponse<T> {
 ### Configuration
 
 **vercel.json:**
+
 ```json
 {
   "version": 2,
@@ -324,6 +331,7 @@ interface ApiResponse<T> {
 ```
 
 **api/index.ts (Serverless Entry):**
+
 ```typescript
 import { createApp } from "../src/app";
 
@@ -334,13 +342,16 @@ export default createApp();
 ### Environment Setup
 
 1. Set environment variables in Vercel:
+
    - `DATABASE_URL` (Prisma Accelerate connection string)
 
 2. Build settings:
+
    - Build Command: `npm install && npx prisma generate`
    - Output Directory: (default)
 
 3. Deploy:
+
 ```bash
 vercel --prod
 ```
@@ -350,17 +361,19 @@ vercel --prod
 **Important:** Codebase uses **CommonJS** for Vercel compatibility:
 
 **tsconfig.json:**
+
 ```json
 {
   "compilerOptions": {
     "module": "commonjs",
-    "moduleResolution": "node",
+    "moduleResolution": "node"
     // No .js extensions in imports
   }
 }
 ```
 
 **package.json:**
+
 ```json
 {
   // NO "type": "module"
@@ -383,20 +396,24 @@ npm run lint
 ## 🔍 Troubleshooting
 
 ### "Module not found" errors
+
 - Run `npx prisma generate` after schema changes
 - Ensure `@prisma/client` is installed
 
 ### Database connection issues
+
 - Check `DATABASE_URL` is set correctly
 - Prisma Accelerate requires specific connection string format
 - Use `prisma://` protocol for Accelerate
 
 ### Vercel deployment fails
+
 - Ensure `api/index.ts` exports app without `listen()`
 - Check `vercel.json` points to correct entry point
 - Run `npx prisma generate` in build command
 
 ### CORS errors
+
 - Add frontend URL to `ALLOWED_ORIGINS` in `.env`
 - Check `config/cors.ts` configuration
 
@@ -404,13 +421,13 @@ npm run lint
 
 ```json
 {
-  "dev": "nodemon src/server.ts",           // Development server
-  "build": "tsc",                            // Compile TypeScript
-  "start": "node dist/server.js",           // Production server
-  "seed": "ts-node prisma/main.ts",         // Seed database
-  "prisma:generate": "prisma generate",     // Generate Prisma Client
-  "prisma:push": "prisma db push",          // Push schema to DB
-  "prisma:studio": "prisma studio"          // Open Prisma Studio GUI
+  "dev": "nodemon src/server.ts", // Development server
+  "build": "tsc", // Compile TypeScript
+  "start": "node dist/server.js", // Production server
+  "seed": "ts-node prisma/main.ts", // Seed database
+  "prisma:generate": "prisma generate", // Generate Prisma Client
+  "prisma:push": "prisma db push", // Push schema to DB
+  "prisma:studio": "prisma studio" // Open Prisma Studio GUI
 }
 ```
 

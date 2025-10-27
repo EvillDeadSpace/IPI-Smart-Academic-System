@@ -24,6 +24,7 @@
 IPI Smart Academic System is a comprehensive 3-tier academic management platform designed for universities and educational institutions. It combines traditional student information system features with modern AI-powered assistance through an integrated chatbot.
 
 **Live Demo:**
+
 - Frontend: [Netlify/Vercel URL]
 - Backend API: https://ipi-smart-academic-system-dzhc.vercel.app
 - NLP Service: https://amartubic.pythonanywhere.com
@@ -31,22 +32,26 @@ IPI Smart Academic System is a comprehensive 3-tier academic management platform
 ## ✨ Features
 
 ### 👨‍🎓 Student Portal
+
 - 📊 **Academic Progress Tracking** - Real-time ECTS, grades, and course completion
 - � **Course Enrollment** - Smart enrollment with validation (required courses, ECTS limits, progression rules)
 - 📅 **Exam Registration** - Browse upcoming exams and register online
 - 💬 **AI Assistant** - 24/7 chatbot for academic queries powered by Mistral AI
 
 ### 👨‍🏫 Professor Dashboard
+
 - � **Exam Scheduling** - Create and manage exam sessions
 - ✅ **Grading System** - Record grades with automatic calculation (ECTS-based)
 - 📈 **Student Overview** - Track student performance per subject
 
 ### 🔧 Admin Panel
+
 - � **User Management** - Register students and professors
 - � **Major & Subject Setup** - Configure study programs and curricula
 - 📊 **System Analytics** - Monitor platform usage
 
 ### 🤖 AI Chatbot (NLP Service)
+
 - Natural language understanding for academic queries
 - Knowledge base with faculty information, enrollment rules, and procedures
 - Powered by Mistral AI via GitHub Models API
@@ -59,16 +64,17 @@ IPI Smart Academic System is a comprehensive 3-tier academic management platform
 │   Frontend      │──────│   Backend API   │──────│   PostgreSQL    │
 │   React + Vite  │ HTTP │ Express + Prisma│      │ (Accelerate)    │
 └─────────────────┘      └─────────────────┘      └─────────────────┘
-         │                                                  
-         │ HTTP                                             
-         ▼                                                  
-┌─────────────────┐                                        
-│  NLP Service    │                                        
-│  Flask + Mistral│                                        
-└─────────────────┘                                        
+         │
+         │ HTTP
+         ▼
+┌─────────────────┐
+│  NLP Service    │
+│  Flask + Mistral│
+└─────────────────┘
 ```
 
 **3-Tier Architecture:**
+
 - **Presentation Layer**: React 18 SPA with TypeScript
 - **Application Layer**: Node.js/Express REST API with clean architecture (controllers → services → database)
 - **Data Layer**: PostgreSQL with Prisma ORM (Prisma Accelerate for serverless)
@@ -76,19 +82,19 @@ IPI Smart Academic System is a comprehensive 3-tier academic management platform
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **Frontend** | React 18, TypeScript, Vite | Modern SPA with fast dev experience |
-| | React Router, TailwindCSS | Routing and styling |
-| | Framer Motion, Lottie | Animations |
-| **Backend** | Node.js 20, Express 5, TypeScript | RESTful API server |
-| | Prisma 6.17 | Type-safe ORM |
-| | PostgreSQL | Relational database |
-| **NLP** | Python 3.x, Flask | AI microservice |
-| | Mistral AI | LLM for chatbot |
-| **DevOps** | Vercel (backend), Netlify (frontend) | Serverless deployment |
-| | GitHub Actions | CI/CD |
-| | Docker | Local containerization |
+| Layer        | Technology                           | Purpose                             |
+| ------------ | ------------------------------------ | ----------------------------------- |
+| **Frontend** | React 18, TypeScript, Vite           | Modern SPA with fast dev experience |
+|              | React Router, TailwindCSS            | Routing and styling                 |
+|              | Framer Motion, Lottie                | Animations                          |
+| **Backend**  | Node.js 20, Express 5, TypeScript    | RESTful API server                  |
+|              | Prisma 6.17                          | Type-safe ORM                       |
+|              | PostgreSQL                           | Relational database                 |
+| **NLP**      | Python 3.x, Flask                    | AI microservice                     |
+|              | Mistral AI                           | LLM for chatbot                     |
+| **DevOps**   | Vercel (backend), Netlify (frontend) | Serverless deployment               |
+|              | GitHub Actions                       | CI/CD                               |
+|              | Docker                               | Local containerization              |
 
 ## 🚀 Getting Started
 
@@ -102,12 +108,14 @@ IPI Smart Academic System is a comprehensive 3-tier academic management platform
 ### Quick Start (Local Development)
 
 1. **Clone the repository**
+
 ```bash
 git clone https://github.com/EvillDeadSpace/IPI-Smart-Academic-System.git
 cd IPI-Smart-Academic-System
 ```
 
 2. **Setup Backend**
+
 ```bash
 cd backend
 npm install
@@ -119,6 +127,7 @@ npm run dev  # Starts on http://localhost:3001
 ```
 
 3. **Setup Frontend**
+
 ```bash
 cd frontend
 npm install
@@ -126,6 +135,7 @@ npm run dev  # Starts on http://localhost:5173
 ```
 
 4. **Setup NLP Service (Optional)**
+
 ```bash
 cd NLP
 python -m venv venv
@@ -136,6 +146,7 @@ python main.py  # Starts on http://localhost:5000
 ```
 
 5. **Access the application**
+
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:3001/api/health
 - NLP API: http://localhost:5000/status
@@ -145,6 +156,7 @@ python main.py  # Starts on http://localhost:5000
 Create `.env` files in each directory:
 
 **Backend (`backend/.env`):**
+
 ```env
 DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=YOUR_KEY"
 NODE_ENV=development
@@ -152,12 +164,14 @@ PORT=3001
 ```
 
 **Frontend (`frontend/.env`):**
+
 ```env
 VITE_BACKEND_URL=http://localhost:3001
 VITE_NLP_URL=http://localhost:5000
 ```
 
 **NLP (`NLP/.env`):**
+
 ```env
 GITHUB_TOKEN=your_github_token_here
 OPEN_API_KEY_MISTRAL=your_mistral_key
@@ -212,6 +226,7 @@ IPI-Smart-Academic-System/
 4. Deploy automatically on push to `main`
 
 **Build settings:**
+
 - Build Command: `npm install && npx prisma generate`
 - Output Directory: (default)
 - Entry: `api/index.ts`
@@ -258,6 +273,7 @@ npm run lint
 5. Open a Pull Request
 
 **Code Standards:**
+
 - TypeScript strict mode
 - ESLint + Prettier
 - Conventional commits
@@ -277,16 +293,19 @@ npm run lint
 ---
 
 **Built with ❤️ for modern academic institutions**
+
 - `POST /add_student` - Register new student
 - `GET /student/{email}` - Get student details
 - `GET /api/subjects/student/{email}` - Get student's subjects
 
 ### Professor Management
+
 - `GET /professors` - List all professors
 - `POST /add_professor` - Add new professor
 - `GET /professors/email/{email}` - Get professor details
 
 ### Exam Management
+
 - `POST /api/exams` - Create new exam
 - `GET /api/exams` - List all exams
 - `POST /api/exams/{examId}/register` - Register for exam
@@ -294,6 +313,7 @@ npm run lint
 ## 🔑 Environment Variables
 
 Required environment variables:
+
 - `SPRING_DATASOURCE_URL`
 - `SPRING_DATASOURCE_USERNAME`
 - `SPRING_DATASOURCE_PASSWORD`
@@ -303,6 +323,7 @@ Required environment variables:
 ## 📊 Database Schema
 
 Key entities:
+
 - `faculty_users` - User management
 - `faculty_professors` - Professor details
 - `faculty_student` - Student information
@@ -316,4 +337,5 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## 📞 Contact
 
 For any inquiries, please reach out to:
+
 - Email: amartubic1@gmail.com
