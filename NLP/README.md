@@ -463,7 +463,7 @@ async def generate_response_async(query: str, context: str):
 - [ ] **Conversation Memory** - Track multi-turn dialogs
 - [ ] **Response Caching** - Redis cache za često korišćene upite
 - [ ] **Analytics** - Log queries for knowledge base improvement
-- [ ] **Multi-language** - Support English alongside Serbian
+- [ ] **Multi-language** - Support English alongside Bosninan
 
 ## 📚 Dependencies
 
