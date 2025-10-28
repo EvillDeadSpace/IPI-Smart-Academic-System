@@ -6,12 +6,12 @@
     "express": "^5.1.0"
   },
   "prisma": {
-    "seed": "tsx prisma/main.ts"
+    "seed": "tsx prisma/seed-new.ts"
   },
   "scripts": {
     "prisma:generate": "prisma generate",
     "db:push": "prisma db push",
-    "seed": "tsx prisma/main.ts",
+    "seed": "tsx prisma/seed.ts",
     "postinstall": "prisma generate",
     "dev": "tsx src/server.ts",
     "build": "tsc",

@@ -10,7 +10,7 @@ export interface LoginResponse {
   firstName: string;
   lastName: string;
   email: string;
-  userType: "STUDENT" | "PROFESSOR";
+  userType: "STUDENT" | "PROFESSOR" | "ADMIN";
   major?: {
     id: number;
     name: string;

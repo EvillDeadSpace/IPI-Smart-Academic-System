@@ -8,10 +8,24 @@ import {
 
 export class AuthService {
   /**
-   * Login - Check both Student and Professor tables
+   * Login - Check both Student and Professor tables, plus hardcoded Admin
    */
   static async login(credentials: LoginRequest): Promise<LoginResponse | null> {
     const { email, password } = credentials;
+
+    // Check for hardcoded Admin credentials
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      return {
+        id: 0, // Special ID for admin
+        firstName: "System",
+        lastName: "Administrator",
+        email: ADMIN_EMAIL,
+        userType: "ADMIN",
+      };
+    }
 
     // Try Student first
     const student = await prisma.student.findFirst({

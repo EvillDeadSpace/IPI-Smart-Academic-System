@@ -12,4 +12,5 @@ export interface AuthContextType {
     logout: (navigate: ReturnType<typeof useNavigate>) => void
     userDetails: UserDetails | null
     setUserDetails: (details: UserDetails | null) => void
+    isLoading: boolean // NEW: Loading state for session restoration
 }

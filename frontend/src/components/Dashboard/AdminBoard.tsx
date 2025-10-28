@@ -1,8 +1,19 @@
 // src/components/AdminPanel.tsx
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../Context'
 import { BACKEND_URL } from '../../constants/storage'
+import {
+    IconUserPlus,
+    IconUsers,
+    IconSchool,
+    IconLogout,
+    IconChartBar,
+} from '@tabler/icons-react'
 
 const AdminPanel: React.FC = () => {
+    const navigate = useNavigate()
+    const { logout, studentName } = useAuth()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [formData, setFormData] = useState({
         firstName: '',
@@ -95,24 +106,111 @@ const AdminPanel: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-100 p-8">
-            <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Kartica za dodavanje korisnika */}
-                <div className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <h2 className="text-xl font-semibold mb-4">
-                        Dodaj Korisnika
-                    </h2>
-                    <button
-                        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-300"
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+            {/* Top Navigation Bar */}
+            <nav className="bg-white shadow-sm border-b border-gray-200">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center h-16">
+                        <div className="flex items-center space-x-4">
+                            <IconSchool className="w-8 h-8 text-blue-600" />
+                            <div>
+                                <h1 className="text-xl font-bold text-gray-900">
+                                    Admin Panel
+                                </h1>
+                                <p className="text-sm text-gray-500">
+                                    {studentName || 'System Administrator'}
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => logout(navigate)}
+                            className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                            <IconLogout className="w-4 h-4" />
+                            <span>Logout</span>
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
+            {/* Main Content */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* Card 1: Add Student */}
+                    <div
+                        className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer border border-gray-200 overflow-hidden"
                         onClick={openModal}
                     >
-                        Dodaj Korisnika
-                    </button>
+                        <div className="p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="p-3 bg-blue-100 rounded-lg">
+                                    <IconUserPlus className="w-6 h-6 text-blue-600" />
+                                </div>
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                                Dodaj Studenta
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                                Kreiraj novi studentski nalog u sistemu
+                            </p>
+                        </div>
+                        <div className="bg-blue-50 px-6 py-3">
+                            <p className="text-xs text-blue-700 font-medium">
+                                Click to add →
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Card 2: Manage Professors */}
+                    <div
+                        className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer border border-gray-200 overflow-hidden"
+                        onClick={() => navigate('/admin/professors')}
+                    >
+                        <div className="p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="p-3 bg-green-100 rounded-lg">
+                                    <IconUsers className="w-6 h-6 text-green-600" />
+                                </div>
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                                Upravljanje Profesorima
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                                Dodaj, izmijeni ili obriši profesore
+                            </p>
+                        </div>
+                        <div className="bg-green-50 px-6 py-3">
+                            <p className="text-xs text-green-700 font-medium">
+                                Click to manage →
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Card 3: View Statistics */}
+                    <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer border border-gray-200 overflow-hidden opacity-60">
+                        <div className="p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="p-3 bg-purple-100 rounded-lg">
+                                    <IconChartBar className="w-6 h-6 text-purple-600" />
+                                </div>
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                                Statistike
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                                Pregled sistema i izvještaji
+                            </p>
+                        </div>
+                        <div className="bg-purple-50 px-6 py-3">
+                            <p className="text-xs text-purple-700 font-medium">
+                                Coming soon...
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Modal */}
+            {/* Modal for Adding Student */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-96">

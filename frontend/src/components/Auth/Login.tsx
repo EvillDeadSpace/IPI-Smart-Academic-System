@@ -28,16 +28,31 @@ const Login: FC = () => {
         event.preventDefault()
         setLoading(true)
         setMessage('')
-        // Dev shortcut: allow quick professor login with admin/admin
+
+        // Dev shortcuts for quick testing
         if (email === 'admin' && password === 'admin') {
-            // Set context to professor and navigate
-            setStudentName('Admin Profesor')
-            setUserType('PROFESOR')
-            login('admin@local', 'Admin Profesor', 'PROFESOR')
-            nav('/profesor')
+            // Admin shortcut
+            setStudentName('System Admin')
+            setUserType('ADMIN')
+            login('admin@ipi.com', 'System Admin', 'ADMIN')
+            setMessage('Admin login successful! Redirecting...')
+            setTimeout(() => nav('/admin'), 500)
             setLoading(false)
             return
         }
+
+        if (email === 'profesor' && password === 'profesor') {
+            // Professor shortcut
+            setStudentName('Test Profesor')
+            setUserType('PROFESSOR')
+            login('profesor@ipi.com', 'Test Profesor', 'PROFESSOR')
+            setMessage('Professor login successful! Redirecting...')
+            setTimeout(() => nav('/profesor'), 500)
+            setLoading(false)
+            return
+        }
+
+        // Real API login
         try {
             const response = await fetch(`${BACKEND_URL}/api/login`, {
                 method: 'POST',
@@ -65,25 +80,31 @@ const Login: FC = () => {
                 throw new Error('Invalid response data')
             }
 
-            //const isProfessor = data.TipUsera === 'PROFESOR'
-            //setUserType(data.TipUsera) // Set user type instead of isProfessor
+            // Set user data in Context first
             setStudentName(data.StudentName)
             login(data.userEmail, data.StudentName, data.TipUsera)
 
-            // Add this after successful login
             console.log('Login response:', data)
             console.log('User email:', data.userEmail)
             console.log('User type:', data.TipUsera)
 
             setMessage('Login successful! Redirecting...')
 
+            // Wait briefly for Context state to update before navigation
             setTimeout(() => {
-                if (data.TipUsera === 'PROFESOR') {
-                    nav('/profesor') // Redirect to professor dashboard
-                } else {
-                    nav('/dashboard') // Redirect to student dashboard
+                switch (data.TipUsera) {
+                    case 'ADMIN':
+                        nav('/admin')
+                        break
+                    case 'PROFESSOR':
+                        nav('/profesor')
+                        break
+                    case 'STUDENT':
+                    default:
+                        nav('/dashboard')
+                        break
                 }
-            }, 1000) // 1 second delay
+            }, 100) // Short delay to let Context update
         } catch (error) {
             console.error('Došlo je do greške:', error)
             setMessage(

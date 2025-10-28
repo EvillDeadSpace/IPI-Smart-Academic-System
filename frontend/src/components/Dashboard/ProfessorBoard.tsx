@@ -69,7 +69,7 @@ interface ExamFormData {
 }
 
 const ProfessorBoard: React.FC = () => {
-    const { studentMail } = useAuth() // This is professor's email when logged in as PROFESOR
+    const { studentMail, studentName } = useAuth() // Get professor email and name
     const [isLoading, setIsLoading] = useState(true)
     const [subjectsWithStudents, setSubjectsWithStudents] = useState<
         SubjectWithStudents[]
@@ -121,14 +121,22 @@ const ProfessorBoard: React.FC = () => {
 
     const fetchProfessorData = async () => {
         setIsLoading(true)
+        console.log('🔍 ProfessorBoard - Fetching data for email:', studentMail)
+
         try {
             // First, get professor's assigned subjects
             const profResponse = await fetch(
                 `${BACKEND_URL}/api/professors/email/${studentMail}`
             )
 
+            console.log(
+                '📡 Professor API response status:',
+                profResponse.status
+            )
+
             if (profResponse.ok) {
                 const profData = await profResponse.json()
+                console.log('✅ Professor data loaded:', profData)
                 setProfessorId(profData.id)
                 const subjectIds = profData.subjects.map(
                     (s: { id: number }) => s.id
@@ -140,11 +148,14 @@ const ProfessorBoard: React.FC = () => {
                 // Now fetch all data but filter by professor's subjects
                 await fetchAllData(subjectIds)
             } else {
+                console.log(
+                    '⚠️ Professor not found in DB, fetching all subjects'
+                )
                 // If professor not found in DB, show all subjects (for admin shortcut case)
                 await fetchAllData([])
             }
         } catch (error) {
-            console.error('Error fetching professor data:', error)
+            console.error('❌ Error fetching professor data:', error)
             setIsLoading(false)
         }
     }
@@ -200,6 +211,10 @@ const ProfessorBoard: React.FC = () => {
     }
 
     const fetchAllData = async (allowedSubjectIds: number[] = []) => {
+        console.log(
+            '🔄 fetchAllData called with subjectIds:',
+            allowedSubjectIds
+        )
         setIsLoading(true)
         try {
             // Step 1: Get all majors with subjects
@@ -209,6 +224,7 @@ const ProfessorBoard: React.FC = () => {
             if (!majorsRes.ok) throw new Error('Failed to fetch majors')
 
             const majorsData = await majorsRes.json()
+            console.log('📚 Majors data:', majorsData)
             const allSubjects: SubjectInfo[] = []
 
             // Extract all unique subjects across all majors
@@ -220,6 +236,8 @@ const ProfessorBoard: React.FC = () => {
                 })
             })
 
+            console.log('📖 All subjects extracted:', allSubjects.length)
+
             // Filter subjects by professor's assigned subjects (if provided)
             const filteredSubjects =
                 allowedSubjectIds.length > 0
@@ -228,11 +246,16 @@ const ProfessorBoard: React.FC = () => {
                       )
                     : allSubjects
 
+            console.log('✅ Filtered subjects for professor:', filteredSubjects)
+
             // Step 2: Get all students
             const studentsRes = await fetch(`${BACKEND_URL}/api/students`)
             if (!studentsRes.ok) throw new Error('Failed to fetch students')
 
-            const studentsData = await studentsRes.json()
+            const studentsResponse = await studentsRes.json()
+            // Backend returns {success: true, data: [...]} format
+            const studentsData = studentsResponse.data || studentsResponse
+            console.log('👥 Students data:', studentsData.length, 'students')
 
             // Step 3: For each student, fetch their progress and grades
             const studentsWithEnrollments = await Promise.all(
@@ -331,27 +354,58 @@ const ProfessorBoard: React.FC = () => {
             // Step 5: Create final structure
             const result: SubjectWithStudents[] = []
 
+            console.log('📚 Filtered subjects for professor:', filteredSubjects)
+            console.log('👥 Subject enrollment map:', subjectMap)
+
             filteredSubjects.forEach((subject) => {
                 const students = subjectMap.get(subject.id) || []
+                console.log(
+                    `📖 Subject "${subject.name}" (ID: ${subject.id}) has ${students.length} students`
+                )
+
                 if (students.length > 0) {
                     result.push({ subject, students })
+                } else {
+                    // Also show subjects with no students
+                    result.push({ subject, students: [] })
                 }
             })
 
+            console.log('✅ Final result with subjects:', result)
             setSubjectsWithStudents(result)
 
-            // Calculate stats
-            const totalStudents = new Set(
-                studentsWithEnrollments.map((s: { id: number }) => s.id)
-            ).size
+            // Calculate stats - ONLY for students enrolled in professor's subjects
+            // Collect all unique students from professor's subjects
+            const uniqueStudentIds = new Set<number>()
+            result.forEach((item) => {
+                item.students.forEach((student) => {
+                    uniqueStudentIds.add(student.id)
+                })
+            })
+
+            const totalStudents = uniqueStudentIds.size // Students in professor's subjects ONLY
             const totalSubjects = result.length
-            const gradedStudents = studentsWithEnrollments.filter(
-                (s: { grades: { grade: number }[] }) =>
-                    s.grades.some((g: { grade: number }) => g.grade >= 6)
+
+            // Count graded students (only those in professor's subjects)
+            const studentsInProfessorSubjects = studentsWithEnrollments.filter(
+                (s: { id: number }) => uniqueStudentIds.has(s.id)
+            )
+
+            const gradedStudents = studentsInProfessorSubjects.filter(
+                (s: { grades: { grade: number; subjectId: number }[] }) =>
+                    s.grades.some(
+                        (g: { grade: number; subjectId: number }) =>
+                            g.grade >= 6 &&
+                            allowedSubjectIds.includes(g.subjectId)
+                    )
             ).length
 
-            const allGrades = studentsWithEnrollments.flatMap(
-                (s: { grades: { grade: number }[] }) => s.grades || []
+            // Calculate average grade (only for professor's subjects)
+            const allGrades = studentsInProfessorSubjects.flatMap(
+                (s: { grades: { grade: number; subjectId: number }[] }) =>
+                    s.grades.filter((g: { subjectId: number }) =>
+                        allowedSubjectIds.includes(g.subjectId)
+                    ) || []
             )
             const avgGrade =
                 allGrades.length > 0
@@ -367,9 +421,18 @@ const ProfessorBoard: React.FC = () => {
                 averageGrade: Math.round(avgGrade * 10) / 10,
                 gradedStudents,
             })
+
+            console.log('📊 Stats calculated:', {
+                totalStudents: `${totalStudents} (students in professor's subjects only)`,
+                totalSubjects,
+                averageGrade: Math.round(avgGrade * 10) / 10,
+                gradedStudents,
+            })
         } catch (error) {
-            console.error('Error fetching data:', error)
+            console.error('❌ Error fetching data:', error)
+            console.error('Error details:', error)
         } finally {
+            console.log('✅ fetchAllData completed, isLoading = false')
             setIsLoading(false)
         }
     }
@@ -393,11 +456,19 @@ const ProfessorBoard: React.FC = () => {
         try {
             const computedGrade = computeGradeFromPoints(gradeForm.points)
 
-            const response = await fetch(`${BACKEND_URL}/api/student/grade`, {
+            console.log('📝 Submitting grade:', {
+                studentEmail: gradeForm.studentEmail,
+                subjectId: gradeForm.subjectId,
+                grade: computedGrade,
+                points: gradeForm.points,
+                examType: 'REGULAR',
+            })
+
+            const response = await fetch(`${BACKEND_URL}/api/grades`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    email: gradeForm.studentEmail,
+                    studentEmail: gradeForm.studentEmail,
                     subjectId: gradeForm.subjectId,
                     grade: computedGrade,
                     points: gradeForm.points,
@@ -405,20 +476,33 @@ const ProfessorBoard: React.FC = () => {
                 }),
             })
 
+            console.log('📡 Grade submission response status:', response.status)
+
             if (!response.ok) {
-                throw new Error('Failed to submit grade')
+                const errorData = await response.json().catch(() => ({}))
+                console.error('❌ Backend error:', errorData)
+                throw new Error(
+                    errorData.error ||
+                        errorData.message ||
+                        'Failed to submit grade'
+                )
             }
+
+            const result = await response.json()
+            console.log('✅ Grade submitted successfully:', result)
 
             alert(
                 `Ocjena uspješno unesena: ${gradeForm.studentName} - ${gradeForm.subjectName} - Ocjena: ${gradeForm.grade}`
             )
             setShowGradeModal(false)
 
-            // Refresh data
-            await fetchAllData()
+            // Refresh data - need to pass professor's subject IDs
+            await fetchProfessorData()
         } catch (error) {
-            console.error('Error submitting grade:', error)
-            alert('Greška pri unosu ocjene. Pokušajte ponovo.')
+            console.error('❌ Error submitting grade:', error)
+            alert(
+                `Greška pri unosu ocjene: ${error instanceof Error ? error.message : 'Pokušajte ponovo'}`
+            )
         }
     }
 
@@ -443,12 +527,28 @@ const ProfessorBoard: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-gradient-to-r from-blue-900 to-indigo-900 rounded-2xl p-8 text-gray-200 mb-6"
             >
-                <h1 className="text-3xl font-bold mb-2">
-                    Dobrodošli, Profesore
-                </h1>
-                <p className="text-gray-300">
-                    Upravljajte ocjenama i pratite napredak studenata
-                </p>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold mb-2">
+                            Dobrodošli, {studentName || 'Profesore'}
+                        </h1>
+                        <p className="text-gray-300">{studentMail}</p>
+                        <p className="text-gray-400 text-sm mt-1">
+                            Upravljajte ocjenama i pratite napredak studenata
+                        </p>
+                    </div>
+                    <div className="hidden md:block">
+                        <IconUserCircle className="w-20 h-20 text-blue-300 opacity-50" />
+                    </div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-blue-800/50">
+                    <div className="flex items-center gap-2 text-sm">
+                        <IconBook className="w-5 h-5 text-blue-400" />
+                        <span className="text-gray-300">
+                            Predmeti koje predajete: {stats.totalSubjects}
+                        </span>
+                    </div>
+                </div>
             </motion.div>
 
             {/* Stats Grid */}

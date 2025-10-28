@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import {
     IconUserPlus,
     IconTrash,
     IconEdit,
     IconX,
     IconCheck,
+    IconArrowLeft,
+    IconSchool,
+    IconBook,
 } from '@tabler/icons-react'
+import { useAuth } from '../../Context'
 import { BACKEND_URL } from '../../constants/storage'
 
 interface Subject {
@@ -37,6 +42,8 @@ interface ProfessorFormData {
 }
 
 const AdminProfessorManagement: React.FC = () => {
+    const navigate = useNavigate()
+    const { studentName } = useAuth()
     const [professors, setProfessors] = useState<Professor[]>([])
     const [allSubjects, setAllSubjects] = useState<Subject[]>([])
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -216,139 +223,194 @@ const AdminProfessorManagement: React.FC = () => {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
             </div>
         )
     }
 
     return (
-        <div className="p-6">
-            {/* Header */}
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-200">
-                        Upravljanje Profesorima
-                    </h2>
-                    <p className="text-gray-400 mt-1">
-                        Dodajte profesore i dodijelite im predmete
-                    </p>
-                </div>
-                <button
-                    onClick={openCreateModal}
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg font-semibold shadow-lg ring-1 ring-blue-400/20 transition-transform transform hover:-translate-y-0.5"
-                    aria-label="Dodaj profesora"
-                    title="Dodaj profesora"
-                >
-                    <IconUserPlus className="w-5 h-5" />
-                    Dodaj Profesora
-                </button>
-            </div>
-
-            {/* Professors Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {professors.map((professor, index) => (
-                    <motion.div
-                        key={professor.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        className="bg-[#1a1a1a] rounded-xl p-6 border border-neutral-800 hover:border-neutral-700 transition-all"
-                    >
-                        <div className="flex justify-between items-start mb-4">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+            {/* Top Navigation Bar */}
+            <div className="bg-white border-b border-gray-200 shadow-sm">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-between h-16">
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => navigate('/admin')}
+                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                title="Nazad na Admin Panel"
+                            >
+                                <IconArrowLeft className="w-5 h-5 text-gray-600" />
+                            </button>
+                            <IconSchool className="w-8 h-8 text-green-600" />
                             <div>
-                                <h3 className="text-lg font-bold text-gray-200">
-                                    {professor.title} {professor.firstName}{' '}
-                                    {professor.lastName}
-                                </h3>
-                                <p className="text-sm text-gray-400">
-                                    {professor.email}
+                                <h1 className="text-xl font-bold text-gray-900">
+                                    Upravljanje Profesorima
+                                </h1>
+                                <p className="text-sm text-gray-500">
+                                    Dodajte profesore i dodijelite im predmete
                                 </p>
-                                {professor.office && (
-                                    <p className="text-sm text-gray-500 mt-1">
-                                        Kabinet: {professor.office}
-                                    </p>
-                                )}
-                            </div>
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={() => openEditModal(professor)}
-                                    className="p-2 bg-orange-500/20 text-orange-400 rounded-lg hover:bg-orange-500/30 transition-all"
-                                >
-                                    <IconEdit className="w-4 h-4" />
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(professor.id)}
-                                    className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all"
-                                >
-                                    <IconTrash className="w-4 h-4" />
-                                </button>
                             </div>
                         </div>
-
-                        <div className="border-t border-neutral-700 pt-4">
-                            <p className="text-sm font-semibold text-gray-300 mb-2">
-                                Predmeti ({professor.subjects.length}):
-                            </p>
-                            {professor.subjects.length > 0 ? (
-                                <div className="flex flex-wrap gap-2">
-                                    {professor.subjects.map((subject) => (
-                                        <span
-                                            key={subject.id}
-                                            className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-xs font-medium"
-                                        >
-                                            {subject.name}
-                                        </span>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-sm text-gray-500 italic">
-                                    Nema dodijeljenih predmeta
-                                </p>
-                            )}
+                        <div className="flex items-center gap-4">
+                            <span className="text-sm text-gray-600">
+                                Admin:{' '}
+                                <span className="font-semibold">
+                                    {studentName || 'Administrator'}
+                                </span>
+                            </span>
                         </div>
-                    </motion.div>
-                ))}
+                    </div>
+                </div>
             </div>
 
-            {professors.length === 0 && (
-                <div className="text-center py-12 bg-[#1a1a1a] rounded-xl border border-neutral-800">
-                    <IconUserPlus className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                    <h3 className="text-xl font-bold text-gray-400 mb-2">
-                        Nema profesora
-                    </h3>
-                    <p className="text-gray-500 mb-4">
-                        Dodajte prvog profesora klikom na dugme iznad.
-                    </p>
-                </div>
-            )}
+            {/* Main Content */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Add Professor Button Card */}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-8"
+                >
+                    <button
+                        onClick={openCreateModal}
+                        className="w-full bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all transform hover:-translate-y-0.5"
+                    >
+                        <div className="flex items-center justify-center gap-3">
+                            <IconUserPlus className="w-6 h-6" />
+                            <span className="text-lg font-semibold">
+                                Dodaj Novog Profesora
+                            </span>
+                        </div>
+                    </button>
+                </motion.div>
 
-            {/* Floating Add Button */}
-            <button
-                onClick={openCreateModal}
-                aria-label="Dodaj profesora"
-                title="Dodaj profesora"
-                className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl transform hover:scale-105 transition-all z-50"
-            >
-                <IconUserPlus className="w-6 h-6" />
-            </button>
+                {/* Professors Grid */}
+                {professors.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {professors.map((professor, index) => (
+                            <motion.div
+                                key={professor.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.05 }}
+                                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all border border-gray-200 overflow-hidden"
+                            >
+                                {/* Card Header with Gradient */}
+                                <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 border-b border-green-200">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <div className="flex-1">
+                                            <h3 className="text-lg font-bold text-gray-900">
+                                                {professor.title}{' '}
+                                                {professor.firstName}{' '}
+                                                {professor.lastName}
+                                            </h3>
+                                            <p className="text-sm text-gray-600 mt-1">
+                                                {professor.email}
+                                            </p>
+                                            {professor.office && (
+                                                <div className="flex items-center gap-1 mt-2">
+                                                    <IconBook className="w-4 h-4 text-green-600" />
+                                                    <p className="text-sm text-green-700 font-medium">
+                                                        Kabinet:{' '}
+                                                        {professor.office}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Card Body */}
+                                <div className="p-6">
+                                    <div className="mb-4">
+                                        <p className="text-sm font-semibold text-gray-700 mb-3">
+                                            Predmeti (
+                                            {professor.subjects.length}):
+                                        </p>
+                                        {professor.subjects.length > 0 ? (
+                                            <div className="flex flex-wrap gap-2">
+                                                {professor.subjects.map(
+                                                    (subject) => (
+                                                        <span
+                                                            key={subject.id}
+                                                            className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium border border-green-200"
+                                                        >
+                                                            {subject.name}
+                                                        </span>
+                                                    )
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm text-gray-400 italic">
+                                                Nema dodijeljenih predmeta
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    {/* Action Buttons */}
+                                    <div className="flex gap-2 pt-4 border-t border-gray-100">
+                                        <button
+                                            onClick={() =>
+                                                openEditModal(professor)
+                                            }
+                                            className="flex-1 flex items-center justify-center gap-2 bg-orange-50 text-orange-600 hover:bg-orange-100 px-4 py-2 rounded-lg transition-all font-medium border border-orange-200"
+                                        >
+                                            <IconEdit className="w-4 h-4" />
+                                            Uredi
+                                        </button>
+                                        <button
+                                            onClick={() =>
+                                                handleDelete(professor.id)
+                                            }
+                                            className="flex-1 flex items-center justify-center gap-2 bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg transition-all font-medium border border-red-200"
+                                        >
+                                            <IconTrash className="w-4 h-4" />
+                                            Obriši
+                                        </button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-16 bg-white rounded-xl border-2 border-dashed border-gray-300">
+                        <IconUserPlus className="w-20 h-20 text-gray-300 mx-auto mb-4" />
+                        <h3 className="text-2xl font-bold text-gray-600 mb-2">
+                            Nema profesora
+                        </h3>
+                        <p className="text-gray-500 mb-6">
+                            Dodajte prvog profesora klikom na zeleno dugme
+                            iznad.
+                        </p>
+                    </div>
+                )}
+            </div>
 
             {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="bg-[#1a1a1a] rounded-xl p-6 w-full max-w-2xl border border-neutral-800 max-h-[90vh] overflow-y-auto"
+                        className="bg-white rounded-xl p-8 w-full max-w-2xl border border-gray-200 max-h-[90vh] overflow-y-auto shadow-2xl"
                     >
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold text-gray-200">
-                                {isEditMode
-                                    ? 'Ažuriraj Profesora'
-                                    : 'Dodaj Novog Profesora'}
-                            </h2>
+                            <div>
+                                <h2 className="text-2xl font-bold text-gray-900">
+                                    {isEditMode
+                                        ? 'Ažuriraj Profesora'
+                                        : 'Dodaj Novog Profesora'}
+                                </h2>
+                                <p className="text-sm text-gray-500 mt-1">
+                                    {isEditMode
+                                        ? 'Izmjenite informacije o profesoru'
+                                        : 'Popunite informacije o novom profesoru'}
+                                </p>
+                            </div>
                             <button
                                 onClick={() => setIsModalOpen(false)}
-                                className="text-gray-400 hover:text-gray-200"
+                                className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-all"
                             >
                                 <IconX className="w-6 h-6" />
                             </button>
@@ -357,7 +419,7 @@ const AdminProfessorManagement: React.FC = () => {
                         <form onSubmit={handleSubmit}>
                             <div className="grid grid-cols-2 gap-4 mb-6">
                                 <div>
-                                    <label className="block text-gray-200 mb-2 font-medium">
+                                    <label className="block text-gray-700 mb-2 font-medium text-sm">
                                         Ime *
                                     </label>
                                     <input
@@ -370,14 +432,14 @@ const AdminProfessorManagement: React.FC = () => {
                                                 firstName: e.target.value,
                                             })
                                         }
-                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
+                                        className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
                                         required
                                         disabled={isEditMode}
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-gray-200 mb-2 font-medium">
+                                    <label className="block text-gray-700 mb-2 font-medium text-sm">
                                         Prezime *
                                     </label>
                                     <input
@@ -389,14 +451,14 @@ const AdminProfessorManagement: React.FC = () => {
                                                 lastName: e.target.value,
                                             })
                                         }
-                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
+                                        className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
                                         required
                                         disabled={isEditMode}
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-gray-200 mb-2 font-medium">
+                                    <label className="block text-gray-700 mb-2 font-medium text-sm">
                                         Email *
                                     </label>
                                     <input
@@ -408,7 +470,7 @@ const AdminProfessorManagement: React.FC = () => {
                                                 email: e.target.value,
                                             })
                                         }
-                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
+                                        className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
                                         required
                                         disabled={isEditMode}
                                     />
@@ -416,7 +478,7 @@ const AdminProfessorManagement: React.FC = () => {
 
                                 {!isEditMode && (
                                     <div>
-                                        <label className="block text-gray-200 mb-2 font-medium">
+                                        <label className="block text-gray-700 mb-2 font-medium text-sm">
                                             Lozinka *
                                         </label>
                                         <input
@@ -428,14 +490,14 @@ const AdminProfessorManagement: React.FC = () => {
                                                     password: e.target.value,
                                                 })
                                             }
-                                            className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
+                                            className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
                                             required
                                         />
                                     </div>
                                 )}
 
                                 <div>
-                                    <label className="block text-gray-200 mb-2 font-medium">
+                                    <label className="block text-gray-700 mb-2 font-medium text-sm">
                                         Titula
                                     </label>
                                     <select
@@ -446,7 +508,7 @@ const AdminProfessorManagement: React.FC = () => {
                                                 title: e.target.value,
                                             })
                                         }
-                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
+                                        className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
                                         disabled={isEditMode}
                                     >
                                         <option value="Prof">Prof</option>
@@ -459,7 +521,7 @@ const AdminProfessorManagement: React.FC = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-gray-200 mb-2 font-medium">
+                                    <label className="block text-gray-700 mb-2 font-medium text-sm">
                                         Kabinet
                                     </label>
                                     <input
@@ -471,7 +533,7 @@ const AdminProfessorManagement: React.FC = () => {
                                                 office: e.target.value,
                                             })
                                         }
-                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
+                                        className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
                                         placeholder="npr. A301"
                                         disabled={isEditMode}
                                     />
@@ -480,15 +542,15 @@ const AdminProfessorManagement: React.FC = () => {
 
                             {/* Subject Selection */}
                             <div className="mb-6">
-                                <label className="block text-gray-200 mb-3 font-medium">
+                                <label className="block text-gray-700 mb-3 font-medium text-sm">
                                     Dodijeli Predmete *
                                 </label>
-                                <div className="bg-[#252525] border border-neutral-700 rounded-lg p-4 max-h-64 overflow-y-auto">
+                                <div className="bg-gray-50 border border-gray-300 rounded-lg p-4 max-h-64 overflow-y-auto">
                                     <div className="grid grid-cols-2 gap-2">
                                         {allSubjects.map((subject) => (
                                             <label
                                                 key={subject.id}
-                                                className="flex items-center gap-2 p-2 hover:bg-[#1a1a1a] rounded cursor-pointer"
+                                                className="flex items-center gap-2 p-3 hover:bg-white rounded-lg cursor-pointer border border-transparent hover:border-green-200 transition-all"
                                             >
                                                 <input
                                                     type="checkbox"
@@ -500,10 +562,10 @@ const AdminProfessorManagement: React.FC = () => {
                                                             subject.id
                                                         )
                                                     }
-                                                    className="form-checkbox text-blue-500 w-5 h-5"
+                                                    className="form-checkbox text-green-600 w-5 h-5 rounded border-gray-300 focus:ring-green-500"
                                                 />
                                                 <div className="flex-1">
-                                                    <p className="text-gray-200 text-sm font-medium">
+                                                    <p className="text-gray-900 text-sm font-medium">
                                                         {subject.name}
                                                     </p>
                                                     <p className="text-gray-500 text-xs">
@@ -515,24 +577,28 @@ const AdminProfessorManagement: React.FC = () => {
                                         ))}
                                     </div>
                                 </div>
-                                <p className="text-sm text-gray-400 mt-2">
-                                    Odabrano predmeta:{' '}
-                                    {formData.subjectIds.length}
-                                </p>
+                                <div className="mt-3 bg-green-50 border border-green-200 rounded-lg p-3">
+                                    <p className="text-sm text-green-700 font-medium">
+                                        Odabrano predmeta:{' '}
+                                        <span className="font-bold">
+                                            {formData.subjectIds.length}
+                                        </span>
+                                    </p>
+                                </div>
                             </div>
 
                             {/* Buttons */}
-                            <div className="flex justify-end gap-3">
+                            <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
                                 <button
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="px-6 py-2 text-gray-400 hover:text-gray-200 font-medium transition-colors"
+                                    className="px-6 py-2.5 text-gray-700 hover:bg-gray-100 font-medium transition-all rounded-lg border border-gray-300"
                                 >
                                     Odustani
                                 </button>
                                 <button
                                     type="submit"
-                                    className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-all"
+                                    className="flex items-center gap-2 bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
                                 >
                                     <IconCheck className="w-5 h-5" />
                                     {isEditMode ? 'Ažuriraj' : 'Kreiraj'}
