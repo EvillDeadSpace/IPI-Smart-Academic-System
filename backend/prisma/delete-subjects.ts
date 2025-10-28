@@ -1,9 +1,9 @@
-import { PrismaClient } from '../generated/prisma';
+import { PrismaClient } from "../generated/prisma";
 
 const prisma = new PrismaClient();
 
 async function deleteAllSubjects() {
-  console.log('🗑️  Brisanje svih predmeta...');
+  console.log("🗑️  Brisanje svih predmeta...");
   const result = await prisma.subject.deleteMany();
   console.log(`✅ Obrisano ${result.count} predmeta`);
 }
@@ -11,7 +11,7 @@ async function deleteAllSubjects() {
 deleteAllSubjects()
   .then(() => prisma.$disconnect())
   .catch((e) => {
-    console.error('❌ Greška:', e);
+    console.error("❌ Greška:", e);
     prisma.$disconnect();
     process.exit(1);
   });

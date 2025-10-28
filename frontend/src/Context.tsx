@@ -42,7 +42,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             // Fetch fresh details in background (updates if data changed)
             fetchUserDetails(storedMail)
         }
-        
+
         // Set loading to false after initial check
         setIsLoading(false)
     }, []) // Only run once on mount
