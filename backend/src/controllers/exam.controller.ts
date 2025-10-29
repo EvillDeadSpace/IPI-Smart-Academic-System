@@ -120,4 +120,79 @@ export class ExamController {
         .json({ error: error.message || "Failed to delete exam" });
     }
   }
+
+  /**
+   * GET /api/exams/available/:email
+   */
+  static async getAvailableExams(req: Request, res: Response) {
+    try {
+      const { email } = req.params;
+      const exams = await ExamService.getAvailableExams(email);
+
+      if (exams === null) {
+        return res.status(404).json({ error: "Student not found" });
+      }
+
+      return res.json(exams);
+    } catch (error) {
+      console.error("Get available exams error:", error);
+      return res.status(500).json({ error: "Failed to fetch available exams" });
+    }
+  }
+
+  /**
+   * GET /api/exams/registered/:email
+   */
+  static async getRegisteredExams(req: Request, res: Response) {
+    try {
+      const { email } = req.params;
+      const registrations = await ExamService.getRegisteredExams(email);
+
+      if (registrations === null) {
+        return res.status(404).json({ error: "Student not found" });
+      }
+
+      return res.json(registrations);
+    } catch (error) {
+      console.error("Get registered exams error:", error);
+      return res
+        .status(500)
+        .json({ error: "Failed to fetch registered exams" });
+    }
+  }
+
+  /**
+   * GET /api/exams/completed/:email
+   */
+  static async getCompletedExams(req: Request, res: Response) {
+    try {
+      const { email } = req.params;
+      const exams = await ExamService.getCompletedExams(email);
+
+      if (exams === null) {
+        return res.status(404).json({ error: "Student not found" });
+      }
+
+      return res.json(exams);
+    } catch (error) {
+      console.error("Get completed exams error:", error);
+      return res.status(500).json({ error: "Failed to fetch completed exams" });
+    }
+  }
+
+  /**
+   * DELETE /api/exams/registration/:registrationId
+   */
+  static async unregisterFromExam(req: Request, res: Response) {
+    try {
+      const registrationId = parseInt(req.params.registrationId);
+      const result = await ExamService.unregisterFromExam(registrationId);
+      return res.json(result);
+    } catch (error: any) {
+      console.error("Unregister exam error:", error);
+      return res
+        .status(400)
+        .json({ error: error.message || "Failed to unregister" });
+    }
+  }
 }
