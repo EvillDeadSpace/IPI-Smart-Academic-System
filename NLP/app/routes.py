@@ -1,6 +1,9 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file
 from app.services import generate_response_with_rag
 from app.nlp_utils import load_text_file, search_in_text
+# PDF generator adapter (loads from ../document-service/main.py)
+from app.pdf_adapter import generate_health_pdf
+
 
 # Kreiranje Blueprint-a za rute
 main_bp = Blueprint('main', __name__)
@@ -111,3 +114,29 @@ def home():
             'body': {'word': 'Koje studijske programe nudi IPI Akademija?'}
         }
     })
+
+@main_bp.route('/health-certificate', methods=['POST'])
+# Get a maticniBroj, grad, date of birth, years of study, years
+def healthCertificate():
+    print("Health certificate requested")
+    data = request.get_json(silent=True) or {} 
+    required = ["fullName", "jmbg", "city", "dateOfBirth", "yearsOfStudy", "academicYear"]
+
+
+    pdf_buf = generate_health_pdf(
+        full_name      = data["fullName"],
+        jmbg           = data["jmbg"],
+        city           = data["city"],
+        date_of_birth  = data["dateOfBirth"],
+        years_of_study = data["yearsOfStudy"],
+        academic_year  = data["academicYear"],
+        search_text    = "Potvrđuje se da je "
+    )
+
+    return send_file(
+        pdf_buf,
+        mimetype="application/pdf",
+        as_attachment=True,                 # stavi False za inline prikaz
+        download_name="health_certificate.pdf",
+        max_age=0
+    )

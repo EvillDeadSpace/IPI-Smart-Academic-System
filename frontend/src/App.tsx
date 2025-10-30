@@ -17,6 +17,7 @@ import AdminPanel from './components/Dashboard/AdminBoard'
 import AdminProfessorManagement from './components/Dashboard/AdminProfessorManagement'
 import ProfessorBoard from './components/Dashboard/ProfessorBoard'
 import StudentExams from './components/Faculty/StudentExams'
+import Papirologija from './components/Faculty/Papirologija'
 import Profile from './components/Dashboard/Profile/Profile'
 import Settings from './components/Dashboard/Profile/ProfileSettings'
 import StudentSchedule from './components/Faculty/StudentSchedule'
@@ -105,6 +106,7 @@ function AppContent() {
                             path="studentschedule"
                             element={<StudentSchedule />}
                         />
+                        <Route path="papirologija" element={<Papirologija />} />
                     </Route>
 
                     {/* Professor Dashboard - Protected */}

@@ -12,6 +12,7 @@ import {
 } from '@tabler/icons-react'
 import StudentExams from '../../Faculty/StudentExams'
 import StudentSchedule from '../../Faculty/StudentSchedule'
+import Papirologija from '../../Faculty/Papirologija'
 
 type ProgressShape = {
     progress: {
@@ -66,6 +67,10 @@ const Dashboard = ({ currentRoute }: { currentRoute: string }) => {
 
     if (currentRoute === '/dashboard/studentschedule') {
         return <StudentSchedule />
+    }
+
+    if (currentRoute === '/dashboard/papirologija') {
+        return <Papirologija />
     }
 
     return (

@@ -10,6 +10,7 @@ import {
     IconCalendarEvent,
     IconClipboardList,
     IconCalendarTime,
+    IconFileText,
 } from '@tabler/icons-react'
 import { motion } from 'motion/react'
 import Dashboard from './Dashboard'
@@ -74,6 +75,13 @@ export function SidebarDemo() {
             to: '/dashboard/studentschedule',
             icon: (
                 <IconCalendarTime className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+            ),
+        },
+        {
+            label: 'Papirologija',
+            to: '/dashboard/papirologija',
+            icon: (
+                <IconFileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
             ),
         },
         {
