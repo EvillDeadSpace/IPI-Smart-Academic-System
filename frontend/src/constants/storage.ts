@@ -5,13 +5,13 @@ export const STORAGE_KEYS = {
     USER_DETAILS: 'userDetails',
 }
 
-export const BACKEND_URL = import.meta.env.PROD
-    ? 'https://ipi-smart-academic-system-dzhc.vercel.app'
-    : 'http://localhost:3001'
-
-const NLP_URL = import.meta.env.DEV
-    ? 'http://127.0.0.1:5000' // Development - koristi lokalni
-    : 'https://amartubic.pythonanywhere.com' // Production - koristi PythonAnywhere
+// Re-export environment-configured URLs from central config
+import {
+    BACKEND_URL as CONFIG_BACKEND_URL,
+    NLP_URL as CONFIG_NLP_URL,
+} from '../config'
+export const BACKEND_URL = CONFIG_BACKEND_URL
+export const NLP_URL = CONFIG_NLP_URL
 
 // Development use this 'http://127.0.0.1:5000'
 
