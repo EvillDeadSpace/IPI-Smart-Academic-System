@@ -45,8 +45,8 @@ const Dashboard = ({ currentRoute }: { currentRoute: string }) => {
                     `${BACKEND_URL}/api/student/grades/${studentMail}`
                 )
                 if (g.ok) setGrades((await g.json()) as GradeShape[])
-            } catch (e) {
-                console.error('Dashboard fetch error', e)
+            } catch {
+                // Failed to fetch dashboard data
             }
         }
 

@@ -42,12 +42,7 @@ export const useChatSubmit = () => {
                 }
 
                 result = await response.json()
-            } catch (primaryError) {
-                console.log(
-                    'Primary NLP service failed, trying fallback...',
-                    primaryError
-                )
-
+            } catch {
                 // Fallback na PythonAnywhere ako lokalni ne radi
                 response = await fetch(
                     'https://amartubic.pythonanywhere.com/search',
@@ -84,8 +79,6 @@ export const useChatSubmit = () => {
                     },
                 ])
             }
-        } catch (error) {
-            console.error('There was an error!', error)
         } finally {
             setIsLoading(false)
         }

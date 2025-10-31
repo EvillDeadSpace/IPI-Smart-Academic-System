@@ -79,8 +79,6 @@ const AdminPanel: React.FC = () => {
                 }))
                 setRequests(transformedRequests)
             }
-        } catch (error) {
-            console.error('Error fetching requests:', error)
         } finally {
             setLoadingRequests(false)
         }
@@ -111,8 +109,7 @@ const AdminPanel: React.FC = () => {
                     `Greška: ${error.error || 'Nije moguće odobriti zahtjev'}`
                 )
             }
-        } catch (error) {
-            console.error('Error approving request:', error)
+        } catch {
             alert('Došlo je do greške')
         }
     }
@@ -140,8 +137,7 @@ const AdminPanel: React.FC = () => {
                 const error = await response.json()
                 alert(`Greška: ${error.error || 'Nije moguće odbiti zahtjev'}`)
             }
-        } catch (error) {
-            console.error('Error rejecting request:', error)
+        } catch {
             alert('Došlo je do greške')
         }
     }
@@ -212,13 +208,11 @@ const AdminPanel: React.FC = () => {
                     password: '',
                 })
             } else {
-                console.error('Create failed', response.status, data)
                 const errorMsg =
                     (data as { error?: string })?.error || JSON.stringify(data)
                 alert(`Greška: ${errorMsg}`)
             }
-        } catch (error) {
-            console.error('Greška:', error)
+        } catch {
             alert('Došlo je do greške pri slanju zahtjeva.')
         }
     }

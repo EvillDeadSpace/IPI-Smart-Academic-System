@@ -42,8 +42,7 @@ const Settings = () => {
                 }
                 const data = await response.json()
                 setMajors(data)
-            } catch (error) {
-                console.error('Error fetching majors:', error)
+            } catch {
                 setError('Neuspjelo učitavanje smjerova i predmeta')
             } finally {
                 setIsLoading(false)
@@ -151,12 +150,10 @@ const Settings = () => {
             }
         } catch (error) {
             if (error instanceof Error) {
-                // If backend provided a message, show it; otherwise show a friendly Bosnian fallback
                 setError(error.message || 'Neuspješan upis. Pokušajte ponovo.')
             } else {
                 setError('Neuspješan upis. Pokušajte ponovo.')
             }
-            console.error('Error during enrollment:', error)
         } finally {
             setIsSubmitting(false)
         }

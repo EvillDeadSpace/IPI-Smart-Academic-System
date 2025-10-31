@@ -70,7 +70,6 @@ const Login: FC = () => {
             }
 
             const data = await response.json()
-            console.log(data)
 
             if (data.message !== 'Success') {
                 throw new Error('Login failed: ' + data.message)
@@ -83,10 +82,6 @@ const Login: FC = () => {
             // Set user data in Context first
             setStudentName(data.StudentName)
             login(data.userEmail, data.StudentName, data.TipUsera)
-
-            console.log('Login response:', data)
-            console.log('User email:', data.userEmail)
-            console.log('User type:', data.TipUsera)
 
             setMessage('Login successful! Redirecting...')
 
@@ -105,8 +100,7 @@ const Login: FC = () => {
                         break
                 }
             }, 100) // Short delay to let Context update
-        } catch (error) {
-            console.error('Došlo je do greške:', error)
+        } catch {
             setMessage(
                 'Login failed. Please check your credentials and try again.'
             )

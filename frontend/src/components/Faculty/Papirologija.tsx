@@ -79,8 +79,6 @@ const Papirologija: React.FC = () => {
                 const data = await response.json()
                 setRequests(data)
             }
-        } catch (error) {
-            console.error('Error fetching requests:', error)
         } finally {
             setLoading(false)
         }
@@ -88,20 +86,14 @@ const Papirologija: React.FC = () => {
 
     const handleRequestDocument = async (documentType: string) => {
         try {
-            // Check if student email exists
             if (!studentMail) {
                 alert('Greška: Niste prijavljeni kao student')
                 return
             }
 
-            console.log('🔍 Fetching student with email:', studentMail)
-
-            // First, get student ID from email
             const studentResponse = await fetch(
                 `${BACKEND_URL}/api/students/email/${studentMail}`
             )
-
-            console.log('📡 Student response status:', studentResponse.status)
 
             if (!studentResponse.ok) {
                 alert('Greška: Student nije pronađen')
@@ -109,21 +101,12 @@ const Papirologija: React.FC = () => {
             }
 
             const student = await studentResponse.json()
-            console.log('✅ Student found:', student)
-
-            // Extract student data from response
             const studentData = student.data || student
 
             if (!studentData.id) {
                 alert('Greška: Student ID nije pronađen')
-                console.error('❌ Student data:', studentData)
                 return
             }
-
-            console.log('📤 Sending document request:', {
-                studentId: studentData.id,
-                documentType,
-            })
 
             const response = await fetch(
                 `${BACKEND_URL}/api/document-requests`,
@@ -137,19 +120,15 @@ const Papirologija: React.FC = () => {
                 }
             )
 
-            console.log('📡 Document request response status:', response.status)
-
             if (response.ok) {
                 alert('Zahtjev uspješno poslan!')
                 setIsModalOpen(false)
                 fetchRequests()
             } else {
                 const error = await response.json()
-                console.error('❌ Error response:', error)
                 alert(`Greška: ${error.error || 'Nepoznata greška'}`)
             }
-        } catch (error) {
-            console.error('💥 Error creating request:', error)
+        } catch {
             alert('Došlo je do greške')
         }
     }
@@ -192,28 +171,19 @@ const Papirologija: React.FC = () => {
         return doc?.name || type
     }
 
-    const handleDownloadPDF = async (request: DocumentRequest) => {
+    const handleDownloadPDF = async () => {
         try {
-            console.log('📥 Starting PDF download for request:', request.id)
-
-            // Fetch student data for PDF generation
             const studentResponse = await fetch(
                 `${BACKEND_URL}/api/students/email/${studentMail}`
             )
 
             if (!studentResponse.ok) {
-                console.error(
-                    '❌ Student fetch failed:',
-                    studentResponse.status
-                )
                 alert('Greška: Ne mogu učitati podatke studenta')
                 return
             }
 
             const studentJson = await studentResponse.json()
             const studentData = studentJson.data
-
-            console.log('✅ Student data loaded:', studentData)
 
             const pdfRequestData = {
                 fullName: `${studentData.firstName} ${studentData.lastName}`,
@@ -226,9 +196,6 @@ const Papirologija: React.FC = () => {
                 academicYear: '24/25',
             }
 
-            console.log('📤 Calling NLP service with data:', pdfRequestData)
-
-            // Call NLP service directly to generate PDF
             const pdfResponse = await fetch(
                 'http://localhost:5000/health-certificate',
                 {
@@ -238,18 +205,12 @@ const Papirologija: React.FC = () => {
                 }
             )
 
-            console.log('📡 NLP response status:', pdfResponse.status)
-
             if (!pdfResponse.ok) {
-                const errorText = await pdfResponse.text()
-                console.error('❌ NLP service error:', errorText)
                 alert(`Greška pri generisanju PDF-a: ${pdfResponse.status}`)
                 return
             }
 
-            // Download PDF
             const blob = await pdfResponse.blob()
-            console.log('📄 PDF blob size:', blob.size, 'bytes')
 
             const url = window.URL.createObjectURL(blob)
             const a = document.createElement('a')
@@ -259,10 +220,7 @@ const Papirologija: React.FC = () => {
             a.click()
             window.URL.revokeObjectURL(url)
             document.body.removeChild(a)
-
-            console.log('✅ PDF downloaded successfully!')
         } catch (error) {
-            console.error('💥 Error downloading PDF:', error)
             const errorMessage =
                 error instanceof Error ? error.message : 'Nepoznata greška'
             alert(`Došlo je do greške: ${errorMessage}`)
@@ -377,9 +335,7 @@ const Papirologija: React.FC = () => {
                                                     request.pdfUrl && (
                                                         <button
                                                             onClick={() =>
-                                                                handleDownloadPDF(
-                                                                    request
-                                                                )
+                                                                handleDownloadPDF()
                                                             }
                                                             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
                                                         >

@@ -25,8 +25,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 if (data.status !== status) {
                     setStatus(data.status)
                 }
-            } catch (error) {
-                console.error('There was an error fetching the status!', error)
+            } catch {
                 setStatus(false)
             }
         }

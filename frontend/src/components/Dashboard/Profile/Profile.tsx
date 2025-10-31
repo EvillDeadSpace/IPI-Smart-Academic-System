@@ -70,7 +70,6 @@ const Profile = () => {
                     throw new Error('Neuspjelo dohvaćanje podataka o napretku')
                 }
                 const data = await response.json()
-                console.log('Progress data from Prisma backend:', data)
                 setProgress(data)
             } catch (err) {
                 setError(
@@ -90,8 +89,8 @@ const Profile = () => {
                     const data = await response.json()
                     setGrades(data)
                 }
-            } catch (err) {
-                console.log('No grades yet or fetch failed', err)
+            } catch {
+                // No grades yet or fetch failed
             }
         }
 
@@ -129,9 +128,8 @@ const Profile = () => {
                     })
                 }
                 setSubjectsMap(map)
-            } catch (e) {
-                // non-fatal
-                console.log('Failed to fetch subjects lookup', e)
+            } catch {
+                // non-fatal - subjects lookup optional
             }
         }
 

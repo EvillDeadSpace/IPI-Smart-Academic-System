@@ -76,8 +76,6 @@ const AdminProfessorManagement: React.FC = () => {
                 const data = await response.json()
                 setProfessors(data)
             }
-        } catch (error) {
-            console.error('Error fetching professors:', error)
         } finally {
             setIsLoading(false)
         }
@@ -100,8 +98,8 @@ const AdminProfessorManagement: React.FC = () => {
                 })
                 setAllSubjects(subjects)
             }
-        } catch (error) {
-            console.error('Error fetching subjects:', error)
+        } catch {
+            // Failed to fetch subjects
         }
     }
 
@@ -176,8 +174,7 @@ const AdminProfessorManagement: React.FC = () => {
                     alert(`Greška: ${error.error || 'Unknown error'}`)
                 }
             }
-        } catch (error) {
-            console.error('Error saving professor:', error)
+        } catch {
             alert('Greška pri čuvanju profesora')
         }
     }
@@ -205,8 +202,7 @@ const AdminProfessorManagement: React.FC = () => {
             } else {
                 alert('Greška pri brisanju profesora')
             }
-        } catch (error) {
-            console.error('Error deleting professor:', error)
+        } catch {
             alert('Greška pri brisanju profesora')
         }
     }

@@ -61,7 +61,6 @@ const StudentExams: FC = () => {
 
     const fetchExamData = useCallback(async () => {
         if (!studentMail) {
-            console.warn('StudentExams: No student email found')
             setLoading(false)
             return
         }
@@ -75,11 +74,6 @@ const StudentExams: FC = () => {
             if (availableResponse.ok) {
                 const data = await availableResponse.json()
                 setAvailableExams(data)
-            } else {
-                console.error(
-                    'Failed to fetch available exams:',
-                    availableResponse.status
-                )
             }
 
             // Fetch registered exams
@@ -89,11 +83,6 @@ const StudentExams: FC = () => {
             if (registeredResponse.ok) {
                 const data = await registeredResponse.json()
                 setRegisteredExams(data)
-            } else {
-                console.error(
-                    'Failed to fetch registered exams:',
-                    registeredResponse.status
-                )
             }
 
             // Fetch completed exams (with grades)
@@ -103,14 +92,7 @@ const StudentExams: FC = () => {
             if (completedResponse.ok) {
                 const data = await completedResponse.json()
                 setCompletedExams(data)
-            } else {
-                console.error(
-                    'Failed to fetch completed exams:',
-                    completedResponse.status
-                )
             }
-        } catch (error) {
-            console.error('Error fetching exam data:', error)
         } finally {
             setLoading(false)
         }
@@ -147,8 +129,7 @@ const StudentExams: FC = () => {
                 const error = await response.json()
                 alert(error.error || 'Greška pri prijavi na ispit.')
             }
-        } catch (error) {
-            console.error('Error registering for exam:', error)
+        } catch {
             alert('Greška pri prijavi na ispit.')
         }
     }
@@ -169,8 +150,7 @@ const StudentExams: FC = () => {
                 const error = await response.json()
                 alert(error.error || 'Greška pri odjavi sa ispita.')
             }
-        } catch (error) {
-            console.error('Error unregistering from exam:', error)
+        } catch {
             alert('Greška pri odjavi sa ispita.')
         }
     }

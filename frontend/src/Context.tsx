@@ -34,8 +34,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             if (storedDetails) {
                 try {
                     setUserDetails(JSON.parse(storedDetails))
-                } catch (e) {
-                    console.error('Failed to parse stored user details:', e)
+                } catch {
+                    // Failed to parse, will fetch fresh details below
                 }
             }
 
@@ -76,15 +76,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                     JSON.stringify(details)
                 )
             } else if (response.status === 404) {
-                console.warn(`User not found: ${email}`)
                 setUserDetails(null)
-            } else {
-                console.error(
-                    `Failed to fetch user details: ${response.status}`
-                )
             }
-        } catch (error) {
-            console.error('Error fetching user details:', error)
+        } catch {
             // Keep existing cached data if fetch fails
         }
     }
