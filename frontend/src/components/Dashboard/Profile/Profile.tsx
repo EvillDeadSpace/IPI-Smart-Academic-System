@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../../../Context'
 import { BACKEND_URL } from '../../../constants/storage'
 
-import { toastError, toastSuccess } from '../../../lib/toast'
+import { toastError } from '../../../lib/toast'
 interface Subject {
     id: number
     name: string
@@ -68,7 +68,8 @@ const Profile = () => {
                     `${BACKEND_URL}/api/student/progress/${studentMail}`
                 )
                 if (!response.ok) {
-                    throw toastError('Neuspjelo dohvaćanje podataka o napretku')
+                    toastError('Neuspjelo dohvaćanje podataka o napretku')
+                    throw new Error('Neuspjelo dohvaćanje podataka o napretku')
                 }
                 const data = await response.json()
                 setProgress(data)
@@ -92,7 +93,6 @@ const Profile = () => {
                 )
                 if (response.ok) {
                     const data = await response.json()
-                    toastSuccess('Ocjene uspješno dohvaćene')
                     setGrades(data)
                 }
             } catch {

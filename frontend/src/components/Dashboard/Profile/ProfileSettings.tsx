@@ -39,7 +39,8 @@ const Settings = () => {
                     `${BACKEND_URL}/api/majors/with-subjects`
                 )
                 if (!response.ok) {
-                    throw toastError('Neuspjelo dohvaćanje smjerova')
+                    toastError('Neuspjelo dohvaćanje smjerova')
+                    throw new Error('Neuspjelo dohvaćanje smjerova')
                 }
                 const data = await response.json()
                 setMajors(data)

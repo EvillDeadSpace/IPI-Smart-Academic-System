@@ -201,7 +201,10 @@ const ProfessorBoard: React.FC = () => {
             const majorsRes = await fetch(
                 `${BACKEND_URL}/api/majors/with-subjects`
             )
-            if (!majorsRes.ok) throw toastError('Failed to fetch majors')
+            if (!majorsRes.ok) {
+                toastError('Failed to fetch majors')
+                throw new Error('Failed to fetch majors')
+            }
 
             const majorsData = await majorsRes.json()
             const allSubjects: SubjectInfo[] = []
@@ -222,7 +225,10 @@ const ProfessorBoard: React.FC = () => {
                     : allSubjects
 
             const studentsRes = await fetch(`${BACKEND_URL}/api/students`)
-            if (!studentsRes.ok) throw toastError('Failed to fetch students')
+            if (!studentsRes.ok) {
+                toastError('Failed to fetch students')
+                throw new Error('Failed to fetch students')
+            }
 
             const studentsResponse = await studentsRes.json()
             const studentsData = studentsResponse.data || studentsResponse

@@ -75,7 +75,6 @@ const AdminProfessorManagement: React.FC = () => {
             if (response.ok) {
                 const data = await response.json()
                 setProfessors(data)
-                toastSuccess('Uspješno učitani profesori!')
             }
         } finally {
             setIsLoading(false)
