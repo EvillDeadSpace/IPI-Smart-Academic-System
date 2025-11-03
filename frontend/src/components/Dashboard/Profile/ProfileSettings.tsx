@@ -3,6 +3,7 @@ import { useAuth } from '../../../Context'
 import { BACKEND_URL } from '../../../constants/storage'
 import SubjectList from './SubjectList'
 import { IconBook2, IconSchool } from '@tabler/icons-react'
+import { toastError, toastSuccess } from '../../../lib/toast'
 
 interface Subject {
     id: number
@@ -38,13 +39,14 @@ const Settings = () => {
                     `${BACKEND_URL}/api/majors/with-subjects`
                 )
                 if (!response.ok) {
+                    toastError('Neuspjelo dohvaćanje smjerova')
                     throw new Error('Neuspjelo dohvaćanje smjerova')
                 }
                 const data = await response.json()
                 setMajors(data)
-            } catch (error) {
-                console.error('Error fetching majors:', error)
+            } catch {
                 setError('Neuspjelo učitavanje smjerova i predmeta')
+                toastError('Neuspjelo učitavanje smjerova i predmeta')
             } finally {
                 setIsLoading(false)
             }
@@ -143,20 +145,22 @@ const Settings = () => {
 
             if (response.ok) {
                 const result = await response.json()
-                alert(`Upis uspješan! Ukupno ECTS: ${result.totalECTS}`)
+                toastSuccess(`Upis uspješan! Ukupno ECTS: ${result.totalECTS}`)
                 window.location.reload()
             } else {
                 const errorData = await response.json()
-                throw new Error(errorData.error || 'Neuspješan upis')
+                throw toastError(errorData.error || 'Neuspješan upis')
             }
         } catch (error) {
             if (error instanceof Error) {
-                // If backend provided a message, show it; otherwise show a friendly Bosnian fallback
+                toastError(
+                    error.message || 'Neuspješan upis. Pokušajte ponovo.'
+                )
                 setError(error.message || 'Neuspješan upis. Pokušajte ponovo.')
             } else {
+                toastError('Neuspješan upis. Pokušajte ponovo.')
                 setError('Neuspješan upis. Pokušajte ponovo.')
             }
-            console.error('Error during enrollment:', error)
         } finally {
             setIsSubmitting(false)
         }

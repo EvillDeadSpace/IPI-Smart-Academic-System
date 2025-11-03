@@ -40,6 +40,7 @@ model Student {
   subjectEnrollments SubjectEnrollment[]
   grades        Grade[]
   examRegistrations StudentExamRegistration[]
+  documentRequests DocumentRequest[]
 
   @@index([majorId])
 }
@@ -247,4 +248,43 @@ enum StudentStatus {
   INACTIVE      // Neaktivan
   GRADUATED     // Diplomirao
   EXPELLED      // Ispisao se
+}
+
+enum DocumentType {
+  HEALTH_CERTIFICATE         // Uvjerenje o zdravstvenom osiguranju
+  STATUS_CONFIRMATION        // Potvrda o statusu studenta
+  TRANSCRIPT                 // Prijepis ocjena
+  ENROLLMENT_CONFIRMATION    // Potvrda o upisu
+}
+
+enum DocumentRequestStatus {
+  PENDING       // Na čekanju
+  APPROVED      // Odobreno
+  REJECTED      // Odbijeno
+}
+
+// =====================
+// DOCUMENT REQUEST SYSTEM
+// =====================
+
+// Zahtjevi studenata za dokumentima
+model DocumentRequest {
+  id            Int      @id @default(autoincrement())
+  documentType  DocumentType
+  status        DocumentRequestStatus @default(PENDING)
+  pdfUrl        String?  // Putanja do PDF-a nakon generisanja
+  requestDate   DateTime @default(now())
+  processedDate DateTime?
+  processedBy   String?  // Email admina koji je aprovao
+  rejectionReason String? // Razlog odbijanja (opcionalno)
+  
+  // Student data (snapshot at request time for PDF generation)
+  studentData   Json?    // Čuva studentske podatke u momentu zahtjeva
+  
+  studentId     Int
+  student       Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([status])
+  @@index([requestDate])
 }

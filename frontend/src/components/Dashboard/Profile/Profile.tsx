@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../../../Context'
 import { BACKEND_URL } from '../../../constants/storage'
 
+import { toastError } from '../../../lib/toast'
 interface Subject {
     id: number
     name: string
@@ -67,14 +68,18 @@ const Profile = () => {
                     `${BACKEND_URL}/api/student/progress/${studentMail}`
                 )
                 if (!response.ok) {
+                    toastError('Neuspjelo dohvaćanje podataka o napretku')
                     throw new Error('Neuspjelo dohvaćanje podataka o napretku')
                 }
                 const data = await response.json()
-                console.log('Progress data from Prisma backend:', data)
                 setProgress(data)
             } catch (err) {
                 setError(
-                    err instanceof Error ? err.message : 'Dogodila se greška'
+                    toastError(
+                        err instanceof Error
+                            ? err.message
+                            : 'Dogodila se greška'
+                    )
                 )
             } finally {
                 setLoading(false)
@@ -90,8 +95,8 @@ const Profile = () => {
                     const data = await response.json()
                     setGrades(data)
                 }
-            } catch (err) {
-                console.log('No grades yet or fetch failed', err)
+            } catch {
+                toastError('Neuspjelo dohvaćanje ocjena')
             }
         }
 
@@ -129,9 +134,8 @@ const Profile = () => {
                     })
                 }
                 setSubjectsMap(map)
-            } catch (e) {
-                // non-fatal
-                console.log('Failed to fetch subjects lookup', e)
+            } catch {
+                toastError('Neuspjelo dohvaćanje podataka o predmetima')
             }
         }
 

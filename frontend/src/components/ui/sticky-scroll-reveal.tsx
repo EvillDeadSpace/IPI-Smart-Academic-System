@@ -40,15 +40,9 @@ const StickyScroll = ({
         []
     )
 
-    const [backgroundGradient, setBackgroundGradient] = useState(
-        linearGradients[0]
-    )
-
-    console.log(backgroundGradient)
     useEffect(() => {
-        setBackgroundGradient(
-            linearGradients[activeCard % linearGradients.length]
-        )
+        // Background gradient changes with activeCard
+        // (removed unused backgroundGradient state)
     }, [activeCard, linearGradients])
 
     // Intersection Observer for scroll detection
@@ -60,7 +54,6 @@ const StickyScroll = ({
                         const sectionIndex = parseInt(
                             entry.target.getAttribute('data-section') || '0'
                         )
-                        console.log('Section in view:', sectionIndex) // Debug log
                         setActiveCard(sectionIndex)
                     }
                 })
