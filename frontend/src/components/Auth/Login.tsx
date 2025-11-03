@@ -10,6 +10,7 @@ import {
     AiOutlineLock,
     AiOutlineArrowRight,
 } from 'react-icons/ai'
+import { toastError, toastSuccess } from '../../lib/toast'
 
 const Login: FC = () => {
     const [password, setPassword] = useState<string>('')
@@ -38,6 +39,7 @@ const Login: FC = () => {
             setMessage('Admin login successful! Redirecting...')
             setTimeout(() => nav('/admin'), 500)
             setLoading(false)
+            toastSuccess('Admin login successful! Redirecting...')
             return
         }
 
@@ -48,6 +50,7 @@ const Login: FC = () => {
             login('profesor@ipi.com', 'Test Profesor', 'PROFESSOR')
             setMessage('Professor login successful! Redirecting...')
             setTimeout(() => nav('/profesor'), 500)
+            toastSuccess('Professor login successful! Redirecting...')
             setLoading(false)
             return
         }
@@ -65,24 +68,34 @@ const Login: FC = () => {
                 }),
             })
 
+            // If response is not OK show single toast and abort
             if (!response.ok) {
-                throw new Error('Network response was not ok')
+                const errText = await response.text().catch(() => null)
+                toastError(errText || `Network error: ${response.status}`)
+                setLoading(false)
+                return
             }
 
             const data = await response.json()
 
             if (data.message !== 'Success') {
-                throw new Error('Login failed: ' + data.message)
+                toastError('Login failed: ' + (data.message || 'Unknown'))
+                setLoading(false)
+                return
             }
 
             if (!data.userEmail || !data.StudentName || !data.TipUsera) {
-                throw new Error('Invalid response data')
+                toastError('Incomplete data received from server.')
+                setLoading(false)
+                return
             }
 
             // Set user data in Context first
             setStudentName(data.StudentName)
             login(data.userEmail, data.StudentName, data.TipUsera)
 
+            // Show success toast and navigate
+            toastSuccess('Prijava uspješna — preusmjeravam...')
             setMessage('Login successful! Redirecting...')
 
             // Wait briefly for Context state to update before navigation
@@ -100,7 +113,11 @@ const Login: FC = () => {
                         break
                 }
             }, 100) // Short delay to let Context update
-        } catch {
+        } catch (err) {
+            // Show a single friendly toast on unexpected errors
+            const msg =
+                err instanceof Error ? err.message : 'Došlo je do greške'
+            toastError(msg)
             setMessage(
                 'Login failed. Please check your credentials and try again.'
             )

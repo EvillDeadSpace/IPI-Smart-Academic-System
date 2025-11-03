@@ -5,6 +5,7 @@ import { BrowserRouter as Router, useLocation } from 'react-router-dom'
 import Header from './components/Header/Header'
 import AppRoutes from './routes/AppRoutes'
 import './index.css'
+import Toaster from './components/ui/Toast'
 
 function AppContent() {
     const location = useLocation()
@@ -33,6 +34,7 @@ function App() {
                 <ChatProvider>
                     <Router>
                         <AppContent />
+                        <Toaster />
                     </Router>
                 </ChatProvider>
             </AuthProvider>
