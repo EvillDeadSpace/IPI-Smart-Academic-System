@@ -12,6 +12,7 @@ import {
     IconDownload,
 } from '@tabler/icons-react'
 
+import { toastError, toastSuccess } from '../../lib/toast'
 interface DocumentRequest {
     id: number
     documentType: string
@@ -87,7 +88,7 @@ const Papirologija: React.FC = () => {
     const handleRequestDocument = async (documentType: string) => {
         try {
             if (!studentMail) {
-                alert('Greška: Niste prijavljeni kao student')
+                toastError('Greška: Niste prijavljeni kao student')
                 return
             }
 
@@ -96,7 +97,7 @@ const Papirologija: React.FC = () => {
             )
 
             if (!studentResponse.ok) {
-                alert('Greška: Student nije pronađen')
+                toastError('Greška: Student nije pronađen')
                 return
             }
 
@@ -104,7 +105,7 @@ const Papirologija: React.FC = () => {
             const studentData = student.data || student
 
             if (!studentData.id) {
-                alert('Greška: Student ID nije pronađen')
+                toastError('Greška: Student ID nije pronađen')
                 return
             }
 
@@ -121,15 +122,15 @@ const Papirologija: React.FC = () => {
             )
 
             if (response.ok) {
-                alert('Zahtjev uspješno poslan!')
+                toastSuccess('Zahtjev uspješno poslan!')
                 setIsModalOpen(false)
                 fetchRequests()
             } else {
                 const error = await response.json()
-                alert(`Greška: ${error.error || 'Nepoznata greška'}`)
+                toastError(`Greška: ${error.error || 'Nepoznata greška'}`)
             }
         } catch {
-            alert('Došlo je do greške')
+            toastError('Došlo je do greške')
         }
     }
 
@@ -178,7 +179,7 @@ const Papirologija: React.FC = () => {
             )
 
             if (!studentResponse.ok) {
-                alert('Greška: Ne mogu učitati podatke studenta')
+                toastError('Greška: Ne mogu učitati podatke studenta')
                 return
             }
 
@@ -206,7 +207,9 @@ const Papirologija: React.FC = () => {
             )
 
             if (!pdfResponse.ok) {
-                alert(`Greška pri generisanju PDF-a: ${pdfResponse.status}`)
+                toastError(
+                    `Greška pri generisanju PDF-a: ${pdfResponse.status}`
+                )
                 return
             }
 
@@ -223,7 +226,7 @@ const Papirologija: React.FC = () => {
         } catch (error) {
             const errorMessage =
                 error instanceof Error ? error.message : 'Nepoznata greška'
-            alert(`Došlo je do greške: ${errorMessage}`)
+            toastError(`Došlo je do greške: ${errorMessage}`)
         }
     }
 

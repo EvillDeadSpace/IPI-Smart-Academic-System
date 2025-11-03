@@ -10,6 +10,7 @@ import {
     IconLogout,
     IconPaperBag,
 } from '@tabler/icons-react'
+import { toastError, toastSuccess } from '../../lib/toast'
 
 interface DocumentRequest {
     id: number
@@ -102,15 +103,15 @@ const AdminPanel: React.FC = () => {
                         req.id === id ? { ...req, status: 'APPROVED' } : req
                     )
                 )
-                alert('Zahtjev odobren! PDF će biti dostupan studentu.')
+                toastSuccess('Zahtjev odobren! PDF će biti dostupan studentu.')
             } else {
                 const error = await response.json()
-                alert(
+                toastError(
                     `Greška: ${error.error || 'Nije moguće odobriti zahtjev'}`
                 )
             }
         } catch {
-            alert('Došlo je do greške')
+            toastError('Došlo je do greške')
         }
     }
 
@@ -132,13 +133,15 @@ const AdminPanel: React.FC = () => {
                         req.id === id ? { ...req, status: 'REJECTED' } : req
                     )
                 )
-                alert('Zahtjev odbijen')
+                toastError('Zahtjev odbijen')
             } else {
                 const error = await response.json()
-                alert(`Greška: ${error.error || 'Nije moguće odbiti zahtjev'}`)
+                toastError(
+                    `Greška: ${error.error || 'Nije moguće odbiti zahtjev'}`
+                )
             }
         } catch {
-            alert('Došlo je do greške')
+            toastError('Došlo je do greške')
         }
     }
 
@@ -196,7 +199,7 @@ const AdminPanel: React.FC = () => {
             }
 
             if (response.ok) {
-                alert('Korisnik uspješno dodan!')
+                toastSuccess('Korisnik uspješno dodan!')
                 closeModal()
                 setFormData({
                     firstName: '',
@@ -210,10 +213,10 @@ const AdminPanel: React.FC = () => {
             } else {
                 const errorMsg =
                     (data as { error?: string })?.error || JSON.stringify(data)
-                alert(`Greška: ${errorMsg}`)
+                toastError(`Greška: ${errorMsg}`)
             }
         } catch {
-            alert('Došlo je do greške pri slanju zahtjeva.')
+            toastError('Došlo je do greške pri slanju zahtjeva.')
         }
     }
 

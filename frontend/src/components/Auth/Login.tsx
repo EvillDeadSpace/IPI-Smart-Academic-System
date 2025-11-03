@@ -49,8 +49,8 @@ const Login: FC = () => {
             setUserType('PROFESSOR')
             login('profesor@ipi.com', 'Test Profesor', 'PROFESSOR')
             setMessage('Professor login successful! Redirecting...')
-            setTimeout(() => nav('/profesor'), 500)
             toastSuccess('Professor login successful! Redirecting...')
+            setTimeout(() => nav('/profesor'), 500)
             setLoading(false)
             return
         }

@@ -13,7 +13,7 @@ import {
 } from '@tabler/icons-react'
 import { useAuth } from '../../Context'
 import { BACKEND_URL } from '../../constants/storage'
-
+import { toastError, toastSuccess } from '../../lib/toast'
 interface Subject {
     id: number
     name: string
@@ -75,6 +75,7 @@ const AdminProfessorManagement: React.FC = () => {
             if (response.ok) {
                 const data = await response.json()
                 setProfessors(data)
+                toastSuccess('Uspješno učitani profesori!')
             }
         } finally {
             setIsLoading(false)
@@ -99,7 +100,7 @@ const AdminProfessorManagement: React.FC = () => {
                 setAllSubjects(subjects)
             }
         } catch {
-            // Failed to fetch subjects
+            toastError('Greška pri učitavanju predmeta')
         }
     }
 
@@ -151,11 +152,11 @@ const AdminProfessorManagement: React.FC = () => {
                 )
 
                 if (response.ok) {
-                    alert('Profesor uspješno ažuriran!')
+                    toastSuccess('Profesor uspješno ažuriran!')
                     setIsModalOpen(false)
                     await fetchProfessors()
                 } else {
-                    alert('Greška pri ažuriranju profesora')
+                    toastError('Greška pri ažuriranju profesora')
                 }
             } else {
                 // Create new professor
@@ -166,16 +167,16 @@ const AdminProfessorManagement: React.FC = () => {
                 })
 
                 if (response.ok) {
-                    alert('Profesor uspješno kreiran!')
+                    toastSuccess('Profesor uspješno kreiran!')
                     setIsModalOpen(false)
                     await fetchProfessors()
                 } else {
                     const error = await response.json()
-                    alert(`Greška: ${error.error || 'Unknown error'}`)
+                    toastError(`Greška: ${error.error || 'Unknown error'}`)
                 }
             }
         } catch {
-            alert('Greška pri čuvanju profesora')
+            toastError('Greška pri čuvanju profesora')
         }
     }
 
@@ -197,13 +198,13 @@ const AdminProfessorManagement: React.FC = () => {
             )
 
             if (response.ok) {
-                alert('Profesor obrisan!')
+                toastSuccess('Profesor obrisan!')
                 await fetchProfessors()
             } else {
-                alert('Greška pri brisanju profesora')
+                toastError('Greška pri brisanju profesora')
             }
         } catch {
-            alert('Greška pri brisanju profesora')
+            toastError('Greška pri brisanju profesora')
         }
     }
 

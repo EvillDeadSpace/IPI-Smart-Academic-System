@@ -5,6 +5,8 @@ import { STORAGE_KEYS, API_ENDPOINTS } from './constants/storage'
 import { UserDetails } from './types/user'
 import { AuthContextType } from './types/auth'
 
+import { toastError, toastSuccess } from './lib/toast'
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 interface AuthProviderProps {
@@ -35,7 +37,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 try {
                     setUserDetails(JSON.parse(storedDetails))
                 } catch {
-                    // Failed to parse, will fetch fresh details below
+                    toastError('Failed to parse cached user details.')
                 }
             }
 
@@ -79,7 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 setUserDetails(null)
             }
         } catch {
-            // Keep existing cached data if fetch fails
+            toastError('Failed to fetch user details from the server.')
         }
     }
 
@@ -93,7 +95,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.removeItem(STORAGE_KEYS.STUDENT_NAME)
         localStorage.removeItem(STORAGE_KEYS.STUDENT_TYPE)
         localStorage.removeItem(STORAGE_KEYS.USER_DETAILS) // Remove cached details
-        nav('/')
+        setTimeout(() => {
+            toastSuccess('Successfully logged out.')
+            nav('/')
+        }, 1000)
     }
 
     return (

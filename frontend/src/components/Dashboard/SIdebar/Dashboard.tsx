@@ -13,7 +13,7 @@ import {
 import StudentExams from '../../Faculty/StudentExams'
 import StudentSchedule from '../../Faculty/StudentSchedule'
 import Papirologija from '../../Faculty/Papirologija'
-
+import { toastError, toastSuccess } from '../../../lib/toast'
 type ProgressShape = {
     progress: {
         passedSubjects: number
@@ -45,8 +45,9 @@ const Dashboard = ({ currentRoute }: { currentRoute: string }) => {
                     `${BACKEND_URL}/api/student/grades/${studentMail}`
                 )
                 if (g.ok) setGrades((await g.json()) as GradeShape[])
+                toastSuccess('Podaci za dashboard su uspješno učitani.')
             } catch {
-                // Failed to fetch dashboard data
+                toastError('Greška pri učitavanju podataka za dashboard.')
             }
         }
 

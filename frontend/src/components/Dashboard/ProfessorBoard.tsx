@@ -11,6 +11,7 @@ import {
 } from '@tabler/icons-react'
 import { motion } from 'framer-motion'
 import { BACKEND_URL } from '../../constants/storage'
+import { toastError, toastSuccess } from '../../lib/toast'
 
 // Types matching Prisma backend
 interface SubjectInfo {
@@ -141,6 +142,7 @@ const ProfessorBoard: React.FC = () => {
             }
         } catch {
             setIsLoading(false)
+            toastError('Greška pri dohvaćanju podataka profesora')
         }
     }
 
@@ -154,14 +156,14 @@ const ProfessorBoard: React.FC = () => {
                 setExams(data)
             }
         } catch {
-            // Failed to fetch exams
+            toastError('Greška pri dohvaćanju ispita')
         }
     }
 
     const handleCreateExam = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!professorId) {
-            alert('Professor ID not found')
+            toastError('Professor ID not found')
             return
         }
 
@@ -176,7 +178,7 @@ const ProfessorBoard: React.FC = () => {
             })
 
             if (response.ok) {
-                alert('Ispit uspješno kreiran!')
+                toastSuccess('Ispit uspješno kreiran!')
                 setShowExamModal(false)
                 setExamForm({
                     subjectId: 0,
@@ -186,10 +188,10 @@ const ProfessorBoard: React.FC = () => {
                 })
                 if (professorId) await fetchProfessorExams(professorId)
             } else {
-                alert('Greška pri kreiranju ispita')
+                toastError('Greška pri kreiranju ispita')
             }
         } catch {
-            alert('Greška pri kreiranju ispita')
+            toastError('Greška pri kreiranju ispita')
         }
     }
 
@@ -199,7 +201,7 @@ const ProfessorBoard: React.FC = () => {
             const majorsRes = await fetch(
                 `${BACKEND_URL}/api/majors/with-subjects`
             )
-            if (!majorsRes.ok) throw new Error('Failed to fetch majors')
+            if (!majorsRes.ok) throw toastError('Failed to fetch majors')
 
             const majorsData = await majorsRes.json()
             const allSubjects: SubjectInfo[] = []
@@ -220,7 +222,7 @@ const ProfessorBoard: React.FC = () => {
                     : allSubjects
 
             const studentsRes = await fetch(`${BACKEND_URL}/api/students`)
-            if (!studentsRes.ok) throw new Error('Failed to fetch students')
+            if (!studentsRes.ok) throw toastError('Failed to fetch students')
 
             const studentsResponse = await studentsRes.json()
             const studentsData = studentsResponse.data || studentsResponse
@@ -381,7 +383,7 @@ const ProfessorBoard: React.FC = () => {
                 gradedStudents,
             })
         } catch {
-            // Failed to fetch professor data
+            toastError('Greška pri dohvaćanju podataka profesora')
         } finally {
             setIsLoading(false)
         }
@@ -429,14 +431,14 @@ const ProfessorBoard: React.FC = () => {
 
             await response.json()
 
-            alert(
+            toastSuccess(
                 `Ocjena uspješno unesena: ${gradeForm.studentName} - ${gradeForm.subjectName} - Ocjena: ${gradeForm.grade}`
             )
             setShowGradeModal(false)
 
             await fetchProfessorData()
         } catch (error) {
-            alert(
+            toastError(
                 `Greška pri unosu ocjene: ${error instanceof Error ? error.message : 'Pokušajte ponovo'}`
             )
         }
