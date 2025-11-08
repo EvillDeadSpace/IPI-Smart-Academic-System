@@ -25,7 +25,7 @@ IPI Smart Academic System is a comprehensive 3-tier academic management platform
 
 **Live Demo:**
 
-- Frontend: [Netlify/Vercel URL]
+- Frontend: [https://ipi-smart-academic-system.vercel.app]
 - Backend API: https://ipi-smart-academic-system-dzhc.vercel.app
 - NLP Service: https://amartubic.pythonanywhere.com
 
