@@ -5,6 +5,9 @@ import HeroSite from '../components/HeroSite'
 import Login from '../components/Auth/Login'
 import NotFound from '../components/Auth/NotFound'
 import About from '../components/Pages/About'
+import Programs from '../components/Pages/Programs'
+import News from '../components/Pages/News'
+import Contact from '../components/Pages/Contact'
 import Profile from '../components/Dashboard/Profile/Profile'
 import Settings from '../components/Dashboard/Profile/ProfileSettings'
 
@@ -35,6 +38,9 @@ export default function AppRoutes() {
             <Routes>
                 <Route path="/" element={<HeroSite />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/programs" element={<Programs />} />
+                <Route path="/news" element={<News />} />
+                <Route path="/contact" element={<Contact />} />
                 <Route path="/login" element={<Login />} />
 
                 <Route

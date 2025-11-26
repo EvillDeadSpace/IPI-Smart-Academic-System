@@ -1,8 +1,19 @@
 import type { FC } from 'react'
 import AnimatedContent from '../ui/animation-content'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 
 const HeroSection: FC = () => {
+    const navigate = useNavigate()
+
+    const handleEnrollClick = () => {
+        navigate('/login')
+    }
+
+    const handleLearnMoreClick = () => {
+        navigate('/about')
+    }
+
     return (
         <AnimatedContent
             distance={150}
@@ -44,15 +55,18 @@ const HeroSection: FC = () => {
 
                             <div className="flex flex-wrap gap-4">
                                 <button
+                                    onClick={handleEnrollClick}
                                     className="px-8 py-3 bg-blue-600 text-white rounded-full 
                                     font-semibold hover:bg-blue-700 transition-colors duration-300
-                                    shadow-lg hover:shadow-xl"
+                                    shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
                                 >
                                     Upiši se danas
                                 </button>
                                 <button
+                                    onClick={handleLearnMoreClick}
                                     className="px-8 py-3 border-2 border-blue-600 text-blue-600 
-                                    rounded-full font-semibold hover:bg-blue-50 transition-colors duration-300"
+                                    rounded-full font-semibold hover:bg-blue-50 transition-colors duration-300
+                                    transform hover:scale-105 active:scale-95"
                                 >
                                     Saznaj više
                                 </button>

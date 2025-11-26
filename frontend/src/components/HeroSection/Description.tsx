@@ -1,5 +1,6 @@
 import type { FC } from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import {
     IconBrain,
     IconBook,
@@ -8,6 +9,8 @@ import {
 } from '@tabler/icons-react'
 
 const Description: FC = () => {
+    const navigate = useNavigate()
+
     const features = [
         {
             icon: <IconBook className="w-8 h-8" />,
@@ -143,8 +146,10 @@ const Description: FC = () => {
                     className="text-center mt-16"
                 >
                     <button
+                        onClick={() => navigate('/login')}
                         className="px-8 py-4 bg-blue-600 text-white rounded-full font-semibold 
-                        hover:bg-blue-700 transition-colors duration-300 shadow-lg hover:shadow-xl"
+                        hover:bg-blue-700 transition-colors duration-300 shadow-lg hover:shadow-xl
+                        transform hover:scale-105 active:scale-95"
                     >
                         Započni svoju karijeru danas
                     </button>

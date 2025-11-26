@@ -1,5 +1,6 @@
-import { FC } from 'react'
+import { FC, useState, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
+import { toastSuccess, toastError } from '../../lib/toast'
 import {
     CiMail,
     CiPhone,
@@ -13,28 +14,31 @@ import { motion } from 'framer-motion'
 import { cn } from '../../lib/utils'
 
 const Footer: FC = () => {
+    const [email, setEmail] = useState('')
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
     const socialLinks = [
         {
             icon: CiYoutube,
-            href: '#',
+            href: 'https://www.youtube.com/@ipi-akademija',
             label: 'YouTube',
             color: 'hover:text-red-400',
         },
         {
             icon: CiFacebook,
-            href: '#',
+            href: 'https://www.facebook.com/ipiakademija',
             label: 'Facebook',
             color: 'hover:text-blue-400',
         },
         {
             icon: CiLinkedin,
-            href: '#',
+            href: 'https://www.linkedin.com/school/ipi-akademija',
             label: 'LinkedIn',
             color: 'hover:text-blue-300',
         },
         {
             icon: CiInstagram,
-            href: '#',
+            href: 'https://www.instagram.com/ipiakademija',
             label: 'Instagram',
             color: 'hover:text-pink-400',
         },
@@ -45,9 +49,27 @@ const Footer: FC = () => {
         { text: 'Studijski programi', href: '/programs' },
         { text: 'Novosti', href: '/news' },
         { text: 'Kontakt', href: '/contact' },
-        { text: 'Upis', href: '/enrollment' },
-        { text: 'Student portal', href: '/portal' },
+        { text: 'Upis', href: '/login' },
+        { text: 'Student portal', href: '/login' },
     ]
+
+    const handleNewsletterSubmit = async (e: FormEvent) => {
+        e.preventDefault()
+
+        if (!email || !email.includes('@')) {
+            toastError('Unesite validnu email adresu')
+            return
+        }
+
+        setIsSubmitting(true)
+
+        // Simulate API call
+        setTimeout(() => {
+            toastSuccess('Uspješno ste se prijavili na newsletter!')
+            setEmail('')
+            setIsSubmitting(false)
+        }, 1000)
+    }
 
     const containerAnimation = {
         hidden: { opacity: 0, y: 20 },
@@ -173,22 +195,31 @@ const Footer: FC = () => {
                             Prijavite se na naš newsletter i budite u toku sa
                             najnovijim vijestima.
                         </p>
-                        <form className="space-y-4">
+                        <form
+                            onSubmit={handleNewsletterSubmit}
+                            className="space-y-4"
+                        >
                             <div className="relative">
                                 <input
                                     type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     placeholder="Vaša email adresa"
+                                    disabled={isSubmitting}
                                     className="w-full px-4 py-3 rounded-lg bg-blue-800/50 border border-blue-700 
                                         text-white placeholder-blue-300 focus:outline-none focus:ring-2 
-                                        focus:ring-blue-400 focus:border-transparent transition-all duration-300"
+                                        focus:ring-blue-400 focus:border-transparent transition-all duration-300
+                                        disabled:opacity-50 disabled:cursor-not-allowed"
                                 />
                             </div>
                             <button
                                 type="submit"
+                                disabled={isSubmitting}
                                 className="w-full px-4 py-3 bg-blue-500 text-white rounded-lg font-semibold
-                                    hover:bg-blue-400 transform hover:-translate-y-0.5 transition-all duration-300"
+                                    hover:bg-blue-400 transform hover:-translate-y-0.5 transition-all duration-300
+                                    disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                             >
-                                Prijavi se
+                                {isSubmitting ? 'Prijava...' : 'Prijavi se'}
                             </button>
                         </form>
                     </motion.div>
@@ -214,6 +245,8 @@ const Footer: FC = () => {
                                     <a
                                         key={index}
                                         href={social.href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                         aria-label={social.label}
                                         className={cn(
                                             'text-blue-300 transition-all duration-300 transform hover:-translate-y-1',

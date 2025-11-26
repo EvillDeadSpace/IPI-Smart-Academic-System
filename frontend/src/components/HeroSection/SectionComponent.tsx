@@ -1,5 +1,6 @@
 import type { FC } from 'react'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import {
     IconBuildingSkyscraper,
     IconCertificate,
@@ -92,23 +93,24 @@ const SectionComponent: FC = () => {
                             Spremni ste za sljedeći korak u vašem obrazovanju?
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <a
-                                href="/upis"
+                            <Link
+                                to="/login"
                                 className="inline-flex items-center justify-center px-6 py-3 
                                     bg-white text-blue-600 font-semibold rounded-full 
                                     hover:bg-blue-50 transition-colors duration-300
-                                    shadow-lg hover:shadow-xl"
+                                    shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
                             >
                                 Upiši se odmah
-                            </a>
-                            <a
-                                href="/programi"
+                            </Link>
+                            <Link
+                                to="/programs"
                                 className="inline-flex items-center justify-center px-6 py-3 
                                     border-2 border-white text-white font-semibold rounded-full 
-                                    hover:bg-white/10 transition-colors duration-300"
+                                    hover:bg-white/10 transition-colors duration-300
+                                    transform hover:scale-105 active:scale-95"
                             >
                                 Istraži programe
-                            </a>
+                            </Link>
                         </div>
                     </motion.div>
                 </div>

@@ -10,7 +10,7 @@ import {
     AiOutlineLock,
     AiOutlineArrowRight,
 } from 'react-icons/ai'
-import { toastError, toastSuccess } from '../../lib/toast'
+import { toastError, toastSuccess, toastInfo } from '../../lib/toast'
 
 const Login: FC = () => {
     const [password, setPassword] = useState<string>('')
@@ -24,6 +24,20 @@ const Login: FC = () => {
 
     // Context
     const { setStudentName, login, setUserType } = useAuth()
+
+    const handleForgotPassword = (e: React.MouseEvent) => {
+        e.preventDefault()
+        toastInfo(
+            'Za resetovanje šifre kontaktirajte studentsku službu na info@ipi-akademija.ba'
+        )
+    }
+
+    const handleContactService = (e: React.MouseEvent) => {
+        e.preventDefault()
+        toastInfo(
+            'Kontaktirajte studentsku službu: info@ipi-akademija.ba ili +387 35 258 454'
+        )
+    }
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
@@ -229,7 +243,8 @@ const Login: FC = () => {
                         <div className="flex justify-end">
                             <a
                                 href="#"
-                                className="text-xs text-blue-300 hover:text-blue-100 font-medium transition-colors duration-200"
+                                onClick={handleForgotPassword}
+                                className="text-xs text-blue-300 hover:text-blue-100 font-medium transition-colors duration-200 cursor-pointer"
                             >
                                 Zaboravili ste šifru?
                             </a>
@@ -268,7 +283,8 @@ const Login: FC = () => {
                             Nemate nalog?{' '}
                             <a
                                 href="#"
-                                className="text-blue-300 hover:text-blue-100 font-semibold transition-colors duration-200"
+                                onClick={handleContactService}
+                                className="text-blue-300 hover:text-blue-100 font-semibold transition-colors duration-200 cursor-pointer"
                             >
                                 Kontaktirajte studentsku službu
                             </a>
