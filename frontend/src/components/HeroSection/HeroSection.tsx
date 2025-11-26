@@ -14,7 +14,7 @@ const HeroSection: FC = () => {
             scale={1.1}
             threshold={0.2}
         >
-            <section className="relative min-h-screen w-full bg-gradient-to-b from-blue-50 to-white overflow-hidden">
+            <section className="relative min-h-screen w-full from-blue-50 to-white overflow-hidden">
                 {/* Background Pattern */}
                 <div className="absolute inset-0 bg-dot-thick-neutral-100 opacity-30" />
 
@@ -96,7 +96,7 @@ const HeroSection: FC = () => {
                                         transform hover:scale-105 transition-transform duration-500"
                                 />
                                 {/* Overlay gradient */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/20 to-transparent" />
+                                <div className="absolute inset-0  from-blue-900/20 to-transparent" />
                             </div>
 
                             {/* Floating Accent Elements */}
@@ -114,7 +114,7 @@ const HeroSection: FC = () => {
 
                 {/* Decorative Elements */}
                 <div
-                    className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t 
+                    className="absolute bottom-0 left-0 w-full h-24 
                     from-white to-transparent"
                 />
             </section>

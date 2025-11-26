@@ -17,6 +17,8 @@ body {
     display: flex;
     flex-direction: column;
     position: relative;
+    margin: 0;
+    padding: 0;
 }
 
 #root {
@@ -24,6 +26,8 @@ body {
     display: flex;
     flex-direction: column;
     flex: 1;
+    margin: 0;
+    padding: 0;
 }
 
 main {

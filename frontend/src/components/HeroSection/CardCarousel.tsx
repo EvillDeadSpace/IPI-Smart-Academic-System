@@ -14,13 +14,13 @@ const ProgramContent = ({
     return (
         <div className="relative w-full h-full">
             {/* Background Image with Overlay */}
-            <div className="absolute inset-0">
+            <div className="absolute inset-0 overflow-hidden">
                 <img
                     src={src}
                     alt={title}
                     className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/90 to-blue-800/80" />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/90 to-blue-800/80 hover:from-blue-900/70 hover:to-blue-800/60 transition-all duration-500" />
             </div>
 
             {/* Content */}

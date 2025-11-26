@@ -68,6 +68,20 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
 
     // User authentication state
+
+import { STORAGE_KEYS, API_ENDPOINTS } from './constants/storage'
+import { UserDetails } from './types/user'
+import { AuthContextType } from './types/auth'
+
+import { toastError, toastSuccess } from './lib/toast'
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+interface AuthProviderProps {
+    children: React.ReactNode
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [studentName, setStudentName] = useState<string>('')
     const [studentMail, setStudentMail] = useState<string>('')
     const [userType, setUserType] = useState<string>('')
@@ -80,17 +94,36 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     /**
      * Check if user is logged in on component mount
      */
+    const [isLoading, setIsLoading] = useState<boolean>(true) // NEW: Loading state
+
+    // Check if user is logged in on mount and restore session
     useEffect(() => {
-        const storedMail = localStorage.getItem('student mail')
-        const storedName = localStorage.getItem('student name')
-        const storedUserType = localStorage.getItem('userType')
+        const storedMail = localStorage.getItem(STORAGE_KEYS.STUDENT_EMAIL)
+        const storedName = localStorage.getItem(STORAGE_KEYS.STUDENT_NAME)
+        const storedUserType = localStorage.getItem(STORAGE_KEYS.STUDENT_TYPE)
+        const storedDetails = localStorage.getItem(STORAGE_KEYS.USER_DETAILS)
 
         if (storedMail) {
             setStudentMail(storedMail)
             setStudentName(storedName || '')
             setUserType(storedUserType || '')
+
+            // Try to restore user details from localStorage first (faster)
+            if (storedDetails) {
+                try {
+                    setUserDetails(JSON.parse(storedDetails))
+                } catch {
+                    toastError('Failed to parse cached user details.')
+                }
+            }
+
+            // Fetch fresh details in background (updates if data changed)
+            fetchUserDetails(storedMail)
         }
-    }, [])
+
+        // Set loading to false after initial check
+        setIsLoading(false)
+    }, []) // Only run once on mount
 
     /**
      * Fetch user details when student email changes
@@ -130,6 +163,57 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         // Cleanup function to clear interval when component is unmounted
         return () => clearInterval(interval)
     }, [status])
+    // Function to login the user
+    const login = (userMail: string, userName: string, userType: string) => {
+        setStudentMail(userMail)
+        setStudentName(userName)
+        setUserType(userType)
+
+        // Persist to localStorage
+        localStorage.setItem(STORAGE_KEYS.STUDENT_EMAIL, userMail)
+        localStorage.setItem(STORAGE_KEYS.STUDENT_NAME, userName)
+        localStorage.setItem(STORAGE_KEYS.STUDENT_TYPE, userType)
+
+        // Fetch user details after login
+        fetchUserDetails(userMail)
+    }
+
+    const fetchUserDetails = async (email: string) => {
+        try {
+            const response = await fetch(API_ENDPOINTS.USER_DETAILS(email))
+
+            if (response.ok) {
+                const details = await response.json()
+                setUserDetails(details)
+
+                // Cache in localStorage for faster restoration on next session
+                localStorage.setItem(
+                    STORAGE_KEYS.USER_DETAILS,
+                    JSON.stringify(details)
+                )
+            } else if (response.status === 404) {
+                setUserDetails(null)
+            }
+        } catch {
+            toastError('Failed to fetch user details from the server.')
+        }
+    }
+
+    // Function to logout the user
+    const logout = (nav: ReturnType<typeof useNavigate>) => {
+        setStudentMail('')
+        setStudentName('')
+        setUserType('')
+        setUserDetails(null) // Reset user details
+        localStorage.removeItem(STORAGE_KEYS.STUDENT_EMAIL)
+        localStorage.removeItem(STORAGE_KEYS.STUDENT_NAME)
+        localStorage.removeItem(STORAGE_KEYS.STUDENT_TYPE)
+        localStorage.removeItem(STORAGE_KEYS.USER_DETAILS) // Remove cached details
+        setTimeout(() => {
+            toastSuccess('Successfully logged out.')
+            nav('/')
+        }, 1000)
+    }
 
     // ==============================
     // Helper Functions
@@ -180,7 +264,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     // Render
     // ==============================
     return (
-        <ChatContext.Provider
+        <AuthContext.Provider
             value={{
                 // Server status
                 status,
@@ -203,10 +287,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 // Authentication methods
                 login,
                 logout,
+                isLoading, // NEW: Expose loading state
             }}
         >
             {children}
-        </ChatContext.Provider>
+        </AuthContext.Provider>
     )
 }
 
@@ -217,8 +302,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
  */
 export const useChat = () => {
     const context = useContext(ChatContext)
+export const useAuth = () => {
+    const context = useContext(AuthContext)
     if (!context) {
-        throw new Error('useChat must be used within a ChatProvider')
+        throw new Error('useAuth must be used within an AuthProvider')
     }
     return context
 }

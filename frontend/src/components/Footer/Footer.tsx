@@ -55,12 +55,15 @@ const Footer: FC = () => {
     }
 
     return (
-        <footer className="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white">
+        <footer
+            className="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white mb-0 pb-0 -mt-px overflow-hidden"
+            style={{ margin: 0, padding: 0 }}
+        >
             {/* Decorative top border */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600" />
 
             {/* Main content */}
-            <div className="container mx-auto px-6 py-16 relative z-10">
+            <div className="container mx-auto px-6 pt-4 pb-0 relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
                     {/* Logo and Description */}
                     <motion.div
@@ -197,7 +200,7 @@ const Footer: FC = () => {
                     initial="hidden"
                     whileInView="visible"
                     transition={{ duration: 0.5, delay: 0.8 }}
-                    className="mt-16 pt-8 border-t border-blue-700"
+                    className="mt-8 pt-4 pb-0 border-t border-blue-700"
                 >
                     <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
                         <div className="text-blue-200 text-sm">
@@ -229,7 +232,7 @@ const Footer: FC = () => {
             {/* Decorative background elements */}
             <div
                 className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500 rounded-full 
-                opacity-10 transform translate-x-1/2 translate-y-1/2 blur-3xl"
+                opacity-10 transform translate-x-1/2 translate-y-1/4 blur-3xl"
             />
             <div
                 className="absolute top-0 left-0 w-64 h-64 bg-blue-400 rounded-full 

@@ -16,13 +16,14 @@
         "clsx": "^2.1.1",
         "lottie-react": "^2.4.0",
         "mini-svg-data-uri": "^1.4.4",
-        "motion": "^12.4.3",
+        "motion": "^12.23.12",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
         "react-fast-marquee": "^1.6.5",
+        "react-hot-toast": "^2.6.0",
         "react-icons": "^5.4.0",
         "react-router-dom": "^7.1.1",
-        "tailwind-merge": "^3.0.1"
+        "tailwind-merge": "^3.3.1"
     },
     "devDependencies": {
         "@eslint/create-config": "^1.4.0",

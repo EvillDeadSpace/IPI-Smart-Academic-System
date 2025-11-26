@@ -16,6 +16,7 @@ function HeroSite() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
             className="relative"
+            style={{ margin: 0, padding: 0 }}
         >
             {/* Fixed chat button */}
             <div className="fixed bottom-4 right-4 z-50">
@@ -78,7 +79,7 @@ function HeroSite() {
                 </section>
 
                 {/* Call to Action Section */}
-                <section className="bg-blue-600 text-white py-20">
+                <section className="bg-blue-600 text-white pt-10 pb-0 mb-0">
                     <motion.div
                         initial={{ scale: 0.95, opacity: 0 }}
                         whileInView={{ scale: 1, opacity: 1 }}
@@ -91,7 +92,9 @@ function HeroSite() {
             </main>
 
             {/* Footer */}
-            <Footer />
+            <div className="mt-0" style={{ margin: 0, padding: 0 }}>
+                <Footer />
+            </div>
         </motion.div>
     )
 }

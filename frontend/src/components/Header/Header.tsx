@@ -2,76 +2,48 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { GiHamburgerMenu } from 'react-icons/gi'
 import { IoClose } from 'react-icons/io5'
-import { useChat } from '../../Context'
+import { useAuth } from '../../Context'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 
+import { navLinks } from './AnimationHeader'
+
+// Header components
 const Header = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const [isOpen, setIsOpen] = useState(false)
     const [scrolled, setScrolled] = useState(false)
     const nav = useNavigate()
     const location = useLocation()
-    const { studentMail, logout } = useChat()
+    const { studentMail, logout } = useAuth()
 
-    // Handle scroll effect
     useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 20)
+        const debounce = (func: () => void, delay: number) => {
+            let timeout: number
+            return () => {
+                clearTimeout(timeout)
+                timeout = window.setTimeout(() => func(), delay)
+            }
         }
+
+        const handleScroll = debounce(() => {
+            setScrolled(window.scrollY > 20)
+        }, 100) // 100ms debounce
+
         window.addEventListener('scroll', handleScroll)
-        return () => window.removeEventListener('scroll', handleScroll)
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll)
+        }
     }, [])
 
     const toggleMenu = () => setIsOpen(!isOpen)
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
 
-    const navLinks = [
-        { to: '/', text: 'Početna' },
-        { to: '/about', text: 'O nama' },
-        { to: '/programs', text: 'Studijski programi' },
-        { to: '/news', text: 'Novosti' },
-        { to: '/contact', text: 'Kontakt' },
-    ]
-
-    const headerVariants = {
-        initial: { y: -100 },
-        animate: {
-            y: 0,
-            transition: { type: 'spring', stiffness: 100, damping: 20 },
-        },
-    }
-
-    const dropdownVariants = {
-        hidden: { opacity: 0, y: -20 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: { type: 'spring', stiffness: 400, damping: 30 },
-        },
-        exit: {
-            opacity: 0,
-            y: -20,
-            transition: { duration: 0.2 },
-        },
-    }
-
-    const sidebarVariants = {
-        hidden: { x: '100%' },
-        visible: {
-            x: 0,
-            transition: { type: 'spring', stiffness: 300, damping: 30 },
-        },
-        exit: {
-            x: '100%',
-            transition: { duration: 0.3 },
-        },
-    }
-
     return (
         <motion.header
-            variants={headerVariants}
-            initial="initial"
-            animate="animate"
+            initial={{ y: -100 }}
+            animate={{ y: 0 }}
+            transition={{ type: 'spring', stiffness: 100, damping: 20 }}
             className={`fixed w-full top-0 z-50 transition-all duration-300 ${
                 scrolled
                     ? 'bg-white/90 backdrop-blur-md shadow-lg'
@@ -141,10 +113,10 @@ const Header = () => {
                                 <AnimatePresence>
                                     {isOpen && (
                                         <motion.div
-                                            variants={dropdownVariants}
-                                            initial="hidden"
-                                            animate="visible"
-                                            exit="exit"
+                                            initial={{ opacity: 0, y: -20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -20 }}
+                                            transition={{ duration: 0.2 }}
                                             className="absolute right-0 mt-2 w-48 rounded-xl bg-white shadow-xl ring-1 ring-black ring-opacity-5 overflow-hidden"
                                         >
                                             <div className="py-1">
@@ -207,10 +179,10 @@ const Header = () => {
                             onClick={toggleSidebar}
                         />
                         <motion.div
-                            variants={sidebarVariants}
-                            initial="hidden"
-                            animate="visible"
-                            exit="exit"
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ duration: 0.3 }}
                             className="fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-xl"
                         >
                             <div className="px-6 py-4 flex items-center justify-between">
