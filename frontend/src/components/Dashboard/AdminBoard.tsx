@@ -9,6 +9,7 @@ import {
     IconSchool,
     IconLogout,
     IconPaperBag,
+    IconNews,
 } from '@tabler/icons-react'
 import { toastError, toastSuccess } from '../../lib/toast'
 
@@ -321,6 +322,29 @@ const AdminPanel: React.FC = () => {
                         </div>
                         <div className="bg-purple-50 px-6 py-3">
                             <p className="text-xs text-purple-700 font-medium">
+                                Click to manage →
+                            </p>
+                        </div>
+                    </div>
+                    <div
+                        className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer border border-gray-200 overflow-hidden"
+                        onClick={openRequestsModal}
+                    >
+                        <div className="p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="p-3 bg-blue-100 rounded-lg">
+                                    <IconNews className="w-6 h-6 text-blue-600" />
+                                </div>
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                                Upravljanje novostima
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                                Pregeld svih zahtjeva za obradu dokumenata
+                            </p>
+                        </div>
+                        <div className="bg-blue-50 px-6 py-3">
+                            <p className="text-xs text-blue-700 font-medium">
                                 Click to manage →
                             </p>
                         </div>

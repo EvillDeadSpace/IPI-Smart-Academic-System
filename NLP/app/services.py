@@ -26,9 +26,10 @@ def generate_response_with_rag(user_msg, context="", metadata=None):
     """
     from mistralai import Mistral, UserMessage, SystemMessage
 
-    token = os.getenv("OPEN_API_KEY_MISTRAL")
-    endpoint = "https://models.inference.ai.azure.com"
-    model_name = "Mistral-small"
+    # Novi GitHub Models API
+    token = os.getenv("GITHUB_TOKEN")
+    endpoint = os.getenv("GITHUB_ENDPOINT", "https://models.github.ai/inference")
+    model_name = os.getenv("MISTRAL_MODEL", "mistral-ai/mistral-medium-2505")
 
     client = Mistral(api_key=token, server_url=endpoint)
 
