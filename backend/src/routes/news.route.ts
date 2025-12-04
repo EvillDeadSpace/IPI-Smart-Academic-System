@@ -10,6 +10,6 @@ router.post("/", NewsController.createNews);
 router.get("/", NewsController.getAllNews);
 
 // DELETE news by ID
-router.delete("/", NewsController.deleteNewsById);
+router.delete("/:id", NewsController.deleteNewsById);
 
 export default router;
