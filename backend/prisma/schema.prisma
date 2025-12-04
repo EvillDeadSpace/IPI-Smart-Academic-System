@@ -45,7 +45,7 @@ model Student {
   @@index([majorId])
 }
 
-// Smjer (Major/Program)
+// Major/Program
 model Major {
   id          Int      @id @default(autoincrement())
   name        String   @unique // "Računarstvo", "Elektrotehnika"
@@ -63,11 +63,11 @@ model Major {
   @@index([code])
 }
 
-// Godina studija plan (koje godine imaju koji predmeti)
+// Year plan (which subjects are in which year and semester for a major)
 model YearPlan {
   id        Int      @id @default(autoincrement())
-  year      Int      // Godina studija (1, 2, 3, 4)
-  semester  Int      // Semestar (1 ili 2)
+  year      Int      // Study year (1, 2, 3, 4)
+  semester  Int      // Semester (1 or 2)
   
   majorId   Int
   major     Major    @relation(fields: [majorId], references: [id])
@@ -77,7 +77,7 @@ model YearPlan {
   @@index([majorId])
 }
 
-// Predmet (Subject/Course)
+// Subject/Course
 model Subject {
   id          Int      @id @default(autoincrement())
   name        String   
@@ -107,7 +107,7 @@ model Subject {
 // ENROLLMENT SYSTEM
 // =====================
 
-// Upis na godinu studija
+// Enrollment in academic year
 model YearEnrollment {
   id           Int      @id @default(autoincrement())
   academicYear String   // "2024/2025"
@@ -121,11 +121,11 @@ model YearEnrollment {
   @@index([studentId])
 }
 
-// Upis predmeta
+// Enrollment in subjects
 model SubjectEnrollment {
   id           Int      @id @default(autoincrement())
   academicYear String   
-  semester     Int      // 1 ili 2
+  semester     Int      // 1 or 2
   enrolledAt   DateTime @default(now())
 
   studentId    Int
@@ -184,7 +184,7 @@ model Exam {
   @@index([professorId])
 }
 
-// Student exam registration (prijava na ispit)
+// Student exam registration (exam registration made by students)
 model StudentExamRegistration {
   id           Int      @id @default(autoincrement())
   studentId    Int
@@ -199,7 +199,7 @@ model StudentExamRegistration {
   @@index([examId])
 }
 
-// Profesor
+// Professor
 model Professor {
   id        Int      @id @default(autoincrement())
   firstName String
@@ -218,7 +218,7 @@ model Professor {
   @@index([email])
 }
 
-// Many-to-Many veza između profesora i predmeta
+// Many-to-Many link between Professors and Subjects
 model ProfessorSubject {
   id          Int      @id @default(autoincrement())
   professorId Int
@@ -267,19 +267,19 @@ enum DocumentRequestStatus {
 // DOCUMENT REQUEST SYSTEM
 // =====================
 
-// Zahtjevi studenata za dokumentima
+// Doument request made by students
 model DocumentRequest {
   id            Int      @id @default(autoincrement())
   documentType  DocumentType
   status        DocumentRequestStatus @default(PENDING)
-  pdfUrl        String?  // Putanja do PDF-a nakon generisanja
+  pdfUrl        String?  // Path to the PDF after generation
   requestDate   DateTime @default(now())
   processedDate DateTime?
-  processedBy   String?  // Email admina koji je aprovao
-  rejectionReason String? // Razlog odbijanja (opcionalno)
+  processedBy   String?  // Email of the admin who approved/rejected
+  rejectionReason String? // Reason for rejection (optional)
   
   // Student data (snapshot at request time for PDF generation)
-  studentData   Json?    // Čuva studentske podatke u momentu zahtjeva
+  studentData   Json?    
   
   studentId     Int
   student       Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -287,4 +287,18 @@ model DocumentRequest {
   @@index([studentId])
   @@index([status])
   @@index([requestDate])
+}
+
+// =====================
+// NEWS SYSTEM
+// =====================
+model NewsInformation {
+  id          Int      @id @default(autoincrement())
+  tagName     String
+  title       String
+  likes       Int      @default(0)
+  content     String
+  linksParent String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

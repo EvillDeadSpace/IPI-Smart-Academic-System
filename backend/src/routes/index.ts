@@ -6,10 +6,12 @@ import examRoutes from "./exam.routes";
 import enrollmentRoutes from "./enrollment.routes";
 import gradeRoutes from "./grade.routes";
 import documentRequestRoutes from "./document-request.routes";
+import newsRoutes from "./news.route";
 import { AuthController } from "../controllers/auth.controller";
 import { StudentController } from "../controllers/student.controller";
 import { EnrollmentController } from "../controllers/enrollment.controller";
 import { GradeController } from "../controllers/grade.controller";
+import { NewsController } from "../controllers/news.controller";
 
 const router = Router();
 
@@ -59,5 +61,6 @@ router.use("/exams", examRoutes);
 router.use("/enrollment", enrollmentRoutes);
 router.use("/grades", gradeRoutes);
 router.use("/document-requests", documentRequestRoutes);
+router.use("/news", newsRoutes);
 
 export default router;
