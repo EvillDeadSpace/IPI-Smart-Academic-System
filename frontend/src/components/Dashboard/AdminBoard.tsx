@@ -246,9 +246,6 @@ const AdminPanel: React.FC = () => {
                 linksParent: newsFormData.linksParent || undefined,
             }
 
-            console.log('Payload for sending:', payload)
-            console.log('Backend URL:', BACKEND_URL)
-
             const response = await fetch(`${BACKEND_URL}/api/news`, {
                 method: 'POST',
                 headers: {
@@ -257,9 +254,6 @@ const AdminPanel: React.FC = () => {
                 body: JSON.stringify(payload),
             })
 
-            console.log('Response status:', response.status)
-            console.log('Response headers:', response.headers)
-
             if (!response.ok) {
                 // Check if response is JSON
                 const contentType = response.headers.get('content-type')
@@ -267,9 +261,7 @@ const AdminPanel: React.FC = () => {
                     const errorData = await response.json()
                     throw new Error(errorData.error || 'Failed to submit news.')
                 } else {
-                    // Response is HTML or other format
                     const text = await response.text()
-                    console.error('Non-JSON response:', text.substring(0, 200))
                     throw new Error(
                         `Server returned ${response.status}: Backend endpoint may not be available`
                     )

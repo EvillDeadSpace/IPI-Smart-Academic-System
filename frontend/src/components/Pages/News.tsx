@@ -74,7 +74,6 @@ const News: FC = () => {
             try {
                 const response = await fetch(`${BACKEND_URL}/api/news`)
                 const data = await response.json()
-                console.log('Fetched news from backend:', data)
                 setNewsItems(data)
             } catch (error) {
                 console.error('Error fetching news:', error)
