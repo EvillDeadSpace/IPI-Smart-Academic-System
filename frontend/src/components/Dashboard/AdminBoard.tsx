@@ -213,7 +213,9 @@ const AdminPanel: React.FC = () => {
 
     // News form handlers
     const handleNewsInputChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+        e: React.ChangeEvent<
+            HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >
     ) => {
         const { name, value } = e.target
         setNewsFormData({
