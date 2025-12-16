@@ -317,4 +317,33 @@ export class ExamService {
 
     return { message: "Unregistered successfully" };
   }
+
+  /**
+   * Get all exams for calendar view (current month only)
+   */
+  static async getAllExamsForCalendar() {
+    const now = new Date();
+
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    endOfMonth.setHours(23, 59, 59, 999);
+
+    const exams = await prisma.exam.findMany({
+      where: {
+        examTime: {
+          gte: startOfMonth,
+          lte: endOfMonth,
+        },
+      },
+      include: {
+        subject: true,
+        professor: true,
+      },
+      orderBy: { examTime: "asc" },
+    });
+
+    return exams;
+  }
 }

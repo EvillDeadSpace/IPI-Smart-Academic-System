@@ -195,4 +195,16 @@ export class ExamController {
         .json({ error: error.message || "Failed to unregister" });
     }
   }
+
+  static async getExamForCalendar(req: Request, res: Response) {
+    try {
+      const allExams = await ExamService.getAllExamsForCalendar();
+      return res.json(allExams);
+    } catch (error) {
+      console.error("Get calendar exams error:", error);
+      return res
+        .status(500)
+        .json({ error: "Failed to fetch exams for calendar" });
+    }
+  }
 }

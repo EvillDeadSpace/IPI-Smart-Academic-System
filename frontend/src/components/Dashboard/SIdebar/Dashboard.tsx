@@ -14,6 +14,7 @@ import StudentExams from '../../Faculty/StudentExams'
 import StudentSchedule from '../../Faculty/StudentSchedule'
 import Papirologija from '../../Faculty/Papirologija'
 import { toastError, toastSuccess } from '../../../lib/toast'
+import Calendar from '../../Pages/Calendar'
 type ProgressShape = {
     progress: {
         passedSubjects: number
@@ -72,6 +73,9 @@ const Dashboard = ({ currentRoute }: { currentRoute: string }) => {
 
     if (currentRoute === '/dashboard/papirologija') {
         return <Papirologija />
+    }
+    if (currentRoute === '/dashboard/calendar') {
+        return <Calendar />
     }
 
     return (

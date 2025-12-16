@@ -13,9 +13,17 @@ import { LoadingDots } from './UtilsChat/LoadingDots'
 import { MessageText } from './UtilsChat/MessageText'
 
 const Chat: FC = () => {
+    // const for fast response in chat
+    const fastResponse = [
+        'Cijena fakulteta',
+        'Smjerovi na fakultetu',
+        'Lokacija fakulteta',
+    ]
+
     const { status, isChatOpen, setIsChatOpen } = useChat()
     const { word, setWord, messages, isLoading, handleSubmit } = useChatSubmit()
     const [showChat, setShowChat] = useState<boolean>(false)
+    const [showFastResponses, setShowFastResponses] = useState<boolean>(true)
     const messagesEndRef = useRef<HTMLDivElement>(null)
 
     const scrollToBottom = () => {
@@ -30,6 +38,11 @@ const Chat: FC = () => {
     const handleChat = () => setIsChatOpen(!isChatOpen)
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setWord(event.target.value)
+    }
+
+    const handleFastResponse = (text: string) => {
+        setWord(text)
+        setShowFastResponses(false) // Hide fast responses after selection
     }
 
     return (
@@ -115,6 +128,62 @@ const Chat: FC = () => {
                                     )}
                                     <div ref={messagesEndRef} />
                                 </motion.div>
+
+                                <AnimatePresence>
+                                    {showFastResponses && (
+                                        <motion.div
+                                            className="flex gap-2 px-4 py-2 overflow-x-auto scrollbar-hide whitespace-nowrap"
+                                            initial={{ opacity: 1, y: 0 }}
+                                            exit={{
+                                                opacity: 0,
+                                                y: -10,
+                                                height: 0,
+                                            }}
+                                            transition={{
+                                                duration: 0.4,
+                                                ease: 'easeInOut',
+                                            }}
+                                        >
+                                            {fastResponse.map((text, index) => (
+                                                <motion.button
+                                                    key={index}
+                                                    className="flex-shrink-0 px-4 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 
+                                                            rounded-full text-xs font-medium text-gray-700 
+                                                            hover:from-blue-100 hover:to-indigo-100 
+                                                            border border-blue-200 hover:border-blue-300
+                                                            shadow-sm hover:shadow-md
+                                                            transition-all duration-200"
+                                                    onClick={() =>
+                                                        handleFastResponse(text)
+                                                    }
+                                                    initial={{
+                                                        opacity: 0,
+                                                        scale: 0.8,
+                                                    }}
+                                                    animate={{
+                                                        opacity: 1,
+                                                        scale: 1,
+                                                    }}
+                                                    exit={{
+                                                        opacity: 0,
+                                                        scale: 0.8,
+                                                    }}
+                                                    transition={{
+                                                        delay: index * 0.05,
+                                                        duration: 0.3,
+                                                    }}
+                                                    whileHover={{
+                                                        scale: 1.05,
+                                                        y: -2,
+                                                    }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                >
+                                                    {text}
+                                                </motion.button>
+                                            ))}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
 
                                 <motion.div
                                     className="p-4 border-t border-gray-200"

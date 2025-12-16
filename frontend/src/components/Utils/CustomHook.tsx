@@ -8,7 +8,10 @@ export const useChatSubmit = () => {
     >([])
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
-    // Funkcija koja se poziva prilikom slanja forme
+    /**
+     * Handles form submission and processes chat messages
+     * @param event - React form event
+     */
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
 
@@ -27,14 +30,14 @@ export const useChatSubmit = () => {
             let result
 
             try {
-                // Pokušaj prvo primarni URL (lokalni u dev, PythonAnywhere u prod)
+                // Attempt primary endpoint first (local in dev, PythonAnywhere in prod)
                 response = await fetch(API_ENDPOINTS.NLP_SEARCH, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ word }),
-                    signal: AbortSignal.timeout(5000), // 5 sekundi timeout
+                    signal: AbortSignal.timeout(5000), // 5 second timeout
                 })
 
                 if (!response.ok) {
@@ -43,7 +46,7 @@ export const useChatSubmit = () => {
 
                 result = await response.json()
             } catch {
-                // Fallback na PythonAnywhere ako lokalni ne radi
+                // Fallback to PythonAnywhere if local endpoint fails
                 response = await fetch(
                     'https://amartubic.pythonanywhere.com/search',
                     {
@@ -57,20 +60,20 @@ export const useChatSubmit = () => {
                 result = await response.json()
             }
 
-            // Dodaj AI odgovor u niz poruka
+            // Append AI response to message thread
             if (result.response && result.response.length > 0) {
                 setMessages((prevMessages) => [
                     ...prevMessages,
                     { text: result.response, isUser: false },
                 ])
             } else if (result.error) {
-                // Poruka greške sa API-a
+                // Handle API error response
                 setMessages((prevMessages) => [
                     ...prevMessages,
                     { text: result.error, isUser: false },
                 ])
             } else {
-                // Fallback poruka
+                // Display fallback message for unexpected responses
                 setMessages((prevMessages) => [
                     ...prevMessages,
                     {
