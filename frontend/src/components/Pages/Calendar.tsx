@@ -13,7 +13,6 @@ interface Event {
     id: number
     title: string
     time: string
-    color: string
     description: string
     location: string
     professor: string
@@ -50,14 +49,6 @@ const formatTime = (date: Date): string => {
     return `${start} - ${end}`
 }
 
-const assignColor = (subjectName: string): string => {
-    const colors = ['purple', 'green', 'blue', 'yellow']
-    const hash = subjectName
-        .split('')
-        .reduce((acc, char) => acc + char.charCodeAt(0), 0)
-    return colors[hash % colors.length]
-}
-
 const transformExamToEvent = (exam: BackendExam): Event => {
     const examDate = new Date(exam.examTime)
 
@@ -65,7 +56,6 @@ const transformExamToEvent = (exam: BackendExam): Event => {
         id: exam.id,
         title: `Ispit - ${exam.subject.name}`,
         time: formatTime(examDate),
-        color: assignColor(exam.subject.name),
         description: `${exam.subject.code} - Maksimalno bodova: ${exam.maxPoints}`,
         location: exam.location || 'Nije navedeno',
         professor: `${exam.professor.firstName} ${exam.professor.lastName}`,

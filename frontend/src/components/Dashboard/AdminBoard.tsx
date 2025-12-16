@@ -261,7 +261,6 @@ const AdminPanel: React.FC = () => {
                     const errorData = await response.json()
                     throw new Error(errorData.error || 'Failed to submit news.')
                 } else {
-                    const text = await response.text()
                     throw new Error(
                         `Server returned ${response.status}: Backend endpoint may not be available`
                     )
@@ -358,12 +357,11 @@ const AdminPanel: React.FC = () => {
                 body: JSON.stringify(payload),
             })
 
-            const text = await response.text()
             let data: unknown
             try {
-                data = JSON.parse(text)
+                data = await response.json()
             } catch {
-                data = text
+                data = await response.text()
             }
 
             if (response.ok) {

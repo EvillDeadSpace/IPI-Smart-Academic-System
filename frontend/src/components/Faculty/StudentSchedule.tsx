@@ -1,8 +1,6 @@
 import type { FC } from 'react'
 import { useEffect, useState } from 'react'
 import {
-    IconClock,
-    IconMapPin,
     IconUserCircle,
     IconBooks,
     IconCalendarTime,
@@ -183,7 +181,7 @@ const StudentSchedule: FC = () => {
                                 </div>
                                 <div>
                                     <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                                        Izborni predemti
+                                        Izborni predmeti
                                     </p>
                                     <p className="text-2xl font-semibold text-neutral-900 dark:text-white">
                                         {scheduleData.electiveSubjects}
@@ -299,8 +297,8 @@ const StudentSchedule: FC = () => {
                                                                         }`}
                                                                     >
                                                                         {subject.isElective
-                                                                            ? 'Elective'
-                                                                            : 'Required'}
+                                                                            ? 'Izborni'
+                                                                            : 'Obavezni'}
                                                                     </span>
                                                                     <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
                                                                         {
