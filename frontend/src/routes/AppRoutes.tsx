@@ -10,6 +10,7 @@ import News from '../components/Pages/News'
 import Contact from '../components/Pages/Contact'
 import Profile from '../components/Dashboard/Profile/Profile'
 import Settings from '../components/Dashboard/Profile/ProfileSettings'
+import Calendar from '../components/Pages/Calendar'
 
 // lazy load heavy dashboard parts
 const MainBoard = lazy(() => import('../components/Dashboard/MainBoard'))
@@ -59,6 +60,7 @@ export default function AppRoutes() {
                         element={<StudentSchedule />}
                     />
                     <Route path="papirologija" element={<Papirologija />} />
+                    <Route path="calendar" element={<Calendar />} />
                 </Route>
 
                 <Route

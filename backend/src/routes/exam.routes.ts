@@ -46,6 +46,13 @@ router.get("/registered/:email", ExamController.getRegisteredExams);
 router.get("/completed/:email", ExamController.getCompletedExams);
 
 /**
+ * @route   GET /api/exams/calendar/all
+ * @desc    Get all exams for calendar view
+ * @access  Private
+ */
+router.get("/calendar/all", ExamController.getExamForCalendar);
+
+/**
  * @route   POST /api/exams/:id/register
  * @desc    Student registers for exam
  * @access  Private (Student)
