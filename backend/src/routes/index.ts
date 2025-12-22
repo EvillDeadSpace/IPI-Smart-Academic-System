@@ -8,6 +8,7 @@ import gradeRoutes from "./grade.routes";
 import documentRequestRoutes from "./document-request.routes";
 import newsRoutes from "./news.route";
 import scheduleRoutes from "./schedule.routes";
+import userRoutes from "./user.routes";
 import { AuthController } from "../controllers/auth.controller";
 import { StudentController } from "../controllers/student.controller";
 import { EnrollmentController } from "../controllers/enrollment.controller";
@@ -64,6 +65,6 @@ router.use("/grades", gradeRoutes);
 router.use("/document-requests", documentRequestRoutes);
 router.use("/news", newsRoutes);
 router.use("/schedule", scheduleRoutes);
-router.use("/news", newsRoutes);
+router.use("/user", userRoutes);
 
 export default router;

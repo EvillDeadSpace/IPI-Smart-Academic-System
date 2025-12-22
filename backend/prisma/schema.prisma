@@ -299,6 +299,9 @@ model NewsInformation {
   likes       Int      @default(0)
   content     String
   linksParent String?
+  calendarNews Boolean @default(false)
+  eventDate   DateTime? 
+  online      Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

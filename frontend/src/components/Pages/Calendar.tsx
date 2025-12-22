@@ -17,6 +17,7 @@ interface Event {
     location: string
     professor: string
     day: number
+    type: 'exam' | 'news'
 }
 
 interface BackendExam {
@@ -32,6 +33,16 @@ interface BackendExam {
         firstName: string
         lastName: string
     }
+}
+
+interface BackendNews {
+    id: number
+    tagName: string
+    title: string
+    content: string
+    likes: number
+    eventDate: string
+    calendarNews: boolean
 }
 
 // Helper functions for formatting and data transformation
@@ -60,6 +71,25 @@ const transformExamToEvent = (exam: BackendExam): Event => {
         location: exam.location || 'Nije navedeno',
         professor: `${exam.professor.firstName} ${exam.professor.lastName}`,
         day: examDate.getDate(),
+        type: 'exam',
+    }
+}
+
+const transformNewsToEvent = (news: BackendNews): Event => {
+    const newsDate = new Date(news.eventDate)
+
+    return {
+        id: news.id,
+        title: `📰 ${news.title}`,
+        time: newsDate.toLocaleTimeString('bs-BA', {
+            hour: '2-digit',
+            minute: '2-digit',
+        }),
+        description: news.content.substring(0, 150) + '...',
+        location: news.tagName,
+        professor: 'IPI Akademija',
+        day: newsDate.getDate(),
+        type: 'news',
     }
 }
 
@@ -72,19 +102,28 @@ const Calendar: FC = () => {
     const year = now.getFullYear()
     const daysInMonth = new Date(year, now.getMonth() + 1, 0).getDate()
 
-    // Fetch exam calendar data from backend
+    // Fetch exam and news calendar data from backend
     useEffect(() => {
         async function fetchCalendarEvents() {
             try {
-                const response = await fetch(
+                // Fetch exams
+                const examsResponse = await fetch(
                     `${BACKEND_URL}/api/exams/calendar/all`
                 )
-                const data: BackendExam[] = await response.json()
-                console.log('Calendar Events:', data)
+                const examsData: BackendExam[] = await examsResponse.json()
 
-                // Transform backend data to Event format
-                const transformedEvents = data.map(transformExamToEvent)
-                setEvents(transformedEvents)
+                // Fetch calendar news (calendarNews = true)
+                const newsResponse = await fetch(`${BACKEND_URL}/api/news`)
+                const allNews: BackendNews[] = await newsResponse.json()
+                const calendarNews = allNews.filter(
+                    (news) => news.calendarNews && news.eventDate
+                )
+
+                // Transform and combine
+                const examEvents = examsData.map(transformExamToEvent)
+                const newsEvents = calendarNews.map(transformNewsToEvent)
+
+                setEvents([...examEvents, ...newsEvents])
             } catch (error) {
                 console.error('Error fetching calendar events:', error)
             }
@@ -174,6 +213,26 @@ const Calendar: FC = () => {
                                                                 .slice(0, 4)
                                                                 .map(
                                                                     (event) => {
+                                                                        const isNews =
+                                                                            event.type ===
+                                                                            'news'
+                                                                        const bgColor =
+                                                                            isNews
+                                                                                ? 'bg-green-50 dark:bg-green-900/30'
+                                                                                : 'bg-blue-50 dark:bg-blue-900/30'
+                                                                        const borderColor =
+                                                                            isNews
+                                                                                ? 'border-green-500'
+                                                                                : 'border-blue-500'
+                                                                        const textColor =
+                                                                            isNews
+                                                                                ? 'text-green-900 dark:text-green-100'
+                                                                                : 'text-blue-900 dark:text-blue-100'
+                                                                        const timeColor =
+                                                                            isNews
+                                                                                ? 'text-green-600 dark:text-green-400'
+                                                                                : 'text-blue-600 dark:text-blue-400'
+
                                                                         return (
                                                                             <motion.div
                                                                                 key={
@@ -187,20 +246,26 @@ const Calendar: FC = () => {
                                                                                         event
                                                                                     )
                                                                                 }
-                                                                                className={`rounded px-1.5 py-1 border-l-2 border-blue-500 bg-blue-50 dark:bg-blue-900/30 shadow-sm hover:shadow-md transition-shadow ${
+                                                                                className={`rounded px-1.5 py-1 border-l-2 ${borderColor} ${bgColor} shadow-sm hover:shadow-md transition-shadow ${
                                                                                     dayEvents.length ===
                                                                                     1
                                                                                         ? 'w-full'
                                                                                         : 'w-[calc(50%-0.25rem)]'
                                                                                 }`}
                                                                             >
-                                                                                <p className="text-xs font-medium text-blue-900 dark:text-blue-100 line-clamp-1">
-                                                                                    {event.title.split(
-                                                                                        ' - '
-                                                                                    )[1] ||
-                                                                                        event.title}
+                                                                                <p
+                                                                                    className={`text-xs font-medium ${textColor} line-clamp-1`}
+                                                                                >
+                                                                                    {isNews
+                                                                                        ? event.title
+                                                                                        : event.title.split(
+                                                                                              ' - '
+                                                                                          )[1] ||
+                                                                                          event.title}
                                                                                 </p>
-                                                                                <p className="text-xs text-blue-600 dark:text-blue-400 font-semibold truncate">
+                                                                                <p
+                                                                                    className={`text-xs ${timeColor} font-semibold truncate`}
+                                                                                >
                                                                                     {
                                                                                         event.time.split(
                                                                                             ' - '

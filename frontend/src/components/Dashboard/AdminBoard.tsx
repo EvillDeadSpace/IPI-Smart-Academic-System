@@ -79,6 +79,8 @@ const AdminPanel: React.FC = () => {
         content: '',
         likes: 0,
         linksParent: '',
+        calendarNews: false,
+        eventDate: '',
     })
 
     const openModal = () => setIsModalOpen(true)
@@ -227,10 +229,11 @@ const AdminPanel: React.FC = () => {
             HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
         >
     ) => {
-        const { name, value } = e.target
+        const { name, value, type } = e.target
+        const checked = (e.target as HTMLInputElement).checked
         setNewsFormData({
             ...newsFormData,
-            [name]: value,
+            [name]: type === 'checkbox' ? checked : value,
         })
     }
 
@@ -244,6 +247,8 @@ const AdminPanel: React.FC = () => {
                 content: newsFormData.content,
                 likes: newsFormData.likes,
                 linksParent: newsFormData.linksParent || undefined,
+                calendarNews: newsFormData.calendarNews,
+                eventDate: newsFormData.eventDate || undefined,
             }
 
             const response = await fetch(`${BACKEND_URL}/api/news`, {
@@ -274,6 +279,8 @@ const AdminPanel: React.FC = () => {
                 content: '',
                 likes: 0,
                 linksParent: '',
+                calendarNews: false,
+                eventDate: '',
             })
             closeNewsModal()
             fetchNewsRequests() // Refresh the list
@@ -979,6 +986,57 @@ const AdminPanel: React.FC = () => {
                                             required
                                         />
                                     </div>
+                                    {/* Calendar News Checkbox */}
+                                    <div className="flex items-start space-x-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                        <input
+                                            type="checkbox"
+                                            id="calendarNews"
+                                            name="calendarNews"
+                                            checked={newsFormData.calendarNews}
+                                            onChange={handleNewsInputChange}
+                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 mt-0.5"
+                                        />
+                                        <div className="flex-1">
+                                            <label
+                                                htmlFor="calendarNews"
+                                                className="text-sm font-bold text-blue-900 cursor-pointer block mb-1"
+                                            >
+                                                📅 Prikaži na News i Calendar
+                                            </label>
+                                            <p className="text-xs text-blue-700">
+                                                ✅ <strong>Sa kvakom:</strong>{' '}
+                                                Vidljivo na News i Calendar
+                                                stranicama
+                                                <br />❌{' '}
+                                                <strong>Bez kvake:</strong>{' '}
+                                                Vidljivo samo na News stranici
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Event Date Input - pokazuje se samo ako je calendarNews true */}
+                                    {newsFormData.calendarNews && (
+                                        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                            <label className="block text-sm font-bold text-blue-900 mb-2">
+                                                📆 Datum i vrijeme događaja
+                                            </label>
+                                            <input
+                                                type="datetime-local"
+                                                name="eventDate"
+                                                value={newsFormData.eventDate}
+                                                onChange={handleNewsInputChange}
+                                                className="w-full px-4 py-3 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                                required={
+                                                    newsFormData.calendarNews
+                                                }
+                                            />
+                                            <p className="text-xs text-blue-700 mt-2">
+                                                Unesite datum i vrijeme kada će
+                                                se događaj prikazati na
+                                                kalendaru
+                                            </p>
+                                        </div>
+                                    )}
 
                                     {/* Content */}
                                     <div>

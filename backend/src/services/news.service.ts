@@ -9,8 +9,18 @@ export class NewsServices {
     likes?: number;
     content: string;
     linksParent?: string;
+    calendarNews?: boolean;
+    eventDate?: string;
   }) {
-    const { tagName, title, likes, content, linksParent } = data;
+    const {
+      tagName,
+      title,
+      likes,
+      content,
+      linksParent,
+      calendarNews,
+      eventDate,
+    } = data;
 
     const news = await prisma.newsInformation.create({
       data: {
@@ -19,15 +29,33 @@ export class NewsServices {
         likes: likes || 0,
         content,
         linksParent: linksParent || null,
+        calendarNews: calendarNews || false,
+        eventDate: eventDate ? new Date(eventDate) : null,
+        online: true,
       },
     });
     return news;
   }
 
-  // Get all news
+  // Get all news (for /news page - shows ALL news)
   static async getAllNews() {
-    const newList = await prisma.newsInformation.findMany({});
+    const newList = await prisma.newsInformation.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
     return newList;
+  }
+
+  // Get calendar news (calendarNews = true)
+  static async getCalendarNews() {
+    const calendarNewsList = await prisma.newsInformation.findMany({
+      where: {
+        calendarNews: true,
+        online: true, // Only online calendar news
+      },
+    });
+    return calendarNewsList;
   }
 
   static async deleteNewsById(id: number) {

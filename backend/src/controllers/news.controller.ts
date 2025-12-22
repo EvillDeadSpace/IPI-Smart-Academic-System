@@ -7,7 +7,15 @@ export class NewsController {
    */
   static async createNews(req: Request, res: Response) {
     try {
-      const { tagName, titles, likes, content, linksParent } = req.body;
+      const {
+        tagName,
+        titles,
+        likes,
+        content,
+        linksParent,
+        calendarNews,
+        eventDate,
+      } = req.body;
 
       if (!tagName || !titles || !content) {
         return res.status(400).json({ error: "Missing required fields" });
@@ -18,6 +26,8 @@ export class NewsController {
         likes,
         content,
         linksParent,
+        calendarNews,
+        eventDate,
       });
       return res.json({ message: "News created", news });
     } catch (error) {
@@ -33,6 +43,17 @@ export class NewsController {
     } catch (error) {
       console.error("[NEWS] Error fetching news:", error);
       return res.status(500).json({ error: "Failed to fetch news" });
+    }
+  }
+
+  // Get calendar news (calendarNews = true)
+  static async getCalendarNews(req: Request, res: Response) {
+    try {
+      const calendarNews = await NewsServices.getCalendarNews();
+      return res.json(calendarNews);
+    } catch (error) {
+      console.error("[NEWS] Error fetching calendar news:", error);
+      return res.status(500).json({ error: "Failed to fetch calendar news" });
     }
   }
 
