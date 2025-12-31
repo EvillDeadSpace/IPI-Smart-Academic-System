@@ -42,6 +42,8 @@ model Student {
   examRegistrations StudentExamRegistration[]
   documentRequests DocumentRequest[]
 
+  comments      Comment[]  // Relation to comments made by the student
+
   @@index([majorId])
 }
 
@@ -304,4 +306,22 @@ model NewsInformation {
   online      Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  comments    Comment[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text // This is for longer text content
+  userId    Int
+  newsId    Int      
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt 
+  
+  student Student          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  news    NewsInformation  @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([newsId])
+  @@index([createdAt])
 }

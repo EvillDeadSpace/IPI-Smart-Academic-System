@@ -140,3 +140,32 @@ def healthCertificate():
         download_name="health_certificate.pdf",
         max_age=0
     )
+
+@main_bp.route('/notification-services', methods=['POST'])
+def notificationServices():
+    """
+    Endpoint for handling notification service requests
+    Receives email and processes notification subscription
+    """
+    data = request.json
+    
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+    
+    email = data.get('email')
+    
+    if not email:
+        return jsonify({'error': 'Email is required'}), 400
+    
+    # Log the email for debugging
+    print(f"Notification service request for email: {email}")
+    
+    # TODO: Add actual notification service logic here
+    # (e.g., subscribe to mailing list, send confirmation email, etc.)
+    
+    return jsonify({
+        'success': True,
+        'message': 'Notification service request received',
+        'email': email
+    }), 200
+    
