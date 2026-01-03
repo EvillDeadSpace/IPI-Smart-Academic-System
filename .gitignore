@@ -1,24 +1,18 @@
 # Virtual Environment
 venv/
+.venv/
 NLP/venv/
 
-# Existing entries
+# Python cache files
 __pycache__/
-__pycache__/*
-.idea/
 *.pyc
 *.pyo
-/__pycache/*
-/pycache/
+*.pyd
+.Python
 
+# IDE
+.idea/
+.vscode/
 
-NLP/app/__pycache__
-
-NLP/app/__pycache__/*
-NLP/app/__pycache__/__init__.cpython-312.pyc
-NLP/app/__pycache__/__init__.cpython-312.pyc
-NLP/app/__pycache__/openAiText.cpython-312.pyc
-NLP/app/__pycache__/routes.cpython-312.pyc
-NLP/app/__pycache__/services.cpython-312.pyc
-
+# GitHub Copilot
 .github/copilot-instructions.md
