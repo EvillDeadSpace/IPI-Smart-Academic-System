@@ -1,18 +1,155 @@
-# Virtual Environment
+# ===================================
+# IPI Smart Academic System
+# Professional .gitignore
+# ===================================
+
+# ============ Dependencies ============
+node_modules/
+.pnp
+.pnp.js
+
+# ============ Environment Variables ============
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+# ============ Python ============
+# Virtual Environments
 venv/
 .venv/
+env/
+ENV/
 NLP/venv/
 
-# Python cache files
+# Python cache
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.so
 .Python
 
-# IDE
-.idea/
-.vscode/
+# Python builds
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
+# ============ Node.js / TypeScript ============
+# Build outputs
+dist/
+build/
+.next/
+out/
+.cache/
+.vite/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
+
+# ============ IDEs & Editors ============
+# VSCode
+.vscode/
+*.code-workspace
+.history/
+
+# JetBrains (WebStorm, IntelliJ, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ============ Database ============
+# SQLite
+*.sqlite
+*.sqlite3
+*.db
+
+# PostgreSQL
+*.sql
+*.dump
+
+# Prisma
+prisma/.env
+.env.prisma
+
+# ============ Testing ============
+coverage/
+.nyc_output/
+*.coverage
+.pytest_cache/
+.tox/
+
+# ============ Docker ============
+*.log
+docker-compose.override.yml
+
+# ============ AI/ML ============
+# Models & Data
+*.pkl
+*.bin
+*.h5
+*.pt
+*.pth
+faiss_index.bin
+text_chunks.pkl
+
+# ============ Sensitive Files ============
+# API Keys & Secrets
+secrets/
+*.pem
+*.key
+*.cert
+
+# ============ Documentation ============
 # GitHub Copilot
 .github/copilot-instructions.md
+
+# ============ Temporary Files ============
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# ============ OS Generated ============
+.directory
+*.pid
+*.seed
+*.pid.lock
