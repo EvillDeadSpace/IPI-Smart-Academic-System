@@ -22,5 +22,8 @@
     "editor.defaultFormatter": "jock.svg"
   },
   "discord.enabled": true,
-  "cSpell.words": ["autoincrement"]
+  "cSpell.words": ["autoincrement"],
+  "[python]": {
+    "editor.defaultFormatter": "remimarsal.prettier-now"
+  }
 }

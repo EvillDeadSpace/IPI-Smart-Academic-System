@@ -12,6 +12,7 @@ import {
 import { motion } from 'framer-motion'
 import { BACKEND_URL } from '../../constants/storage'
 import { toastError, toastSuccess } from '../../lib/toast'
+import { NLP_URL } from '../../constants/storage'
 
 // Types matching Prisma backend
 interface SubjectInfo {
@@ -70,7 +71,7 @@ interface ExamFormData {
 }
 
 const ProfessorBoard: React.FC = () => {
-    const { studentMail, studentName } = useAuth() // Get professor email and name
+    const { studentMail, studentName } = useAuth() // Get professor email
     const [isLoading, setIsLoading] = useState(true)
     const [subjectsWithStudents, setSubjectsWithStudents] = useState<
         SubjectWithStudents[]
@@ -176,6 +177,64 @@ const ProfessorBoard: React.FC = () => {
                     professorId,
                 }),
             })
+
+            // Get subject name
+            const subjectName =
+                subjectsWithStudents.find(
+                    (s) => s.subject.id === examForm.subjectId
+                )?.subject.name || 'Predmet'
+
+            // Get emails of students enrolled in this specific subject
+            const enrolledStudentEmails =
+                subjectsWithStudents
+                    .find((s) => s.subject.id === examForm.subjectId)
+                    ?.students.map((student) => student.email) || []
+
+            // Format emails for Recipients
+            const recipients = enrolledStudentEmails.map((email) => ({
+                Email: email,
+            }))
+
+            const payload = {
+                subject: examForm.subjectId,
+                subjectName: subjectName,
+                Text: `Novi ispit je zakazan za predmet ${subjectName} dana ${examForm.examTime} u učionici ${examForm.location}. Maksimalan broj bodova: ${examForm.maxPoints}`,
+                Recipients: recipients,
+            }
+
+            // Send notification only if there are students
+            if (recipients.length > 0) {
+                try {
+                    const respone_notification_service = await fetch(
+                        `${NLP_URL}/notification-services`,
+                        {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload),
+                        }
+                    )
+
+                    if (respone_notification_service.ok) {
+                        toastSuccess(
+                            `Email notifikacije poslane za ${recipients.length} studenata!`
+                        )
+                        console.log('Notifikacije poslane studentima')
+                    } else {
+                        const errorText =
+                            await respone_notification_service.text()
+                        toastError('Greška pri slanju email notifikacija')
+                        console.error(
+                            'Greška pri slanju notifikacija:',
+                            errorText
+                        )
+                    }
+                } catch (error) {
+                    toastError(
+                        'Nije moguće povezati se sa servisom za notifikacije'
+                    )
+                    console.error('Notification service error:', error)
+                }
+            }
 
             if (response.ok) {
                 toastSuccess('Ispit uspješno kreiran!')

@@ -108,6 +108,28 @@ const Login: FC = () => {
             setStudentName(data.StudentName)
             login(data.userEmail, data.StudentName, data.TipUsera)
 
+            // If professor, fetch and store professor ID
+            if (data.TipUsera === 'PROFESSOR') {
+                try {
+                    const profResponse = await fetch(
+                        `${BACKEND_URL}/api/professors/email/${data.userEmail}`
+                    )
+                    if (profResponse.ok) {
+                        const profData = await profResponse.json()
+                        const profId = profData.data?.id || profData.id
+                        if (profId) {
+                            localStorage.setItem(
+                                'professorId',
+                                profId.toString()
+                            )
+                            console.log('Professor ID saved:', profId)
+                        }
+                    }
+                } catch (err) {
+                    console.error('Failed to fetch professor ID:', err)
+                }
+            }
+
             // Show success toast and navigate
             toastSuccess('Prijava uspješna — preusmjeravam...')
             setMessage('Login successful! Redirecting...')
