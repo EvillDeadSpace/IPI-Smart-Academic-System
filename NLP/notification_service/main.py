@@ -1,10 +1,13 @@
 from notification_service.initClient import mailjet
 import json
+from notification_service.emailTamplete import format_message_text, create_professional_email_html
+
 
 const_data_for_email = {
     "FromEmail": "amartubic1@gmail.com",
     "FromName": "IPI Smart Akademija",
 }
+
 
 def function_send_notification(received_data):
     print("Function start")
@@ -15,10 +18,21 @@ def function_send_notification(received_data):
         return False
     
     # Map frontend data format to Mailjet API format
+    subject = received_data.get("subjectName", "IPI Akademija - Obaveštenje")
+    message_text = received_data.get("Text", "")
+    recipients = received_data.get("Recipients", [])
+    
+    # Format message text for better readability
+    formatted_message = format_message_text(message_text)
+    
+    # Generate HTML version with formatted text
+    html_content = create_professional_email_html(subject, formatted_message)
+    
     mailjet_data = {
-        "Subject": received_data.get("subjectName", "IPI Akademija - Obaveštenje"),
-        "Text-part": received_data.get("Text", ""),
-        "Recipients": received_data.get("Recipients", [])
+        "Subject": subject,
+        "Text-part": message_text,  # Plain text fallback
+        "Html-part": html_content,   # Beautiful HTML version
+        "Recipients": recipients
     }
     
     # Merge with constant email data

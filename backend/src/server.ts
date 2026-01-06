@@ -12,6 +12,8 @@ const server = app.listen(PORT, () => {
   console.log(`🔐 Auth endpoint: http://localhost:${PORT}/api/auth/login`);
 });
 
+// NEED IMPLEMENTATION OF SOCKETS LATER
+
 // Graceful shutdown
 process.on("SIGTERM", async () => {
   console.log("SIGTERM signal received: closing HTTP server");
