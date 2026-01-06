@@ -8,6 +8,7 @@ import {
     IconCalendarEvent,
     IconX,
     IconPlus,
+    IconTrash,
 } from '@tabler/icons-react'
 import { motion } from 'framer-motion'
 import { BACKEND_URL } from '../../constants/storage'
@@ -251,6 +252,32 @@ const ProfessorBoard: React.FC = () => {
             }
         } catch {
             toastError('Greška pri kreiranju ispita')
+        }
+    }
+
+    const handleDeleteExam = async (examId: number, subjectName: string) => {
+        // Confirmation dialog
+        const confirmed = window.confirm(
+            `Da li ste sigurni da želite obrisati ispit iz predmeta "${subjectName}"?\n\nOva akcija se ne može poništiti.`
+        )
+        
+        if (!confirmed) return
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/exams/${examId}`, {
+                method: 'DELETE',
+            })
+
+            if (response.ok) {
+                toastSuccess('Ispit uspješno obrisan!')
+                // Refresh exams list
+                if (professorId) await fetchProfessorExams(professorId)
+            } else {
+                toastError('Greška pri brisanju ispita')
+            }
+        } catch (error) {
+            console.error('Delete exam error:', error)
+            toastError('Greška pri brisanju ispita')
         }
     }
 
@@ -658,10 +685,10 @@ const ProfessorBoard: React.FC = () => {
                         {exams.map((exam) => (
                             <div
                                 key={exam.id}
-                                className="bg-[#252525] rounded-lg p-4 border border-neutral-700"
+                                className="bg-[#252525] rounded-lg p-4 border border-neutral-700 hover:border-neutral-600 transition-all"
                             >
                                 <div className="flex justify-between items-start">
-                                    <div>
+                                    <div className="flex-1">
                                         <h3 className="text-lg font-bold text-gray-200 mb-2">
                                             {exam.subject.name} (
                                             {exam.subject.code})
@@ -694,9 +721,18 @@ const ProfessorBoard: React.FC = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm font-medium">
-                                        Zakazan
-                                    </span>
+                                    <div className="flex items-center gap-3">
+                                        <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm font-medium">
+                                            Zakazan
+                                        </span>
+                                        <button
+                                            onClick={() => handleDeleteExam(exam.id, exam.subject.name)}
+                                            className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-all hover:scale-110"
+                                            title="Obriši ispit"
+                                        >
+                                            <IconTrash className="w-5 h-5" />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ))}
