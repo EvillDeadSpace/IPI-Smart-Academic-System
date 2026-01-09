@@ -5,7 +5,7 @@
 [![Vite](https://img.shields.io/badge/Vite-5.4-646CFF?logo=vite)](https://vitejs.dev/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
 
-Modern React SPA za akademski menadžment sistem sa AI chatbot integracijom.
+Modern React APP SPA for Academic with implementation AI.
 
 ## ✨ Features
 
