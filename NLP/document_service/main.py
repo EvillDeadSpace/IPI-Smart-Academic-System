@@ -51,17 +51,15 @@ def _add_text_overlay_on_matching_pages(
     any_matched = False
 
     for page_num, page in enumerate(reader.pages):
-        page_text = page.extract_text() or ""
-        
-        # Check if this page should have overlay applied
-        if search_text in page_text:
-            print(f"✅ Match found on page {page_num} - applying overlay")
+        # Always apply overlay on first page for health certificate
+        if page_num == 0:  # Apply overlay only on first page
+            print(f"✅ Applying overlay on page {page_num}")
             any_matched = True
             packet = io.BytesIO()
             can = canvas.Canvas(packet, pagesize=letter)
 
             
-            # --- tvoje koordinate i tekstovi (samo parametrizovano) ---
+            # Draw the text at specified positions
             can.setFont("Times-Roman", 12)
             can.drawString(125, 675, "IPI Akademija Tuzla")
             can.drawString(200, 550, full_name)
