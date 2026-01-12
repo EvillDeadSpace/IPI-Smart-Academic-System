@@ -9,11 +9,9 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 template_path = os.path.join(BASE_DIR, "PraviTekst.pdf")
 
-# Diagnostic info (možeš obrisati)
-print("Script file:", __file__)
-print("cwd:", os.getcwd())
-print("Looking for template at:", template_path)
-print("Template exists:", os.path.exists(template_path))
+# Verify template exists at startup
+if not os.path.exists(template_path):
+    print(f"⚠️  Template not found at: {template_path}")
 
 
 def create_default_template(path):
@@ -55,19 +53,9 @@ def _add_text_overlay_on_matching_pages(
     for page_num, page in enumerate(reader.pages):
         page_text = page.extract_text() or ""
         
-        # DEBUG: print extracted text to see what we're searching
-        print(f"Page {page_num} extracted text preview: {page_text[:200]}...")
-        print(f"Looking for search_text: '{search_text}'")
-        print(f"Match found: {search_text in page_text}")
-
-        # ALWAYS apply overlay for now (ignore search_text to debug positioning)
-        # Once working, change this back to: if search_text in page_text:
-        if True:  # TEMPORARY: always overlay for testing
-            if search_text in page_text:
-                print(f"✅ Search text matched on page {page_num}!")
-            else:
-                print(f"⚠️  Applying overlay anyway for debugging (search text NOT found)")
-            
+        # Check if this page should have overlay applied
+        if search_text in page_text:
+            print(f"✅ Match found on page {page_num} - applying overlay")
             any_matched = True
             packet = io.BytesIO()
             can = canvas.Canvas(packet, pagesize=letter)
