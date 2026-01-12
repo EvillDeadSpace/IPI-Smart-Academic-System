@@ -9,6 +9,7 @@ import StudentCard from './AdminComponents/AdminComponent/StudentCard'
 import ProfessorCard from './AdminComponents/ProfessorComponent/ProfessorCard'
 import RequestCard from './AdminComponents/RequestComponent/RequestCard'
 import NewsCard from './AdminComponents/NewsComponent/NewsCard'
+import { NLP_URL } from '../../constants/storage'
 
 interface DocumentRequest {
     id: number
@@ -338,6 +339,41 @@ const AdminPanel: React.FC = () => {
 
             if (response.ok) {
                 toastSuccess('Korisnik uspješno dodan!')
+
+                try {
+                    // Send email welcome
+                    const response_notification_service = await fetch(
+                        `${NLP_URL}/notification-services`,
+                        {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                type: 'welcome',
+                                studentName: `${formData.firstName} ${formData.lastName}`,
+                                Recipients: [
+                                    {
+                                        Email: formData.email,
+                                        Name: `${formData.firstName} ${formData.lastName}`,
+                                    },
+                                ],
+                            }),
+                        }
+                    )
+                    if (response_notification_service.ok) {
+                        toastSuccess(`Email notifikacija je poslana studentu`)
+                        console.log('Notifikacije poslane studentima')
+                    } else {
+                        const errorText =
+                            await response_notification_service.text()
+                        toastError('Greška pri slanju email notifikacija')
+                        console.error(
+                            'Greška pri slanju notifikacija:',
+                            errorText
+                        )
+                    }
+                } catch (error) {
+                    console.log(error)
+                }
             } else {
                 const errorMsg =
                     (data as { error?: string })?.error || JSON.stringify(data)

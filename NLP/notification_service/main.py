@@ -1,6 +1,6 @@
 from notification_service.initClient import mailjet
 import json
-from notification_service.emailTamplete import format_message_text, create_professional_email_html
+from notification_service.emailTamplete import format_exam_notification, format_welcome_email, create_professional_email_html
 
 
 const_data_for_email = {
@@ -17,13 +17,21 @@ def function_send_notification(received_data):
         print("Need to set all data to notification service work")
         return False
     
-    # Map frontend data format to Mailjet API format
-    subject = received_data.get("subjectName", "IPI Akademija - Obaveštenje")
-    message_text = received_data.get("Text", "")
     recipients = received_data.get("Recipients", [])
-    
-    # Format message text for better readability
-    formatted_message = format_message_text(message_text)
+
+    # Check what type of email was
+    email_type = received_data.get("type", "exam") 
+
+    if email_type == 'welcome':
+        student_name = received_data.get("studentName", "Studente")
+        formatted_message = format_welcome_email(student_name)
+        subject = "Dobrodošli u IPI Smart Akademiju! 🎓"
+        message_text = f"Dobrodošli {student_name}!"  # Plain text fallback
+        
+    elif email_type == "exam":
+        message_text = received_data.get("Text", "")
+        formatted_message = format_exam_notification(message_text)
+        subject = received_data.get("subjectName", "Novi ispit kreiran")
     
     # Generate HTML version with formatted text
     html_content = create_professional_email_html(subject, formatted_message)

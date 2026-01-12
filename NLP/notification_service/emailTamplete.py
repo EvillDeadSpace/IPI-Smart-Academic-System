@@ -1,10 +1,10 @@
 from datetime import datetime
 import re
 
-def format_message_text(text):
+def format_exam_notification(text):
     """
-    Format the message text by replacing keywords with emojis and bold formatting.
-    Also formats ISO datetime strings into a more human-readable.
+    Format the exam notification message with emojis and bold formatting.
+    Also formats ISO datetime strings into a more human-readable format.
     """
     if not text:
         return text
@@ -93,6 +93,77 @@ def format_message_text(text):
     formatted_html += '</div>'
     
     return formatted_html
+
+
+def format_welcome_email(student_name):
+    """
+    Format the welcome email for new students.
+    Args:
+        student_name: Name of the student
+    Returns:
+        Formatted HTML string for welcome message
+    """
+    formatted_html = '<div style="font-size: 16px; line-height: 1.8;">'
+    
+    # Welcome message
+    formatted_html += f'''
+    <p style="margin-bottom: 20px; font-size: 18px;">
+        🎉 <strong>Dobrodošli, {student_name}!</strong>
+    </p>
+    '''
+    
+    # Welcome content
+    formatted_html += '''
+    <div style="background-color: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea;">
+        <p style="margin: 10px 0; font-size: 16px;">
+            Drago nam je što ste se pridružili <strong style="color: #764ba2;">IPI Smart Akademiji</strong>! 🎓
+        </p>
+        <p style="margin: 10px 0; font-size: 16px;">
+            Vaš nalog je uspješno kreiran i sada možete pristupiti svim funkcionalnostima našeg sistema.
+        </p>
+    </div>
+    '''
+    
+    # What's next section
+    formatted_html += '''
+    <div style="background-color: #e8f5e9; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #4caf50;">
+        <p style="margin: 5px 0; font-size: 17px;"><strong>📌 Šta možete uraditi sada:</strong></p>
+        <ul style="margin: 15px 0; padding-left: 20px; font-size: 15px; line-height: 2;">
+            <li>✅ Prijavite se na sistem sa vašim kredencijalima</li>
+            <li>📚 Pregledajte dostupne predmete i studijske programe</li>
+            <li>📅 Proverite raspored ispita i predavanja</li>
+            <li>💬 Koristite AI chatbot za sve vaše upite</li>
+            <li>📧 Pratite obaveštenja na vašem email-u</li>
+        </ul>
+    </div>
+    '''
+    
+    # Support section
+    formatted_html += '''
+    <div style="background-color: #fff3e0; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800;">
+        <p style="margin: 5px 0; font-size: 15px;">
+            💡 <strong>Trebate pomoć?</strong> Naš tim podrške je tu za vas!
+        </p>
+        <p style="margin: 10px 0; font-size: 14px; color: #666;">
+            Kontaktirajte nas na <strong>info@ipi-akademija.ba</strong> ili pozovite <strong>+387 35 258 454</strong>
+        </p>
+    </div>
+    '''
+    
+    # Closing message
+    formatted_html += '''
+    <p style="margin-top: 25px; font-size: 16px; color: #555;">
+        Želimo vam uspješan studij i puno sreće! 🍀
+    </p>
+    <p style="margin-top: 10px; font-size: 15px; color: #764ba2;">
+        <strong>IPI Smart Akademija tim</strong>
+    </p>
+    '''
+    
+    formatted_html += '</div>'
+    
+    return formatted_html
+
 
 def create_professional_email_html(subject, message_text):
     return f"""

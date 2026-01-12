@@ -197,6 +197,7 @@ const ProfessorBoard: React.FC = () => {
             }))
 
             const payload = {
+                type: 'exam',
                 subject: examForm.subjectId,
                 subjectName: subjectName,
                 Text: `Novi ispit je zakazan za predmet ${subjectName} dana ${examForm.examTime} u učionici ${examForm.location}. Maksimalan broj bodova: ${examForm.maxPoints}`,
@@ -260,7 +261,7 @@ const ProfessorBoard: React.FC = () => {
         const confirmed = window.confirm(
             `Da li ste sigurni da želite obrisati ispit iz predmeta "${subjectName}"?\n\nOva akcija se ne može poništiti.`
         )
-        
+
         if (!confirmed) return
 
         try {
@@ -726,7 +727,12 @@ const ProfessorBoard: React.FC = () => {
                                             Zakazan
                                         </span>
                                         <button
-                                            onClick={() => handleDeleteExam(exam.id, exam.subject.name)}
+                                            onClick={() =>
+                                                handleDeleteExam(
+                                                    exam.id,
+                                                    exam.subject.name
+                                                )
+                                            }
                                             className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-all hover:scale-110"
                                             title="Obriši ispit"
                                         >
