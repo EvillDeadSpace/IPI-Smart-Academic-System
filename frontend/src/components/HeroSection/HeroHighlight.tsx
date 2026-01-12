@@ -17,12 +17,17 @@ export function HeroHighlightComponent() {
                     duration: 0.5,
                     ease: [0.4, 0.0, 0.2, 1],
                 }}
-                className="text-2xl px-6 md:text-4xl lg:text-6xl font-bold text-white max-w-4xl leading-relaxed lg:leading-snug text-center mx-auto "
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white max-w-5xl text-center mx-auto px-4 sm:px-6 leading-tight"
             >
-                Sve na jednom mjesto <br />
-                <Highlight className="overflow-hidden text-center text-white mx-auto mt-8 md:mt-12 lg:mt-16">
-                    Internacionalna poslovno-informaciona akademija Tuzla
-                </Highlight>
+                <span className="block ">Sve na jednom mjestu</span>
+                <span className="block">
+                    <span className="inline-block">
+                        <Highlight className="text-white text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl">
+                            Internacionalna poslovno-informaciona akademija
+                            Tuzla
+                        </Highlight>
+                    </span>
+                </span>
             </motion.h1>
         </HeroHighlight>
     )

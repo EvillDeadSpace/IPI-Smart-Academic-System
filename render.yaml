@@ -30,15 +30,22 @@ services:
   - type: web
     name: faculty-nlp
     env: python
-    buildCommand: cd NLP && pip install -r requirements.txt
-    startCommand: cd NLP && python main.py
+    region: frankfurt # EU region za brži odgovor
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
     envVars:
-      - key: GITHUB_TOKEN
-        value: YOUR_GITHUB_TOKEN_HERE
+      - key: PYTHON_VERSION
+        value: 3.10.0
+      - key: OPENROUTER_MODEL
+        value: mistralai/ministral-8b
       - key: FLASK_ENV
         value: production
       - key: PORT
         value: 5000
+      - key: USE_RAG
+        value: false
+    rootDirectory: ./NLP
 
 databases:
   - name: faculty-db

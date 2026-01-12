@@ -1,36 +1,43 @@
 from flask import Blueprint, request, jsonify, send_file
 from app.services import generate_response_with_rag
 from app.nlp_utils import load_text_file, search_in_text
-# PDF generator adapter (loads from ../document-service/main.py)
-from app.pdf_adapter import generate_health_pdf
+from notification_service.main import function_send_notification
+from document_service.main import generate_health_pdf
+import json
 
-
-# Kreiranje Blueprint-a za rute
+# Create Flask Blueprint for main routes
 main_bp = Blueprint('main', __name__)
 
-# Učitaj tekstualni sadržaj jednom prilikom pokretanja aplikacije (fallback)
+# Load text content once at application startup (fallback for non-RAG mode)
 try:
     raw_text = load_text_file('fakultetski_sadržaj.txt')
-    print("✅ Uspešno učitan fakultetski sadržaj")
+    print("✅ Successfully loaded academic content")
 except Exception as e:
-    print(f"❌ Greška pri učitavanju: {e}")
+    print(f"❌ Error loading content: {e}")
     raw_text = ""
 
-# Inicijalizuj RAG sistem
+# Initialize RAG (Retrieval-Augmented Generation) system
+import os
 rag_system = None
-try:
-    from rag_system import RAGSystem
-    rag_system = RAGSystem()
-    print("✅ RAG sistem uspešno inicijalizovan!")
-except Exception as e:
-    print(f"⚠️  RAG sistem nije dostupan: {e}")
-    print("📝 Koristiću keyword-based pretraživanje kao fallback")
+use_rag = os.getenv("USE_RAG", "true").lower() == "true"
+
+if use_rag:
+    try:
+        from rag_system import RAGSystem
+        rag_system = RAGSystem()
+        print("✅ RAG system successfully initialized!")
+    except Exception as e:
+        print(f"⚠️  RAG system not available: {e}")
+        print("📝 Falling back to keyword-based search")
+else:
+    print("⚠️  RAG system disabled via USE_RAG=false")
+    print("📝 Using keyword-based search")
 
 @main_bp.route('/search', methods=['POST'])
 def search():
     """
-    Endpoint za pretraživanje i generisanje odgovora
-    Koristi RAG sistem ako je dostupan, inače keyword search
+    Search endpoint for generating AI responses to user queries.
+    Uses RAG system with vector search if available, otherwise falls back to keyword search.
     """
     data = request.get_json()
     query = data.get('word', '').strip()  
@@ -39,12 +46,12 @@ def search():
         return jsonify({'error': 'Pitanje je obavezno!'}), 400
 
     try:
-        # Pokušaj koristiti RAG sistem
+        # Try using RAG system if available
         if rag_system:
-            # RAG pristup - vector search
+            # RAG approach - retrieve relevant context using vector search
             context = rag_system.get_context_for_llm(query, n_results=3)
             
-            # Generiši odgovor sa RAG kontekstom
+            # Generate AI response with RAG context
             ai_response = generate_response_with_rag(query, context)
             
             return jsonify({
@@ -54,14 +61,14 @@ def search():
                 'context_length': len(context)
             })
         else:
-            # Fallback - keyword search
+            # Fallback to keyword-based search
             relevant_parts = search_in_text(raw_text, query)
             
             if relevant_parts:
-                # Kombinuj najrelevantnije delove kao kontekst
+                # Combine most relevant parts as context
                 context = "\n\n".join(relevant_parts[:3])
                 
-                # Generiši odgovor sa kontekstom
+                # Generate AI response with keyword search context
                 ai_response = generate_response_with_rag(query, context)
                 
                 return jsonify({
@@ -71,7 +78,7 @@ def search():
                     'query': query
                 })
             else:
-                # Ako nema rezultata, vrati poruku
+                # No relevant results found
                 return jsonify({
                     'response': 'Izvinjavam se, ali ne mogu da pronađem relevantne informacije o vašem pitanju u mojoj bazi znanja o IPI Akademiji. 🤔\n\nMožete me pitati o:\n- Studijskim programima\n- Ceni studija\n- Lokaciji fakulteta\n- Profesorima i osoblju\n- Studentskim aktivnostima',
                     'method': 'No results',
@@ -80,12 +87,12 @@ def search():
                 })
                 
     except Exception as e:
-        print(f"❌ Greška: {e}")
+        print(f"❌ Error: {e}")
         return jsonify({'error': f'Greška pri obradi zahteva: {str(e)}'}), 500
 
 @main_bp.route('/status', methods=['GET'])
 def status():
-    """Proverava status servisa i dostupnost komponenti"""
+    """Check service status and component availability"""
     return jsonify({
         'status': True,
         'message': 'IPI Akademija NLP servis je aktivan!',
@@ -100,13 +107,15 @@ def status():
 
 @main_bp.route('/', methods=['GET'])
 def home():
-    """Osnovne informacije o API-ju"""
+    """Basic API information and usage guide"""
     return jsonify({
         'message': 'Dobrodošli u IPI Akademija AI Chatbot API! 🎓',
         'version': '2.0 - RAG Edition',
         'endpoints': {
             '/search': 'POST - Pošaljite pitanje i dobijte odgovor',
-            '/status': 'GET - Proverite status servisa'
+            '/status': 'GET - Proverite status servisa',
+            '/health-certificate': 'POST - Generiši potvrdu o zdravstvenom osiguranju',
+            '/notification-services': 'POST - Pretplatite se na obaveštenja'
         },
         'example': {
             'url': '/search',
@@ -116,13 +125,15 @@ def home():
     })
 
 @main_bp.route('/health-certificate', methods=['POST'])
-# Get a maticniBroj, grad, date of birth, years of study, years
 def healthCertificate():
+    """
+    Generate health certificate PDF for students.
+    Required fields: fullName, jmbg, city, dateOfBirth, yearsOfStudy, academicYear
+    """
     print("Health certificate requested")
-    data = request.get_json(silent=True) or {} 
-    required = ["fullName", "jmbg", "city", "dateOfBirth", "yearsOfStudy", "academicYear"]
+    data = request.get_json(silent=True) or {}
 
-
+    # Generate PDF with student information
     pdf_buf = generate_health_pdf(
         full_name      = data["fullName"],
         jmbg           = data["jmbg"],
@@ -133,10 +144,45 @@ def healthCertificate():
         search_text    = "Potvrđuje se da je "
     )
 
+    # Return PDF as downloadable file
     return send_file(
         pdf_buf,
         mimetype="application/pdf",
-        as_attachment=True,                 # stavi False za inline prikaz
+        as_attachment=True,  # Set to False for inline display
         download_name="health_certificate.pdf",
         max_age=0
     )
+
+@main_bp.route('/notification-services', methods=['POST'])
+def notificationServices():
+    """
+    Handle notification service subscription requests.
+    Expects JSON with 'email' field.
+    """
+    print("Notification service get new request!")
+    
+    data = request.json
+    print(f"Received data:")
+    print(json.dumps(data, indent=2, ensure_ascii=False))
+
+    if not data:
+        print("❌ ERROR: No data provided in request")
+        return jsonify({'error': 'No data provided'}), 400
+    
+    print("\n🚀 Calling function_send_notification...")
+    # Function to connect notification service
+    result = function_send_notification(data)
+    
+    if result:
+        print("✅ Notification sent successfully!")
+    else:
+        print("❌ Error sending notification")
+    
+    print("="*60 + "\n")
+    
+    return jsonify({
+        'success': result,
+        'message': 'Notification processed',
+        'data': data
+    }), 200
+    

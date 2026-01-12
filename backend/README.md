@@ -5,7 +5,7 @@
 [![Prisma](https://img.shields.io/badge/Prisma-6.17-2D3748?logo=prisma)](https://www.prisma.io/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql)](https://www.postgresql.org/)
 
-RESTful API backend za akademski sistem sa Prisma ORM i Vercel serverless deploymentom.
+RESTful API backend for Academic system with Prisma ORM and Vercel serverless deployment.
 
 ## ✨ Features
 

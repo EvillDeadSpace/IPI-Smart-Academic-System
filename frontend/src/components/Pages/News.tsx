@@ -8,9 +8,14 @@ import {
     IconUsers,
     IconBriefcase,
     IconCalendarEvent,
+    IconMessage,
+    IconSend,
+    IconTrash,
 } from '@tabler/icons-react'
 import Chat from '../Chat'
 import { BACKEND_URL } from '../../config'
+import { useAuth } from '../../Context'
+import { toastSuccess, toastError } from '../../lib/toast'
 
 interface NewsItem {
     id: number
@@ -23,11 +28,27 @@ interface NewsItem {
     updatedAt: string
 }
 
+interface Comment {
+    id: string
+    content: string
+    createdAt: string
+    student: {
+        id: number
+        firstName: string
+        lastName: string
+        email: string
+    }
+}
+
 const News: FC = () => {
+    const { studentMail } = useAuth()
     const [selectedCategory, setSelectedCategory] = useState<string>('all')
     const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null)
     const [newsItems, setNewsItems] = useState<NewsItem[]>([])
     const [loading, setLoading] = useState(true)
+    const [comments, setComments] = useState<Comment[]>([])
+    const [newComment, setNewComment] = useState('')
+    const [loadingComments, setLoadingComments] = useState(false)
 
     // Category definitions with background images
     const categories = [
@@ -83,6 +104,85 @@ const News: FC = () => {
         }
         void fetchNews()
     }, [])
+
+    // Fetch comments when news is selected
+    useEffect(() => {
+        if (selectedNews) {
+            fetchComments(selectedNews.id)
+        }
+    }, [selectedNews])
+
+    const fetchComments = async (newsId: number) => {
+        try {
+            setLoadingComments(true)
+            const response = await fetch(
+                `${BACKEND_URL}/api/news/${newsId}/comments`
+            )
+            const data = await response.json()
+            setComments(data)
+        } catch (error) {
+            console.error('Error fetching comments:', error)
+        } finally {
+            setLoadingComments(false)
+        }
+    }
+
+    const handleAddComment = async () => {
+        if (!newComment.trim() || !selectedNews || !studentMail) return
+
+        try {
+            const response = await fetch(
+                `${BACKEND_URL}/api/news/${selectedNews.id}/comments`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: newComment,
+                        email: studentMail,
+                    }),
+                }
+            )
+
+            if (response.ok) {
+                const comment = await response.json()
+                setComments([comment, ...comments])
+                setNewComment('')
+                toastSuccess('Komentar dodat!')
+            } else {
+                const error = await response.json()
+                toastError(error.error || 'Greška prilikom dodavanja')
+            }
+        } catch (error) {
+            console.error('Error adding comment:', error)
+            toastError('Greška prilikom dodavanja komentara')
+        }
+    }
+
+    const handleDeleteComment = async (commentId: string) => {
+        if (!studentMail) return
+
+        try {
+            const response = await fetch(
+                `${BACKEND_URL}/api/news/comments/${commentId}`,
+                {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: studentMail }),
+                }
+            )
+
+            if (response.ok) {
+                setComments(comments.filter((c) => c.id !== commentId))
+                toastSuccess('Komentar obrisan!')
+            } else {
+                const errorData = await response.json()
+                toastError(errorData.error || 'Greška prilikom brisanja')
+            }
+        } catch (error) {
+            console.error('Error deleting comment:', error)
+            toastError('Greška prilikom brisanja komentara')
+        }
+    }
 
     // Filter news by selected category
     const filteredNews =
@@ -392,10 +492,127 @@ const News: FC = () => {
                                     </div>
                                 )}
 
+                                {/* Comments Section */}
+                                <div className="mt-8 pt-6 border-t border-gray-200">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <IconMessage className="w-5 h-5 text-blue-600" />
+                                        <h3 className="text-lg font-bold text-gray-900">
+                                            Komentari ({comments.length})
+                                        </h3>
+                                    </div>
+
+                                    {/* Add Comment */}
+                                    {studentMail ? (
+                                        <div className="mb-6">
+                                            <div className="flex gap-3">
+                                                <input
+                                                    type="text"
+                                                    value={newComment}
+                                                    onChange={(e) =>
+                                                        setNewComment(
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    onKeyPress={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            handleAddComment()
+                                                        }
+                                                    }}
+                                                    placeholder="Dodaj komentar..."
+                                                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                />
+                                                <button
+                                                    onClick={handleAddComment}
+                                                    disabled={
+                                                        !newComment.trim()
+                                                    }
+                                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                                                >
+                                                    <IconSend className="w-4 h-4" />
+                                                    Pošalji
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
+                                            <p className="text-blue-800">
+                                                🔒 Morate biti prijavljeni da
+                                                biste komentarisali
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {/* Comments List */}
+                                    <div className="space-y-4 max-h-64 overflow-y-auto">
+                                        {loadingComments ? (
+                                            <p className="text-gray-500 text-center py-4">
+                                                Učitavanje komentara...
+                                            </p>
+                                        ) : comments.length === 0 ? (
+                                            <p className="text-gray-500 text-center py-4">
+                                                Nema komentara. Budite prvi koji
+                                                će komentarisati!
+                                            </p>
+                                        ) : (
+                                            comments.map((comment) => (
+                                                <div
+                                                    key={comment.id}
+                                                    className="p-4 bg-gray-50 rounded-lg"
+                                                >
+                                                    <div className="flex items-start justify-between mb-2">
+                                                        <div>
+                                                            <p className="font-semibold text-gray-900">
+                                                                {
+                                                                    comment
+                                                                        .student
+                                                                        .firstName
+                                                                }{' '}
+                                                                {
+                                                                    comment
+                                                                        .student
+                                                                        .lastName
+                                                                }
+                                                            </p>
+                                                            <p className="text-xs text-gray-500">
+                                                                {new Date(
+                                                                    comment.createdAt
+                                                                ).toLocaleString(
+                                                                    'bs-BA'
+                                                                )}
+                                                            </p>
+                                                        </div>
+                                                        {studentMail ===
+                                                            comment.student
+                                                                .email && (
+                                                            <button
+                                                                onClick={() =>
+                                                                    handleDeleteComment(
+                                                                        comment.id
+                                                                    )
+                                                                }
+                                                                className="text-red-500 hover:text-red-700 transition-colors"
+                                                            >
+                                                                <IconTrash className="w-4 h-4" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-gray-700">
+                                                        {comment.content}
+                                                    </p>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+
                                 {/* Close Button */}
                                 <div className="mt-8 pt-6 border-t border-gray-200">
                                     <button
-                                        onClick={() => setSelectedNews(null)}
+                                        onClick={() => {
+                                            setSelectedNews(null)
+                                            setComments([])
+                                            setNewComment('')
+                                        }}
                                         className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
                                     >
                                         Zatvori

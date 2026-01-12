@@ -45,6 +45,15 @@ const Chat: FC = () => {
         setShowFastResponses(false) // Hide fast responses after selection
     }
 
+    // Automatically hide fast responses when user starts typing
+    useEffect(() => {
+        if (word.trim() !== '') {
+            setShowFastResponses(false)
+        } else {
+            setShowFastResponses(true)
+        }
+    }, [word])
+
     return (
         <>
             <motion.div
@@ -176,7 +185,9 @@ const Chat: FC = () => {
                                                         scale: 1.05,
                                                         y: -2,
                                                     }}
-                                                    whileTap={{ scale: 0.95 }}
+                                                    whileTap={{
+                                                        scale: 0.95,
+                                                    }}
                                                 >
                                                     {text}
                                                 </motion.button>
