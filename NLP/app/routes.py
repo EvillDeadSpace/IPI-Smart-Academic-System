@@ -17,14 +17,21 @@ except Exception as e:
     raw_text = ""
 
 # Initialize RAG (Retrieval-Augmented Generation) system
+import os
 rag_system = None
-try:
-    from rag_system import RAGSystem
-    rag_system = RAGSystem()
-    print("✅ RAG system successfully initialized!")
-except Exception as e:
-    print(f"⚠️  RAG system not available: {e}")
-    print("📝 Falling back to keyword-based search")
+use_rag = os.getenv("USE_RAG", "true").lower() == "true"
+
+if use_rag:
+    try:
+        from rag_system import RAGSystem
+        rag_system = RAGSystem()
+        print("✅ RAG system successfully initialized!")
+    except Exception as e:
+        print(f"⚠️  RAG system not available: {e}")
+        print("📝 Falling back to keyword-based search")
+else:
+    print("⚠️  RAG system disabled via USE_RAG=false")
+    print("📝 Using keyword-based search")
 
 @main_bp.route('/search', methods=['POST'])
 def search():
