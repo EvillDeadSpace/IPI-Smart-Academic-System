@@ -1,39 +1,12 @@
 services:
-  - type: web
-    name: faculty-frontend
-    env: static
-    buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: ./frontend/dist
-    envVars:
-      - key: NODE_VERSION
-        value: 18.3.1
-
-  - type: web
-    name: faculty-backend
-    env: docker
-    dockerContext: ./backend/SpringBoot_Service
-    dockerfilePath: ./backend/SpringBoot_Service/Dockerfile
-    envVars:
-      - key: SPRING_DATASOURCE_URL
-        fromDatabase:
-          name: faculty-db
-          property: connectionString
-      - key: SPRING_DATASOURCE_USERNAME
-        fromDatabase:
-          name: faculty-db
-          property: user
-      - key: SPRING_DATASOURCE_PASSWORD
-        fromDatabase:
-          name: faculty-db
-          property: password
-
+  # NLP Service - AI Chatbot sa OpenRouter API
   - type: web
     name: faculty-nlp
     env: python
-    region: frankfurt # EU region za brži odgovor
+    region: frankfurt
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: python main.py
+    buildCommand: pip install -r NLP/requirements.txt
+    startCommand: cd NLP && gunicorn --bind 0.0.0.0:$PORT main:app
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.0
@@ -45,9 +18,3 @@ services:
         value: 5000
       - key: USE_RAG
         value: false
-    rootDirectory: ./NLP
-
-databases:
-  - name: faculty-db
-    plan: free
-    ipAllowList: []

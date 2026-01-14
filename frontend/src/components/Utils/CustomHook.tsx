@@ -46,9 +46,9 @@ export const useChatSubmit = () => {
 
                 result = await response.json()
             } catch {
-                // Fallback to PythonAnywhere if local endpoint fails
+                // Fallback to Render if primary endpoint fails
                 response = await fetch(
-                    'https://amartubic.pythonanywhere.com/search',
+                    'https://faculty-nlp.onrender.com/search',
                     {
                         method: 'POST',
                         headers: {

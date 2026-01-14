@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../../Context'
-import { BACKEND_URL } from '../../constants/storage'
+import { BACKEND_URL, NLP_URL } from '../../constants/storage'
 import {
     IconFileText,
     IconHeartbeat,
@@ -197,14 +197,11 @@ const Papirologija: React.FC = () => {
                 academicYear: '24/25',
             }
 
-            const pdfResponse = await fetch(
-                'http://localhost:5000/health-certificate',
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(pdfRequestData),
-                }
-            )
+            const pdfResponse = await fetch(`${NLP_URL}/health-certificate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(pdfRequestData),
+            })
 
             if (!pdfResponse.ok) {
                 toastError(
