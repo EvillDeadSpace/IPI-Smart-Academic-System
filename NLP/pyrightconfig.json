@@ -1,0 +1,17 @@
+{
+  "include": [
+    "app",
+    "document_service",
+    "notification_service",
+    "s3_bucket",
+    "*.py"
+  ],
+  "exclude": ["**/__pycache__", "**/.venv", "**/node_modules"],
+  "typeCheckingMode": "basic",
+  "reportMissingTypeStubs": false,
+  "reportUnknownMemberType": false,
+  "reportUnknownVariableType": false,
+  "reportUnknownArgumentType": false,
+  "pythonVersion": "3.11",
+  "pythonPlatform": "Windows"
+}

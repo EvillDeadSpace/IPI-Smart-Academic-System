@@ -71,6 +71,15 @@ interface ExamFormData {
     maxPoints: number
 }
 
+interface AssignmentFormData {
+    subjectId: number
+    dueDate: string
+    title: string
+    description: string
+    maxPoints: number
+    file: File | null
+}
+
 const ProfessorBoard: React.FC = () => {
     const { studentMail, studentName } = useAuth() // Get professor email
     const [isLoading, setIsLoading] = useState(true)
@@ -87,6 +96,7 @@ const ProfessorBoard: React.FC = () => {
         points: 60,
     })
     const [showExamModal, setShowExamModal] = useState(false)
+    const [showAssignmentModal, setShowAssignmentModal] = useState(false)
     const [exams, setExams] = useState<ExamData[]>([])
     const [professorId, setProfessorId] = useState<number | null>(null)
     const [examForm, setExamForm] = useState<ExamFormData>({
@@ -94,6 +104,14 @@ const ProfessorBoard: React.FC = () => {
         examTime: '',
         location: '',
         maxPoints: 100,
+    })
+    const [assignmentForm, setAssignmentForm] = useState<AssignmentFormData>({
+        subjectId: 0,
+        dueDate: '',
+        title: '',
+        description: '',
+        maxPoints: 100,
+        file: null,
     })
 
     // Convert points (0-100) into grade (5-10) using thresholds
@@ -159,6 +177,74 @@ const ProfessorBoard: React.FC = () => {
             }
         } catch {
             toastError('Greška pri dohvaćanju ispita')
+        }
+    }
+
+    const handleCreateAssignment = async (e: React.FormEvent) => {
+        e.preventDefault()
+
+        if (!assignmentForm.file) {
+            toastError('Morate priložiti fajl!')
+            return
+        }
+
+        if (assignmentForm.subjectId === 0) {
+            toastError('Morate odabrati predmet!')
+            return
+        }
+
+        try {
+            // Get subject name for S3 metadata
+            const subjectName =
+                subjectsWithStudents.find(
+                    (item) => item.subject.id === assignmentForm.subjectId
+                )?.subject.name || 'Nepoznat_Predmet'
+
+            const formData = new FormData()
+
+            formData.append('professor_subject', subjectName)
+            formData.append('assignment', assignmentForm.title)
+            formData.append('file', assignmentForm.file)
+
+            // Za nekad kad budem dalje implemitrao
+            formData.append('subjectId', assignmentForm.subjectId.toString())
+            formData.append('dueDate', assignmentForm.dueDate)
+            formData.append('description', assignmentForm.description)
+            formData.append('maxPoints', assignmentForm.maxPoints.toString())
+
+            if (professorId) {
+                formData.append('professorId', professorId.toString())
+            }
+
+            console.log('Sending:', {
+                professor_subject: subjectName,
+                assignment: assignmentForm.title,
+                file: assignmentForm.file?.name,
+            })
+
+            const response = await fetch(`${NLP_URL}/save_s3`, {
+                method: 'POST',
+                body: formData,
+            })
+
+            if (response.ok) {
+                toastSuccess('Zadaća uspješno kreirana!')
+                setShowAssignmentModal(false)
+                setAssignmentForm({
+                    subjectId: 0,
+                    dueDate: '',
+                    title: '',
+                    description: '',
+                    maxPoints: 100,
+                    file: null,
+                })
+            } else {
+                const errorData = await response.json().catch(() => ({}))
+                toastError(errorData.message || 'Greška pri kreiranju zadaće')
+            }
+        } catch (error) {
+            console.error('Assignment creation error:', error)
+            toastError('Greška pri kreiranju zadaće')
         }
     }
 
@@ -260,7 +346,7 @@ const ProfessorBoard: React.FC = () => {
         const confirmed = window.confirm(
             `Da li ste sigurni da želite obrisati ispit iz predmeta "${subjectName}"?\n\nOva akcija se ne može poništiti.`
         )
-        
+
         if (!confirmed) return
 
         try {
@@ -726,7 +812,96 @@ const ProfessorBoard: React.FC = () => {
                                             Zakazan
                                         </span>
                                         <button
-                                            onClick={() => handleDeleteExam(exam.id, exam.subject.name)}
+                                            onClick={() =>
+                                                handleDeleteExam(
+                                                    exam.id,
+                                                    exam.subject.name
+                                                )
+                                            }
+                                            className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-all hover:scale-110"
+                                            title="Obriši ispit"
+                                        >
+                                            <IconTrash className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+            {/* Assignment  */}
+            <div className="bg-[#1a1a1a] rounded-xl p-6 border border-neutral-800 mb-8">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-200">
+                        Raspored zadaca
+                    </h2>
+                    <button
+                        onClick={() => setShowAssignmentModal(true)}
+                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all"
+                    >
+                        <IconPlus className="w-5 h-5" />
+                        Krairaj zadacu
+                    </button>
+                </div>
+
+                {exams.length === 0 ? (
+                    <div className="text-center py-8 text-gray-400">
+                        <IconCalendarEvent className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                        <p>Nema zakazanih ispita</p>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {exams.map((exam) => (
+                            <div
+                                key={exam.id}
+                                className="bg-[#252525] rounded-lg p-4 border border-neutral-700 hover:border-neutral-600 transition-all"
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div className="flex-1">
+                                        <h3 className="text-lg font-bold text-gray-200 mb-2">
+                                            {exam.subject.name} (
+                                            {exam.subject.code})
+                                        </h3>
+                                        <div className="flex gap-6 text-sm text-gray-400">
+                                            <div className="flex items-center gap-2">
+                                                <IconCalendarEvent className="w-4 h-4" />
+                                                <span>
+                                                    {new Date(
+                                                        exam.examTime
+                                                    ).toLocaleString('bs-BA', {
+                                                        dateStyle: 'medium',
+                                                        timeStyle: 'short',
+                                                    })}
+                                                </span>
+                                            </div>
+                                            {exam.location && (
+                                                <div>
+                                                    <span className="font-medium">
+                                                        Lokacija:
+                                                    </span>{' '}
+                                                    {exam.location}
+                                                </div>
+                                            )}
+                                            <div>
+                                                <span className="font-medium">
+                                                    Max bodova:
+                                                </span>{' '}
+                                                {exam.maxPoints}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm font-medium">
+                                            Zakazan
+                                        </span>
+                                        <button
+                                            onClick={() =>
+                                                handleDeleteExam(
+                                                    exam.id,
+                                                    exam.subject.name
+                                                )
+                                            }
                                             className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-all hover:scale-110"
                                             title="Obriši ispit"
                                         >
@@ -1096,6 +1271,182 @@ const ProfessorBoard: React.FC = () => {
                                     className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-all transform hover:scale-105"
                                 >
                                     Kreiraj Ispit
+                                </button>
+                            </div>
+                        </form>
+                    </motion.div>
+                </div>
+            )}
+            {/* Assignment modal  */}
+            {showAssignmentModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-[#1a1a1a] rounded-xl p-6 w-full max-w-md border border-neutral-800"
+                    >
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl font-bold text-gray-200">
+                                Kreiraj Zadaću
+                            </h2>
+                            <button
+                                onClick={() => setShowAssignmentModal(false)}
+                                className="text-gray-400 hover:text-gray-200"
+                            >
+                                <IconX className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleCreateAssignment}>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-gray-200 mb-2 font-semibold">
+                                        Predmet *
+                                    </label>
+                                    <select
+                                        value={assignmentForm.subjectId}
+                                        onChange={(e) =>
+                                            setAssignmentForm({
+                                                ...assignmentForm,
+                                                subjectId: parseInt(
+                                                    e.target.value
+                                                ),
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
+                                        required
+                                    >
+                                        <option value={0}>
+                                            Odaberi predmet
+                                        </option>
+                                        {subjectsWithStudents.map((item) => (
+                                            <option
+                                                key={item.subject.id}
+                                                value={item.subject.id}
+                                            >
+                                                {item.subject.name} (
+                                                {item.subject.code})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-200 mb-2 font-semibold">
+                                        Naslov zadaće *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={assignmentForm.title}
+                                        onChange={(e) =>
+                                            setAssignmentForm({
+                                                ...assignmentForm,
+                                                title: e.target.value,
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
+                                        placeholder="npr. Domaća zadaća 1"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-200 mb-2 font-semibold">
+                                        Opis
+                                    </label>
+                                    <textarea
+                                        value={assignmentForm.description}
+                                        onChange={(e) =>
+                                            setAssignmentForm({
+                                                ...assignmentForm,
+                                                description: e.target.value,
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none min-h-[100px] resize-y"
+                                        placeholder="Detaljan opis zadaće..."
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-200 mb-2 font-semibold">
+                                        Rok za predaju *
+                                    </label>
+                                    <input
+                                        type="datetime-local"
+                                        value={assignmentForm.dueDate}
+                                        onChange={(e) =>
+                                            setAssignmentForm({
+                                                ...assignmentForm,
+                                                dueDate: e.target.value,
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-200 mb-2 font-semibold">
+                                        Priloži fajl (PDF, DOCX, ZIP) *
+                                    </label>
+                                    <input
+                                        type="file"
+                                        accept=".pdf,.docx,.doc,.zip,.rar"
+                                        onChange={(e) =>
+                                            setAssignmentForm({
+                                                ...assignmentForm,
+                                                file:
+                                                    e.target.files?.[0] || null,
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600 file:cursor-pointer"
+                                        required
+                                    />
+                                    {assignmentForm.file && (
+                                        <p className="text-sm text-gray-400 mt-2">
+                                            Odabran fajl:{' '}
+                                            {assignmentForm.file.name}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-200 mb-2 font-semibold">
+                                        Maksimalni Bodovi
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max="200"
+                                        value={assignmentForm.maxPoints}
+                                        onChange={(e) =>
+                                            setAssignmentForm({
+                                                ...assignmentForm,
+                                                maxPoints: parseInt(
+                                                    e.target.value
+                                                ),
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end gap-3 mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowAssignmentModal(false)
+                                    }
+                                    className="px-6 py-2 text-gray-400 hover:text-gray-200 font-medium transition-colors"
+                                >
+                                    Odustani
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-all transform hover:scale-105"
+                                >
+                                    Kreiraj Zadaću
                                 </button>
                             </div>
                         </form>

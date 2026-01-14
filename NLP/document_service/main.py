@@ -1,13 +1,14 @@
 import io
 import os
+from typing import Optional, Any
 
 # Delay heavy imports (PyPDF2, reportlab) until functions are called so this module
 # can be imported by the Flask app (via adapter) without requiring those packages
 # to be present at import-time.
 
 # Resolve paths relative to this script to avoid cwd differences between editors
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-template_path = os.path.join(BASE_DIR, "PraviTekst.pdf")
+BASE_DIR: str = os.path.dirname(os.path.abspath(__file__))
+template_path: str = os.path.join(BASE_DIR, "PraviTekst.pdf")
 
 # Diagnostic info (možeš obrisati)
 print("Script file:", __file__)
@@ -16,7 +17,7 @@ print("Looking for template at:", template_path)
 print("Template exists:", os.path.exists(template_path))
 
 
-def create_default_template(path):
+def create_default_template(path: str) -> None:
     """Create a simple one-page placeholder PDF so the rest of the script can run during development."""
     # import reportlab here to avoid import-time dependency
     from reportlab.lib.pagesizes import letter
@@ -31,7 +32,7 @@ def create_default_template(path):
 
 
 def _add_text_overlay_on_matching_pages(
-    reader,
+    reader: Any,
     full_name: str,
     jmbg: str,
     city: str,
@@ -39,7 +40,7 @@ def _add_text_overlay_on_matching_pages(
     years_of_study: str,
     academic_year: str,
     search_text: str = "Potvrduje se da je "
-) -> object:
+) -> Any:
     """
     Zadržava tvoju logiku: ako stranica sadrži `search_text`, crta overlay na toj stranici.
     Vraća PdfWriter spreman za zapis u BytesIO.

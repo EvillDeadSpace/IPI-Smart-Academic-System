@@ -1,15 +1,16 @@
 from notification_service.initClient import mailjet
 import json
+from typing import Dict, Any, Optional
 from notification_service.emailTamplete import format_message_text, create_professional_email_html
 
 
-const_data_for_email = {
+const_data_for_email: Dict[str, str] = {
     "FromEmail": "amartubic1@gmail.com",
     "FromName": "IPI Smart Akademija",
 }
 
 
-def function_send_notification(received_data):
+def function_send_notification(received_data: Optional[Dict[str, Any]]) -> bool:
     print("Function start")
     print(f"Received data: {json.dumps(received_data, indent=2)}")
     

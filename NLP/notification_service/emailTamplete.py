@@ -1,7 +1,8 @@
 from datetime import datetime
 import re
+from typing import Optional
 
-def format_message_text(text):
+def format_message_text(text: Optional[str]) -> Optional[str]:
     """
     Format the message text by replacing keywords with emojis and bold formatting.
     Also formats ISO datetime strings into a more human-readable.
@@ -94,7 +95,7 @@ def format_message_text(text):
     
     return formatted_html
 
-def create_professional_email_html(subject, message_text):
+def create_professional_email_html(subject: str, message_text: str) -> str:
     return f"""
     <!DOCTYPE html>
     <html lang="sr">

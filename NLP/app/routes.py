@@ -1,14 +1,19 @@
-from flask import Blueprint, request, jsonify, send_file
+from flask import Blueprint, request, jsonify, send_file, Response
+from typing import Tuple, Optional, Union, Any
+
+from transformers import AutoModelForSemanticSegmentation
 from app.services import generate_response_with_rag
 from app.nlp_utils import load_text_file, search_in_text
 from notification_service.main import function_send_notification
 from document_service.main import generate_health_pdf
 import json
+from s3_bucket.main import upload_file
 
 # Create Flask Blueprint for main routes
-main_bp = Blueprint('main', __name__)
+main_bp: Blueprint = Blueprint('main', __name__)
 
 # Load text content once at application startup (fallback for non-RAG mode)
+raw_text: str
 try:
     raw_text = load_text_file('fakultetski_sadržaj.txt')
     print("✅ Successfully loaded academic content")
@@ -17,7 +22,7 @@ except Exception as e:
     raw_text = ""
 
 # Initialize RAG (Retrieval-Augmented Generation) system
-rag_system = None
+rag_system: Optional[Any] = None
 try:
     from rag_system import RAGSystem
     rag_system = RAGSystem()
@@ -27,7 +32,7 @@ except Exception as e:
     print("📝 Falling back to keyword-based search")
 
 @main_bp.route('/search', methods=['POST'])
-def search():
+def search() -> Tuple[Response, int]:
     """
     Search endpoint for generating AI responses to user queries.
     Uses RAG system with vector search if available, otherwise falls back to keyword search.
@@ -84,7 +89,7 @@ def search():
         return jsonify({'error': f'Greška pri obradi zahteva: {str(e)}'}), 500
 
 @main_bp.route('/status', methods=['GET'])
-def status():
+def status() -> Response:
     """Check service status and component availability"""
     return jsonify({
         'status': True,
@@ -99,7 +104,7 @@ def status():
     })
 
 @main_bp.route('/', methods=['GET'])
-def home():
+def home() -> Response:
     """Basic API information and usage guide"""
     return jsonify({
         'message': 'Dobrodošli u IPI Akademija AI Chatbot API! 🎓',
@@ -118,13 +123,13 @@ def home():
     })
 
 @main_bp.route('/health-certificate', methods=['POST'])
-def healthCertificate():
+def healthCertificate() -> Response:
     """
     Generate health certificate PDF for students.
     Required fields: fullName, jmbg, city, dateOfBirth, yearsOfStudy, academicYear
     """
     print("Health certificate requested")
-    data = request.get_json(silent=True) or {}
+    data: dict = request.get_json(silent=True) or {}
 
     # Generate PDF with student information
     pdf_buf = generate_health_pdf(
@@ -142,19 +147,18 @@ def healthCertificate():
         pdf_buf,
         mimetype="application/pdf",
         as_attachment=True,  # Set to False for inline display
-        download_name="health_certificate.pdf",
-        max_age=0
+        attachment_filename="health_certificate.pdf"
     )
 
 @main_bp.route('/notification-services', methods=['POST'])
-def notificationServices():
+def notificationServices() -> Tuple[Response, int]:
     """
     Handle notification service subscription requests.
     Expects JSON with 'email' field.
     """
     print("Notification service get new request!")
     
-    data = request.json
+    data: Optional[dict] = request.json
     print(f"Received data:")
     print(json.dumps(data, indent=2, ensure_ascii=False))
 
@@ -178,4 +182,31 @@ def notificationServices():
         'message': 'Notification processed',
         'data': data
     }), 200
+    
+
+
+@main_bp.route('/save_s3', methods=['POST'])
+def save_s3() -> Tuple[Response, int]:
+    print("Health certificate requested")
+
+    # Read all files and metadata from the request
+    file = request.files.get("file")
+    professor_subject = request.form.get("professor_subject")
+    assignment = request.form.get("assignment")
+
+    print(f"Received file: {file}"
+          f", professor_subject: {professor_subject}"
+          f", assignment: {assignment}"
+          )
+    # Validate inputs
+    if not file:
+        return jsonify({"error": "No file provided"}), 400
+
+    if not professor_subject or not assignment:
+        return jsonify({"error": "Missing metadata"}), 400
+
+    # Upload file to S3 bucket
+    upload_file(professor_subject, assignment, file_to_save=file)
+
+    return jsonify({'message': 'Success send file to s3'}), 200
     
