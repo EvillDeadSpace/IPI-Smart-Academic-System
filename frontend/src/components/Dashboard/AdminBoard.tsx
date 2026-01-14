@@ -1,15 +1,13 @@
-// src/components/AdminPanel.tsx
+import { IconLogout, IconSchool } from '@tabler/icons-react'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../Context'
-import { BACKEND_URL } from '../../constants/storage'
-import { IconSchool, IconLogout } from '@tabler/icons-react'
+import { BACKEND_URL, NLP_URL } from '../../constants/storage'
 import { toastError, toastSuccess } from '../../lib/toast'
 import StudentCard from './AdminComponents/AdminComponent/StudentCard'
+import NewsCard from './AdminComponents/NewsComponent/NewsCard'
 import ProfessorCard from './AdminComponents/ProfessorComponent/ProfessorCard'
 import RequestCard from './AdminComponents/RequestComponent/RequestCard'
-import NewsCard from './AdminComponents/NewsComponent/NewsCard'
-import { NLP_URL } from '../../constants/storage'
 
 interface DocumentRequest {
     id: number

@@ -3,7 +3,8 @@
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
-    "source.addMissingImports": "explicit"
+    "source.addMissingImports": "explicit",
+    "source.organizeImports": "explicit"
   },
   "prettier.tabWidth": 2,
   "prettier.useTabs": false,
@@ -12,7 +13,23 @@
   "prettier.jsxSingleQuote": false,
   "prettier.trailingComma": "es5",
   "prettier.arrowParens": "always",
+  "typescript.tsdk": "${workspaceFolder}/frontend/node_modules/typescript/lib",
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[css]": {
@@ -22,8 +39,30 @@
     "editor.defaultFormatter": "jock.svg"
   },
   "discord.enabled": true,
-  "cSpell.words": ["autoincrement"],
+  "cSpell.words": [
+    "autoincrement",
+    "učitavanju",
+    "vijesti"
+  ],
+  "cSpell.allowCompoundWords": true,
+  "cSpell.dictionaryDefinitions": [
+    {
+      "name": "bosnian-domain",
+      "path": ".vscode/cspell-bosnian.txt",
+      "description": "Bosnian vocabulary for Smart Academic System"
+    }
+  ],
+  "cSpell.dictionaries": ["bosnian-domain"],
+  "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+  "python.formatting.provider": "black",
+  "python.linting.enabled": true,
+  "python.linting.flake8Enabled": true,
+  "python.linting.flake8Args": ["--max-line-length=100"],
+  "python.analysis.typeCheckingMode": "basic",
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": ["NLP"],
   "[python]": {
-    "editor.defaultFormatter": "remimarsal.prettier-now"
+    "editor.defaultFormatter": "ms-python.black-formatter"
   }
 }
