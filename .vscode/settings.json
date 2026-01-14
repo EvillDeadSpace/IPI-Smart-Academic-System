@@ -39,11 +39,7 @@
     "editor.defaultFormatter": "jock.svg"
   },
   "discord.enabled": true,
-  "cSpell.words": [
-    "autoincrement",
-    "učitavanju",
-    "vijesti"
-  ],
+  "cSpell.words": ["autoincrement", "učitavanju", "vijesti"],
   "cSpell.allowCompoundWords": true,
   "cSpell.dictionaryDefinitions": [
     {
