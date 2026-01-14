@@ -59,6 +59,25 @@
   "python.testing.unittestEnabled": false,
   "python.testing.pytestArgs": ["NLP"],
   "[python]": {
-    "editor.defaultFormatter": "remimarsal.prettier-now"
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.completeFunctionParens": true,
+  "python.analysis.diagnosticMode": "workspace",
+  "python.analysis.inlayHints.functionReturnTypes": true,
+  "python.analysis.inlayHints.variableTypes": true,
+  "python.analysis.autoSearchPaths": true,
+  "python.languageServer": "Pylance",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/NLP",
+    "${workspaceFolder}/NLP/app",
+    "${workspaceFolder}/NLP/document_service",
+    "${workspaceFolder}/NLP/notification_service",
+    "${workspaceFolder}/NLP/s3_bucket"
+  ],
+  "python-envs.defaultEnvManager": "ms-python.python:system",
+  "python-envs.pythonProjects": []
+    "editor.defaultFormatter": "ms-python.black-formatter"
   }
 }
