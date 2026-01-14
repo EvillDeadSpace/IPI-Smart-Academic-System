@@ -283,6 +283,7 @@ const ProfessorBoard: React.FC = () => {
             }))
 
             const payload = {
+                type: 'exam',
                 subject: examForm.subjectId,
                 subjectName: subjectName,
                 Text: `Novi ispit je zakazan za predmet ${subjectName} dana ${examForm.examTime} u učionici ${examForm.location}. Maksimalan broj bodova: ${examForm.maxPoints}`,

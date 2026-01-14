@@ -2,100 +2,193 @@ from datetime import datetime
 import re
 from typing import Optional
 
+
 def format_message_text(text: Optional[str]) -> Optional[str]:
     """
-    Format the message text by replacing keywords with emojis and bold formatting.
-    Also formats ISO datetime strings into a more human-readable.
+    Format the exam notification message with emojis and bold formatting.
+    Also formats ISO datetime strings into a more human-readable format.
     """
     if not text:
         return text
-    
+
     # Extract structured information from the text
     exam_info = {
-        'subject': None,
-        'date': None,
-        'time': None,
-        'classroom': None,
-        'max_points': None
+        "subject": None,
+        "date": None,
+        "time": None,
+        "classroom": None,
+        "max_points": None,
     }
-    
+
     # Parse ISO datetime
-    datetime_match = re.search(r'(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})', text)
+    datetime_match = re.search(r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})", text)
     if datetime_match:
         try:
             dt = datetime.fromisoformat(datetime_match.group(1))
             months_sr = {
-                1: "januara", 2: "februara", 3: "marta", 4: "aprila",
-                5: "maja", 6: "juna", 7: "jula", 8: "avgusta",
-                9: "septembra", 10: "oktobra", 11: "novembra", 12: "decembra"
+                1: "januara",
+                2: "februara",
+                3: "marta",
+                4: "aprila",
+                5: "maja",
+                6: "juna",
+                7: "jula",
+                8: "avgusta",
+                9: "septembra",
+                10: "oktobra",
+                11: "novembra",
+                12: "decembra",
             }
-            exam_info['date'] = f"{dt.day}. {months_sr[dt.month]} {dt.year}."
-            exam_info['time'] = f"{dt.hour:02d}:{dt.minute:02d}h"
+            exam_info["date"] = f"{dt.day}. {months_sr[dt.month]} {dt.year}."
+            exam_info["time"] = f"{dt.hour:02d}:{dt.minute:02d}h"
         except:
             pass
-    
+
     # Parse subject
-    subject_match = re.search(r'predmet\s+([A-ZŠĐČĆŽ][a-zšđčćž\s\d]+?)(?:\s+\d{4}|\s+dana|\s+u)', text)
+    subject_match = re.search(
+        r"predmet\s+([A-ZŠĐČĆŽ][a-zšđčćž\s\d]+?)(?:\s+\d{4}|\s+dana|\s+u)", text
+    )
     if subject_match:
-        exam_info['subject'] = subject_match.group(1).strip()
-    
+        exam_info["subject"] = subject_match.group(1).strip()
+
     # Parse classroom
-    classroom_match = re.search(r'učionici\s+([A-Z0-9a-z]+)', text)
+    classroom_match = re.search(r"učionici\s+([A-Z0-9a-z]+)", text)
     if classroom_match:
-        exam_info['classroom'] = classroom_match.group(1)
-    
+        exam_info["classroom"] = classroom_match.group(1)
+
     # Parse max points
-    points_match = re.search(r'(?:Maksimalan broj bodova:|bodova:)\s*(\d+)', text)
+    points_match = re.search(r"(?:Maksimalan broj bodova:|bodova:)\s*(\d+)", text)
     if points_match:
-        exam_info['max_points'] = points_match.group(1)
-    
+        exam_info["max_points"] = points_match.group(1)
+
     # Create beautiful formatted HTML
     formatted_html = '<div style="font-size: 16px; line-height: 1.8;">'
-    
+
     # Opening message
     formatted_html += '<p style="margin-bottom: 20px; font-size: 17px;">📢 <strong>Novi ispit je zakazan!</strong></p>'
-    
+
     # Subject info
-    if exam_info['subject']:
-        subject_emoji = '📐' if 'Matematika' in exam_info['subject'] else '💻' if 'Programiranje' in exam_info['subject'] else '🔬' if 'Fizika' in exam_info['subject'] else '📚'
-        formatted_html += f'''
+    if exam_info["subject"]:
+        subject_emoji = (
+            "📐"
+            if "Matematika" in exam_info["subject"]
+            else (
+                "💻"
+                if "Programiranje" in exam_info["subject"]
+                else "🔬" if "Fizika" in exam_info["subject"] else "📚"
+            )
+        )
+        formatted_html += f"""
         <div style="background-color: #f0f4ff; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #667eea;">
             <p style="margin: 5px 0;"><strong>Predmet:</strong> {subject_emoji} <span style="color: #764ba2; font-size: 18px;">{exam_info['subject']}</span></p>
         </div>
-        '''
-    
+        """
+
     # Date, Time, Classroom in nice boxes
     formatted_html += '<div style="display: table; width: 100%; margin-bottom: 20px;">'
-    
-    if exam_info['date'] or exam_info['time']:
-        formatted_html += '''
+
+    if exam_info["date"] or exam_info["time"]:
+        formatted_html += """
         <div style="background-color: #fff3e0; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #ff9800;">
             <p style="margin: 5px 0;">📅 <strong>Datum:</strong> <span style="font-size: 17px;">{}</span></p>
             <p style="margin: 5px 0;">🕐 <strong>Vrijeme:</strong> <span style="font-size: 17px;">{}</span></p>
         </div>
-        '''.format(exam_info['date'] or 'N/A', exam_info['time'] or 'N/A')
-    
-    if exam_info['classroom']:
-        formatted_html += f'''
+        """.format(
+            exam_info["date"] or "N/A", exam_info["time"] or "N/A"
+        )
+
+    if exam_info["classroom"]:
+        formatted_html += f"""
         <div style="background-color: #e8f5e9; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #4caf50;">
             <p style="margin: 5px 0;">🚪 <strong>Učionica:</strong> <span style="font-size: 17px; color: #2e7d32;">{exam_info['classroom']}</span></p>
         </div>
-        '''
-    
-    if exam_info['max_points']:
-        formatted_html += f'''
+        """
+
+    if exam_info["max_points"]:
+        formatted_html += f"""
         <div style="background-color: #fce4ec; padding: 12px; border-radius: 8px; border-left: 4px solid #e91e63;">
             <p style="margin: 5px 0;">🎯 <strong>Maksimalan broj bodova:</strong> <span style="font-size: 18px; color: #c2185b;">{exam_info['max_points']} bodova</span></p>
         </div>
-        '''
-    
-    formatted_html += '</div>'
+        """
+
+    formatted_html += "</div>"
     formatted_html += '<p style="margin-top: 20px; font-size: 15px; color: #666;">Molimo vas da se blagovremeno pripremite za ispit. Srećno! 🍀</p>'
-    formatted_html += '</div>'
-    
+    formatted_html += "</div>"
+
     return formatted_html
 
-def create_professional_email_html(subject: str, message_text: str) -> str:
+
+def format_welcome_email(student_name):
+    """
+    Format the welcome email for new students.
+    Args:
+        student_name: Name of the student
+    Returns:
+        Formatted HTML string for welcome message
+    """
+    formatted_html = '<div style="font-size: 16px; line-height: 1.8;">'
+
+    # Welcome message
+    formatted_html += f"""
+    <p style="margin-bottom: 20px; font-size: 18px;">
+        🎉 <strong>Dobrodošli, {student_name}!</strong>
+    </p>
+    """
+
+    # Welcome content
+    formatted_html += """
+    <div style="background-color: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea;">
+        <p style="margin: 10px 0; font-size: 16px;">
+            Drago nam je što ste se pridružili <strong style="color: #764ba2;">IPI Smart Akademiji</strong>! 🎓
+        </p>
+        <p style="margin: 10px 0; font-size: 16px;">
+            Vaš nalog je uspješno kreiran i sada možete pristupiti svim funkcionalnostima našeg sistema.
+        </p>
+    </div>
+    """
+
+    # What's next section
+    formatted_html += """
+    <div style="background-color: #e8f5e9; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #4caf50;">
+        <p style="margin: 5px 0; font-size: 17px;"><strong>📌 Šta možete uraditi sada:</strong></p>
+        <ul style="margin: 15px 0; padding-left: 20px; font-size: 15px; line-height: 2;">
+            <li>✅ Prijavite se na sistem sa vašim kredencijalima</li>
+            <li>📚 Pregledajte dostupne predmete i studijske programe</li>
+            <li>📅 Proverite raspored ispita i predavanja</li>
+            <li>💬 Koristite AI chatbot za sve vaše upite</li>
+            <li>📧 Pratite obaveštenja na vašem email-u</li>
+        </ul>
+    </div>
+    """
+
+    # Support section
+    formatted_html += """
+    <div style="background-color: #fff3e0; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800;">
+        <p style="margin: 5px 0; font-size: 15px;">
+            💡 <strong>Trebate pomoć?</strong> Naš tim podrške je tu za vas!
+        </p>
+        <p style="margin: 10px 0; font-size: 14px; color: #666;">
+            Kontaktirajte nas na <strong>info@ipi-akademija.ba</strong> ili pozovite <strong>+387 35 258 454</strong>
+        </p>
+    </div>
+    """
+
+    # Closing message
+    formatted_html += """
+    <p style="margin-top: 25px; font-size: 16px; color: #555;">
+        Želimo vam uspješan studij i puno sreće! 🍀
+    </p>
+    <p style="margin-top: 10px; font-size: 15px; color: #764ba2;">
+        <strong>IPI Smart Akademija tim</strong>
+    </p>
+    """
+
+    formatted_html += "</div>"
+
+    return formatted_html
+
+
+def create_professional_email_html(subject, message_text):
     return f"""
     <!DOCTYPE html>
     <html lang="sr">
