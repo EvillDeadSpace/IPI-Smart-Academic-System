@@ -118,6 +118,14 @@ def format_message_text(text: Optional[str]) -> Optional[str]:
     return formatted_html
 
 
+def format_exam_notification(message_text: str) -> str:
+    """
+    Format exam notification message.
+    This is a wrapper around format_message_text for exam notifications.
+    """
+    return format_message_text(message_text) or message_text
+
+
 def format_welcome_email(student_name):
     """
     Format the welcome email for new students.

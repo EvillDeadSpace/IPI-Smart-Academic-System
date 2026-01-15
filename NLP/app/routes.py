@@ -170,7 +170,7 @@ def healthCertificate() -> Response:
         pdf_buf,
         mimetype="application/pdf",
         as_attachment=True,  # Set to False for inline display
-        attachment_filename="health_certificate.pdf",
+        download_name="health_certificate.pdf",
     )
 
 

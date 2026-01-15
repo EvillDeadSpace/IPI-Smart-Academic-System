@@ -2,8 +2,9 @@ from notification_service.initClient import mailjet
 import json
 from typing import Dict, Any, Optional
 from notification_service.emailTamplete import (
-    format_message_text,
     create_professional_email_html,
+    format_exam_notification,
+    format_welcome_email,
 )
 
 
