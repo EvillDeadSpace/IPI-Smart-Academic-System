@@ -1,13 +1,17 @@
 from flask import Blueprint, request, jsonify, send_file, Response
-from typing import Tuple, Optional, Union, Any
+from typing import Tuple, Optional
 
-from transformers import AutoModelForSemanticSegmentation
 from app.services import generate_response_with_rag
 from app.nlp_utils import load_text_file, search_in_text
+
 from notification_service.main import function_send_notification
 from document_service.main import generate_health_pdf
 import json
-from s3_bucket.main import upload_file
+from s3_bucket.main import upload_file, get_all_files_s3
+
+from s3_bucket.main import get_file_stream
+import io
+import mimetypes
 
 # Create Flask Blueprint for main routes
 main_bp: Blueprint = Blueprint("main", __name__)
@@ -170,7 +174,7 @@ def healthCertificate() -> Response:
         pdf_buf,
         mimetype="application/pdf",
         as_attachment=True,  # Set to False for inline display
-        download_name="health_certificate.pdf",
+        attachment_filename="health_certificate.pdf",
     )
 
 
@@ -232,3 +236,51 @@ def save_s3() -> Tuple[Response, int]:
     upload_file(professor_subject, assignment, file_to_save=file)
 
     return jsonify({"message": "Success send file to s3"}), 200
+
+
+@main_bp.route("/get_all_file_s3", methods=["GET"])
+def get_file_s3() -> Tuple[Response, int]:
+    professor_subject = request.args.get("subject")
+
+    if professor_subject is None:
+        return jsonify({"error": "problem with payload need professor subject"}), 400
+
+    subject = get_all_files_s3(professor_subject)
+
+    return (
+        jsonify({"message": "Success get file from s3", "professor_subject": subject}),
+        200,
+    )
+
+
+@main_bp.route("/get_file_from_s3", methods=["GET"])
+def get_file() -> Tuple[Response, int]:
+    """Download a file from S3 and stream it directly to the user's browser."""
+    folder_name = request.args.get("folder_name")
+    file_name = request.args.get("file_name")
+
+    if not folder_name or not file_name:
+        return jsonify({"error": "Missing folder_name or file_name parameter"}), 400
+
+    try:
+
+        # Get file data from S3
+        file_data = get_file_stream(folder_name, file_name)
+
+        # Create BytesIO object for send_file
+        file_buffer = io.BytesIO(file_data)
+        file_buffer.seek(0)
+
+        # Guess MIME type
+        mime_type, _ = mimetypes.guess_type(file_name)
+
+        response = send_file(
+            file_buffer,
+            mimetype=mime_type or "application/octet-stream",
+            as_attachment=True,
+            download_name=file_name,  # type: ignore
+        )
+        return response, 200
+    except Exception as e:
+        print(f"❌ Error in /get_file_from_s3: {e}")
+        return jsonify({"error": str(e)}), 500
