@@ -196,6 +196,77 @@ def format_welcome_email(student_name):
     return formatted_html
 
 
+def format_assignment_notification(message_text: str, subject: str) -> str:
+    """
+    Format assignment notification message with beautiful styling.
+    Args:
+        message_text: The assignment description/details
+        subject: Subject name for the assignment
+    Returns:
+        Formatted HTML string for assignment notification
+    """
+    formatted_html = '<div style="font-size: 16px; line-height: 1.8;">'
+
+    # Opening message with purple theme (matching frontend)
+    formatted_html += '<p style="margin-bottom: 20px; font-size: 17px;">📝 <strong>Nova zadaća je postavljena!</strong></p>'
+
+    # Subject info with purple gradient theme
+    formatted_html += f"""
+    <div style="background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; color: white;">
+        <p style="margin: 0; font-size: 14px; opacity: 0.9;">Predmet:</p>
+        <p style="margin: 5px 0 0 0; font-size: 22px; font-weight: bold;">📚 {subject}</p>
+    </div>
+    """
+
+    # Assignment details
+    formatted_html += f"""
+    <div style="background-color: #faf5ff; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #a855f7;">
+        <p style="margin: 5px 0; font-size: 16px; line-height: 1.6; color: #333;">
+            {message_text}
+        </p>
+    </div>
+    """
+
+    # Instructions section
+    instructions_html = """
+    <div style="background-color: #f0f4ff; padding: 18px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea;">
+        <p style="margin: 5px 0; font-size: 16px;"><strong>📋 Šta dalje?</strong></p>
+        <ul style="margin: 12px 0; padding-left: 20px; font-size: 15px; line-height: 1.8; color: #555;">
+            <li>Prijavite se na <strong>IPI Smart sistem</strong></li>
+            <li>Idite na stranicu <strong>"Zadaće"</strong></li>
+            <li>Pronađite zadaću za predmet <strong>{subject_name}</strong></li>
+            <li>Preuzmite materijale i započnite sa radom</li>
+        </ul>
+    </div>
+    """.format(
+        subject_name=subject
+    )
+    formatted_html += instructions_html
+
+    # Important note
+    formatted_html += """
+    <div style="background-color: #fff3e0; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800; margin-bottom: 20px;">
+        <p style="margin: 5px 0; font-size: 15px;">
+            ⚠️ <strong>Važno:</strong> Redovno proveravajte sistem za nova obaveštenja i rokove!
+        </p>
+    </div>
+    """
+
+    # Closing message
+    formatted_html += """
+    <p style="margin-top: 25px; font-size: 16px; color: #555;">
+        Sretno sa radom! 💪📖
+    </p>
+    <p style="margin-top: 10px; font-size: 15px; color: #7c3aed;">
+        <strong>Vaš profesor</strong>
+    </p>
+    """
+
+    formatted_html += "</div>"
+
+    return formatted_html
+
+
 def create_professional_email_html(subject, message_text):
     return f"""
     <!DOCTYPE html>

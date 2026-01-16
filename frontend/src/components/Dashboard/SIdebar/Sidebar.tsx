@@ -1,18 +1,19 @@
-import { cn } from '../../../lib/utils'
-import { useAuth } from '../../../Context'
-import { useNavigate, useLocation, Link } from 'react-router-dom' // Import Link from react-router-dom
-import { useState } from 'react'
-import { Sidebar, SidebarBody, SidebarLink } from '../../ui/sidebar'
 import {
     IconArrowLeft,
-    IconLayoutDashboard,
-    IconUserCircle,
     IconCalendarEvent,
-    IconClipboardList,
     IconCalendarTime,
+    IconClipboardList,
     IconFileText,
+    IconLayoutDashboard,
+    IconPencilPlus,
+    IconUserCircle,
 } from '@tabler/icons-react'
 import { motion } from 'motion/react'
+import { useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom' // Import Link from react-router-dom
+import { useAuth } from '../../../Context'
+import { cn } from '../../../lib/utils'
+import { Sidebar, SidebarBody, SidebarLink } from '../../ui/sidebar'
 import Dashboard from './Dashboard'
 
 export const Logo = () => {
@@ -89,6 +90,13 @@ export function SidebarDemo() {
             to: '/dashboard/calendar',
             icon: (
                 <IconCalendarEvent className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+            ),
+        },
+        {
+            label: 'Zadaca',
+            to: '/dashboard/homework',
+            icon: (
+                <IconPencilPlus className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
             ),
         },
         {

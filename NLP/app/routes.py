@@ -238,13 +238,14 @@ def save_s3() -> Tuple[Response, int]:
     return jsonify({"message": "Success send file to s3"}), 200
 
 
-@main_bp.route("/get_all_file_s3", methods=["GET"])
+@main_bp.route("/get_all_file_s3", methods=["POST"])
 def get_file_s3() -> Tuple[Response, int]:
-    professor_subject = request.args.get("subject")
+    data = request.get_json()
 
-    if professor_subject is None:
+    if not data or "subject" not in data:
         return jsonify({"error": "problem with payload need professor subject"}), 400
 
+    professor_subject = data["subject"]
     subject = get_all_files_s3(professor_subject)
 
     return (

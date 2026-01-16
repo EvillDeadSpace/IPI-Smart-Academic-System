@@ -1,20 +1,21 @@
-import { useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import Profile from '../Profile/Profile'
-import Settings from '../Profile/ProfileSettings'
-import { useAuth } from '../../../Context'
-import { BACKEND_URL } from '../../../constants/storage'
 import {
     IconBook2,
     IconCalendarEvent,
     IconCertificate,
     IconChartBar,
 } from '@tabler/icons-react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../../Context'
+import { BACKEND_URL } from '../../../constants/storage'
+import { toastError, toastSuccess } from '../../../lib/toast'
+import Papirologija from '../../Faculty/Papirologija'
 import StudentExams from '../../Faculty/StudentExams'
 import StudentSchedule from '../../Faculty/StudentSchedule'
-import Papirologija from '../../Faculty/Papirologija'
-import { toastError, toastSuccess } from '../../../lib/toast'
 import Calendar from '../../Pages/Calendar'
+import Homework from '../../Pages/Homework'
+import Profile from '../Profile/Profile'
+import Settings from '../Profile/ProfileSettings'
 type ProgressShape = {
     progress: {
         passedSubjects: number
@@ -76,6 +77,10 @@ const Dashboard = ({ currentRoute }: { currentRoute: string }) => {
     }
     if (currentRoute === '/dashboard/calendar') {
         return <Calendar />
+    }
+
+    if (currentRoute === '/dashboard/homework') {
+        return <Homework />
     }
 
     return (

@@ -5,6 +5,7 @@ from notification_service.emailTamplete import (
     create_professional_email_html,
     format_exam_notification,
     format_welcome_email,
+    format_assignment_notification,
 )
 
 
@@ -35,8 +36,15 @@ def function_send_notification(received_data: Optional[Dict[str, Any]]) -> bool:
 
     elif email_type == "exam":
         message_text = received_data.get("Text", "")
-        formatted_message = format_exam_notification(message_text)
+        formatted_message = format_exam_notification(message_text or "")
         subject = received_data.get("subjectName", "Novi ispit kreiran")
+    elif email_type == "assignment":
+        message_text = received_data.get("Text", "")
+        subject_name = received_data.get("subject", "Nova zadaća")
+        formatted_message = format_assignment_notification(
+            message_text=message_text, subject=subject_name
+        )
+        subject = f"Nova zadaća - {subject_name}"
 
     # Generate HTML version with formatted text
     html_content = create_professional_email_html(subject, formatted_message)
