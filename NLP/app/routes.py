@@ -150,7 +150,7 @@ def home() -> Response:
 
 
 @main_bp.route("/health-certificate", methods=["POST"])
-def healthCertificate() -> Response:
+def healthCertificate() -> Tuple[Response, int]:
     """
     Generate health certificate PDF for students.
     Required fields: fullName, jmbg, city, dateOfBirth, yearsOfStudy, academicYear
@@ -158,24 +158,49 @@ def healthCertificate() -> Response:
     print("Health certificate requested")
     data: dict = request.get_json(silent=True) or {}
 
-    # Generate PDF with student information
-    pdf_buf = generate_health_pdf(
-        full_name=data["fullName"],
-        jmbg=data["jmbg"],
-        city=data["city"],
-        date_of_birth=data["dateOfBirth"],
-        years_of_study=data["yearsOfStudy"],
-        academic_year=data["academicYear"],
-        search_text="Potvrđuje se da je ",
-    )
+    # Validate required fields
+    required_fields = [
+        "fullName",
+        "jmbg",
+        "city",
+        "dateOfBirth",
+        "yearsOfStudy",
+        "academicYear",
+    ]
+    missing_fields = [field for field in required_fields if not data.get(field)]
 
-    # Return PDF as downloadable file
-    return send_file(
-        pdf_buf,
-        mimetype="application/pdf",
-        as_attachment=True,  # Set to False for inline display
-        attachment_filename="health_certificate.pdf",
-    )
+    if missing_fields:
+        print(f"❌ Missing required fields: {missing_fields}")
+        return (
+            jsonify({"error": f"Missing required fields: {', '.join(missing_fields)}"}),
+            400,
+        )
+
+    try:
+        # Generate PDF with student information
+        pdf_buf = generate_health_pdf(
+            full_name=data["fullName"],
+            jmbg=data["jmbg"],
+            city=data["city"],
+            date_of_birth=data["dateOfBirth"],
+            years_of_study=data["yearsOfStudy"],
+            academic_year=data["academicYear"],
+            search_text="Potvrđuje se da je ",
+        )
+
+        # Return PDF as downloadable file
+        return send_file(
+            pdf_buf,
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name="health_certificate.pdf",  # type: ignore
+        )
+    except Exception as e:
+        print(f"❌ Error generating PDF: {str(e)}")
+        import traceback
+
+        traceback.print_exc()
+        return jsonify({"error": f"Failed to generate PDF: {str(e)}"}), 500
 
 
 @main_bp.route("/notification-services", methods=["POST"])
