@@ -7,7 +7,7 @@ from app.nlp_utils import load_text_file, search_in_text
 from notification_service.main import function_send_notification
 from document_service.main import generate_health_pdf
 import json
-from s3_bucket.main import upload_file, get_all_files_s3
+from s3_bucket.main import delete_file_from_s3, upload_file, get_all_files_s3
 
 from s3_bucket.main import get_file_stream
 import io
@@ -310,3 +310,21 @@ def get_file() -> Tuple[Response, int]:
     except Exception as e:
         print(f"❌ Error in /get_file_from_s3: {e}")
         return jsonify({"error": str(e)}), 500
+
+
+@main_bp.route("/delete_file_s3", methods=["DELETE"])
+def remove_file_s3():
+    data = request.get_json(silent=True) or {}
+    folder_name = data.get("folder_name")
+    file_name = data.get("file_name")
+
+    if not file_name or not folder_name:
+        return jsonify({"error": "Problem with payload for delete file! 🤖"})
+    try:
+        delete_file_from_s3(folder_name, file_name)
+        return (
+            jsonify({"ok": True, "message": f"Deleted {file_name} from {folder_name}"}),
+            200,
+        )
+    except Exception:
+        raise

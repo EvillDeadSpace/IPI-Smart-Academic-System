@@ -708,6 +708,39 @@ const ProfessorBoard: React.FC = () => {
         }
     }
 
+    const handleDeleteAssignment = async (
+        folderName: string,
+        fileName: string
+    ) => {
+        // Confirmation dialog
+        const confirmed = window.confirm(
+            `Da li ste sigurni da želite obrisati zadaću "${fileName}"?\n\nOva akcija se ne može poništiti.`
+        )
+
+        if (!confirmed) return
+
+        try {
+            const response = await fetch(`${NLP_URL}/delete_file_s3`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    folder_name: folderName,
+                    file_name: fileName,
+                }),
+            })
+
+            if (response.ok) {
+                toastSuccess('Zadaća uspješno obrisana!')
+                await fetchAllAssignments()
+            } else {
+                toastError('Greška pri brisanju zadaće')
+            }
+        } catch (error) {
+            console.error('Delete assignment error:', error)
+            toastError('Greška pri brisanju zadaće')
+        }
+    }
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-neutral-900 flex items-center justify-center">
@@ -1027,6 +1060,28 @@ const ProfessorBoard: React.FC = () => {
                                                         <p className="text-xs text-gray-400">
                                                             ✅ Postavljeno
                                                         </p>
+                                                    </div>
+                                                    <div
+                                                        role="button"
+                                                        onClick={() =>
+                                                            handleDeleteAssignment(
+                                                                subjectName,
+                                                                fileName
+                                                            )
+                                                        }
+                                                        className="flex "
+                                                    >
+                                                        <button
+                                                            onClick={() =>
+                                                                handleDeleteAssignment(
+                                                                    subjectName,
+                                                                    fileName
+                                                                )
+                                                            }
+                                                            className="bg-red-500 text-white font-semibold px-5 py-2.5 rounded-lg shadow-md  shadow-red-500/30 hover:bg-red-600  hover:shadow-lg  hover:shadow-red-500/40  active:bg-red-700 active:scale-95 transition-all duration-200 select-none "
+                                                        >
+                                                            Izbriši
+                                                        </button>
                                                     </div>
                                                 </div>
                                                 <div className="absolute inset-0 bg-purple-600/0 group-hover:bg-purple-600/5 rounded-xl transition-colors pointer-events-none" />

@@ -1,4 +1,6 @@
 from threading import local
+
+from flask import jsonify
 from .client import s3_client, endpoint_url
 import json
 from typing import Any
@@ -78,3 +80,15 @@ if __name__ == "__main__":
     # Standalone test: list files
     files = get_all_files_s3("Matematika 1")
     print(f"\nReturned {len(files)} file(s)")
+
+
+def delete_file_from_s3(folder_name, file_name):
+    print("Start function to delete")
+
+    key: str = f"{folder_name}/{file_name}"
+
+    try:
+        s3_client.delete_object(Bucket=endpoint_url or "", Key=key)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
