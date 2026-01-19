@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
 import {
-    IconUserPlus,
-    IconTrash,
-    IconEdit,
-    IconX,
-    IconCheck,
     IconArrowLeft,
-    IconSchool,
     IconBook,
+    IconCheck,
+    IconEdit,
+    IconSchool,
+    IconTrash,
+    IconUserPlus,
+    IconX,
 } from '@tabler/icons-react'
+import { motion } from 'framer-motion'
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../Context'
 import { BACKEND_URL } from '../../constants/storage'
 import { toastError, toastSuccess } from '../../lib/toast'
@@ -52,6 +52,7 @@ const AdminProfessorManagement: React.FC = () => {
         number | null
     >(null)
     const [isLoading, setIsLoading] = useState(true)
+    const [searchTerm, setSearchTerm] = useState('')
 
     const [formData, setFormData] = useState<ProfessorFormData>({
         firstName: '',
@@ -224,6 +225,9 @@ const AdminProfessorManagement: React.FC = () => {
         )
     }
 
+    const filteredSubjects = allSubjects.filter((subject) =>
+        subject.name.toLowerCase().includes(searchTerm)
+    )
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             {/* Top Navigation Bar */}
@@ -539,11 +543,24 @@ const AdminProfessorManagement: React.FC = () => {
                             {/* Subject Selection */}
                             <div className="mb-6">
                                 <label className="block text-gray-700 mb-3 font-medium text-sm">
-                                    Dodijeli Predmete *
+                                    Dodijeli Predmete *{' '}
+                                    <input
+                                        placeholder="Pretrazi predmet..."
+                                        type="text"
+                                        id="search"
+                                        value={searchTerm}
+                                        onChange={(e) =>
+                                            setSearchTerm(
+                                                e.target.value.toLowerCase()
+                                            )
+                                        }
+                                        className="ml-4 bg-gray-100 text-gray-900 border border-gray-300 rounded-lg p-2 w-64 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all text-sm"
+                                    />
                                 </label>
+
                                 <div className="bg-gray-50 border border-gray-300 rounded-lg p-4 max-h-64 overflow-y-auto">
                                     <div className="grid grid-cols-2 gap-2">
-                                        {allSubjects.map((subject) => (
+                                        {filteredSubjects.map((subject) => (
                                             <label
                                                 key={subject.id}
                                                 className="flex items-center gap-2 p-3 hover:bg-white rounded-lg cursor-pointer border border-transparent hover:border-green-200 transition-all"
