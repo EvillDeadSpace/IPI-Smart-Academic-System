@@ -45,14 +45,18 @@ const Chat: FC = () => {
         setShowFastResponses(false) // Hide fast responses after selection
     }
 
-    // Automatically hide fast responses when user starts typing
+    // Show fast responses only when there are no professor/AI messages
+    // and the input is empty. Hide them when user types or when a
+    // non-user message (professor/AI) appears in the conversation.
     useEffect(() => {
-        if (word.trim() !== '') {
+        const hasNonUserMessage = messages.some((m) => !m.isUser)
+
+        if (word.trim() !== '' || hasNonUserMessage) {
             setShowFastResponses(false)
         } else {
             setShowFastResponses(true)
         }
-    }, [word])
+    }, [word, messages])
 
     return (
         <>
