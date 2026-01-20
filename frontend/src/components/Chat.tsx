@@ -1,16 +1,16 @@
-import { FC, useState, useEffect, useRef } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import Lottie from 'lottie-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import animation from '../assets/wired-gradient-981-consultation-hover-conversation.json'
+import { FC, useEffect, useRef, useState } from 'react'
 import { TbArrowBadgeRightFilled } from 'react-icons/tb'
+import animation from '../assets/wired-gradient-981-consultation-hover-conversation.json'
 
 // Chat utils
-import StartPage from './UtilsChat/StartPage'
-import ChatHeader from './UtilsChat/StatusComponent'
 import { useChat } from '../contexts/ChatContext'
 import { useChatSubmit } from './Utils/CustomHook'
 import { LoadingDots } from './UtilsChat/LoadingDots'
 import { MessageText } from './UtilsChat/MessageText'
+import StartPage from './UtilsChat/StartPage'
+import ChatHeader from './UtilsChat/StatusComponent'
 
 const Chat: FC = () => {
     // const for fast response in chat
