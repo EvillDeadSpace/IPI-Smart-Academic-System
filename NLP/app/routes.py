@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify, send_file, Response
 from typing import Tuple, Optional
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 from app.services import generate_response_with_rag
 from app.nlp_utils import load_text_file, search_in_text
@@ -15,6 +17,9 @@ import mimetypes
 
 # Create Flask Blueprint for main routes
 main_bp: Blueprint = Blueprint("main", __name__)
+
+# Initialize limiter (will be bound to app in main.py)
+limiter = Limiter(key_func=get_remote_address)
 
 # Load text content once at application startup (fallback for non-RAG mode)
 raw_text: str
@@ -46,10 +51,12 @@ else:
 
 
 @main_bp.route("/search", methods=["POST"])
+@limiter.limit("10 per 2 minutes")
 def search() -> Tuple[Response, int]:
     """
     Search endpoint for generating AI responses to user queries.
     Uses RAG system with vector search if available, otherwise falls back to keyword search.
+    Rate limited to 10 requests per 2 minutes per IP address.
     """
     data = request.get_json()
     query = data.get("word", "").strip()

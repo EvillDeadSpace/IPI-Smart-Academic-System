@@ -21,7 +21,8 @@ const Chat: FC = () => {
     ]
 
     const { status, isChatOpen, setIsChatOpen } = useChat()
-    const { word, setWord, messages, isLoading, handleSubmit } = useChatSubmit()
+    const { word, setWord, messages, isLoading, handleSubmit, rateLimitError } =
+        useChatSubmit()
     const [showChat, setShowChat] = useState<boolean>(false)
     const [showFastResponses, setShowFastResponses] = useState<boolean>(true)
     const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -205,25 +206,45 @@ const Chat: FC = () => {
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                 >
+                                    {rateLimitError && (
+                                        <div className="mb-3 p-2 bg-yellow-100 border border-yellow-400 rounded-lg text-yellow-800 text-xs text-center">
+                                            ⚠️ Limit dostignut. Pokušajte za 2
+                                            minute.
+                                        </div>
+                                    )}
                                     <form
                                         onSubmit={handleSubmit}
                                         className="relative"
                                     >
                                         <input
-                                            className="w-full px-4 py-3 rounded-full border-2 border-gray-200 
-                                                focus:border-blue-500 focus:outline-none pr-12 transition-all duration-200"
+                                            className={`w-full px-4 py-3 rounded-full border-2 border-gray-200 
+                                                focus:border-blue-500 focus:outline-none pr-12 transition-all duration-200
+                                                ${isLoading ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}`}
                                             type="text"
                                             value={word}
                                             onChange={handleInputChange}
-                                            placeholder="Type your message..."
+                                            placeholder={
+                                                isLoading
+                                                    ? 'Čekam odgovor...'
+                                                    : 'Type your message...'
+                                            }
+                                            disabled={isLoading}
                                         />
                                         <div className="absolute right-3 top-1/2 -translate-y-1/2">
                                             <motion.button
                                                 type="submit"
-                                                className="p-2 bg-blue-500 rounded-full text-white hover:bg-blue-600 
-                                                    transition-colors duration-200 flex items-center justify-center"
-                                                whileHover={{ scale: 1.1 }}
-                                                whileTap={{ scale: 0.9 }}
+                                                className={`p-2 rounded-full text-white transition-colors duration-200 flex items-center justify-center
+                                                    ${isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`}
+                                                whileHover={
+                                                    isLoading
+                                                        ? {}
+                                                        : { scale: 1.1 }
+                                                }
+                                                whileTap={
+                                                    isLoading
+                                                        ? {}
+                                                        : { scale: 0.9 }
+                                                }
                                                 disabled={isLoading}
                                             >
                                                 <TbArrowBadgeRightFilled
