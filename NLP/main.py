@@ -8,11 +8,10 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-# Configure rate limiter: 10 requests per 2 minutes
+# Configure rate limiter WITHOUT default limits (only apply to specific routes)
 limiter = Limiter(
     app=app,
     key_func=get_remote_address,
-    default_limits=["10 per 2 minutes"],
     storage_uri="memory://",
 )
 
