@@ -1,16 +1,17 @@
 import { Suspense, lazy } from 'react'
-import { Routes, Route } from 'react-router-dom'
-import ProtectedRoute from './ProtectedRoute'
-import HeroSite from '../components/HeroSite'
+import { Route, Routes } from 'react-router-dom'
 import Login from '../components/Auth/Login'
 import NotFound from '../components/Auth/NotFound'
-import About from '../components/Pages/About'
-import Programs from '../components/Pages/Programs'
-import News from '../components/Pages/News'
-import Contact from '../components/Pages/Contact'
 import Profile from '../components/Dashboard/Profile/Profile'
 import Settings from '../components/Dashboard/Profile/ProfileSettings'
+import HeroSite from '../components/HeroSite'
+import About from '../components/Pages/About'
 import Calendar from '../components/Pages/Calendar'
+import Contact from '../components/Pages/Contact'
+import Homework from '../components/Pages/Homework'
+import News from '../components/Pages/News'
+import Programs from '../components/Pages/Programs'
+import ProtectedRoute from './ProtectedRoute'
 
 // lazy load heavy dashboard parts
 const MainBoard = lazy(() => import('../components/Dashboard/MainBoard'))
@@ -61,6 +62,7 @@ export default function AppRoutes() {
                     />
                     <Route path="papirologija" element={<Papirologija />} />
                     <Route path="calendar" element={<Calendar />} />
+                    <Route path="homework" element={<Homework />} />
                 </Route>
 
                 <Route

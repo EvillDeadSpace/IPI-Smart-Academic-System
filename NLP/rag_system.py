@@ -8,20 +8,20 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 import pickle
 import os
-from typing import List, Dict
+from typing import List, Dict, Any
 
 
 class RAGSystem:
-    def __init__(self, knowledge_base_path: str = "fakultetski_sadržaj.txt"):
+    def __init__(self, knowledge_base_path: str = "fakultetski_sadržaj.txt") -> None:
         """
         Inicijalizuje RAG sistem sa FAISS vector database
         
         Args:
             knowledge_base_path: Putanja do fakultetskog sadržaja
         """
-        self.knowledge_base_path = knowledge_base_path
-        self.index_path = "faiss_index.bin"
-        self.chunks_path = "text_chunks.pkl"
+        self.knowledge_base_path: str = knowledge_base_path
+        self.index_path: str = "faiss_index.bin"
+        self.chunks_path: str = "text_chunks.pkl"
         
         # Inicijalizuj sentence transformer (podržava srpski jezik)
         print("🔄 Učitavam multilingual embedding model...")
@@ -117,7 +117,7 @@ class RAGSystem:
             print(f"❌ Greška pri učitavanju: {e}")
             self._create_index()
     
-    def search(self, query: str, n_results: int = 3) -> Dict:
+    def search(self, query: str, n_results: int = 3) -> Dict[str, Any]:
         """
         Pretražuje knowledge base i vraća relevantne rezultate
         

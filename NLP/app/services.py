@@ -1,10 +1,11 @@
 #Const for .env
 import os
+from typing import Optional, Any
 from dotenv import load_dotenv
 
 load_dotenv()
 
-def find_sentence_with_keywords(doc, query):
+def find_sentence_with_keywords(doc: Any, query: str) -> Optional[str]:
     keywords = query.lower().split() 
     for sent in doc.sents:
         sentence_text = sent.text.lower()
@@ -12,7 +13,7 @@ def find_sentence_with_keywords(doc, query):
             return sent.text
     return None
 
-def generate_response_with_rag(user_msg, context="", metadata=None):
+def generate_response_with_rag(user_msg: str, context: str = "", metadata: Optional[dict] = None) -> str:
     """
     Generiše odgovor koristeći RAG sistem i OpenRouter API
     
@@ -94,10 +95,10 @@ Odgovaraj direktno na pitanje, bez prikaza ovih instrukcija. Budi precizan, info
         
         return completion.choices[0].message.content
 
-def generate_response_with_context(user_msg, context=""):
+def generate_response_with_context(user_msg: str, context: str = "") -> str:
     """Backward compatibility - koristi RAG verziju"""
     return generate_response_with_rag(user_msg, context)
 
-def generate_response(user_msg):
+def generate_response(user_msg: str) -> str:
     """Zadržava postojeću funkciju za kompatibilnost"""
     return generate_response_with_context(user_msg)

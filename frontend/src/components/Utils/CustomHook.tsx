@@ -7,6 +7,7 @@ export const useChatSubmit = () => {
         { text: string; isUser: boolean }[]
     >([])
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [rateLimitError, setRateLimitError] = useState<boolean>(false)
 
     /**
      * Handles form submission and processes chat messages
@@ -24,6 +25,7 @@ export const useChatSubmit = () => {
         }
 
         setIsLoading(true)
+        setRateLimitError(false)
 
         try {
             let response
@@ -39,6 +41,19 @@ export const useChatSubmit = () => {
                     body: JSON.stringify({ word }),
                     signal: AbortSignal.timeout(5000), // 5 second timeout
                 })
+
+                if (response.status === 429) {
+                    // Rate limit exceeded
+                    setRateLimitError(true)
+                    setMessages((prevMessages) => [
+                        ...prevMessages,
+                        {
+                            text: '⚠️ Dostigli ste limit zahtjeva. Molimo pokušajte ponovo za 2 minute.',
+                            isUser: false,
+                        },
+                    ])
+                    return
+                }
 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`)
@@ -57,6 +72,20 @@ export const useChatSubmit = () => {
                         body: JSON.stringify({ word }),
                     }
                 )
+
+                if (response.status === 429) {
+                    // Rate limit exceeded on fallback
+                    setRateLimitError(true)
+                    setMessages((prevMessages) => [
+                        ...prevMessages,
+                        {
+                            text: '⚠️ Dostigli ste limit zahtjeva. Molimo pokušajte ponovo za 2 minute.',
+                            isUser: false,
+                        },
+                    ])
+                    return
+                }
+
                 result = await response.json()
             }
 
@@ -86,5 +115,5 @@ export const useChatSubmit = () => {
             setIsLoading(false)
         }
     }
-    return { word, setWord, messages, isLoading, handleSubmit }
+    return { word, setWord, messages, isLoading, handleSubmit, rateLimitError }
 }

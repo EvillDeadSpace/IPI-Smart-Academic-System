@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react'
-import { useAuth } from '../../Context'
 import {
-    IconUsers,
-    IconClipboardList,
-    IconUserCircle,
     IconBook,
     IconCalendarEvent,
-    IconX,
+    IconClipboardList,
+    IconFileText,
     IconPlus,
     IconTrash,
+    IconUserCircle,
+    IconUsers,
+    IconX,
 } from '@tabler/icons-react'
 import { motion } from 'framer-motion'
-import { BACKEND_URL } from '../../constants/storage'
+import React, { useEffect, useState } from 'react'
+import { BACKEND_URL, NLP_URL } from '../../constants/storage'
+import { useAuth } from '../../Context'
 import { toastError, toastSuccess } from '../../lib/toast'
-import { NLP_URL } from '../../constants/storage'
 
 // Types matching Prisma backend
 interface SubjectInfo {
@@ -71,6 +71,15 @@ interface ExamFormData {
     maxPoints: number
 }
 
+interface AssignmentFormData {
+    subjectId: number
+    dueDate: string
+    title: string
+    description: string
+    maxPoints: number
+    file: File | null
+}
+
 const ProfessorBoard: React.FC = () => {
     const { studentMail, studentName } = useAuth() // Get professor email
     const [isLoading, setIsLoading] = useState(true)
@@ -87,6 +96,7 @@ const ProfessorBoard: React.FC = () => {
         points: 60,
     })
     const [showExamModal, setShowExamModal] = useState(false)
+    const [showAssignmentModal, setShowAssignmentModal] = useState(false)
     const [exams, setExams] = useState<ExamData[]>([])
     const [professorId, setProfessorId] = useState<number | null>(null)
     const [examForm, setExamForm] = useState<ExamFormData>({
@@ -95,6 +105,21 @@ const ProfessorBoard: React.FC = () => {
         location: '',
         maxPoints: 100,
     })
+    const [assignmentForm, setAssignmentForm] = useState<AssignmentFormData>({
+        subjectId: 0,
+        dueDate: '',
+        title: '',
+        description: '',
+        maxPoints: 100,
+        file: null,
+    })
+    const [isUploading, setIsUploading] = useState(false)
+    const [professorAssignments, setProfessorAssignments] = useState<{
+        [subjectName: string]: string[]
+    }>({})
+    const [assignmentsLoading, setAssignmentsLoading] = useState(false)
+    const [selectedAssignmentSubject, setSelectedAssignmentSubject] =
+        useState<string>('')
 
     // Convert points (0-100) into grade (5-10) using thresholds
     const computeGradeFromPoints = (points: number | null | undefined) => {
@@ -121,6 +146,14 @@ const ProfessorBoard: React.FC = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [studentMail])
+
+    // Fetch assignments when subjects are loaded
+    useEffect(() => {
+        if (subjectsWithStudents.length > 0) {
+            fetchAllAssignments()
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [subjectsWithStudents])
 
     const fetchProfessorData = async () => {
         setIsLoading(true)
@@ -159,6 +192,144 @@ const ProfessorBoard: React.FC = () => {
             }
         } catch {
             toastError('Greška pri dohvaćanju ispita')
+        }
+    }
+
+    const fetchAllAssignments = async () => {
+        setAssignmentsLoading(true)
+        const allAssignments: { [subjectName: string]: string[] } = {}
+
+        try {
+            // Fetch assignments for each subject
+            for (const item of subjectsWithStudents) {
+                const response = await fetch(`${NLP_URL}/get_all_file_s3`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subject: item.subject.name }),
+                })
+
+                if (response.ok) {
+                    const data = await response.json()
+                    const files = data.professor_subject || []
+                    if (files.length > 0) {
+                        allAssignments[item.subject.name] = files
+                    }
+                }
+            }
+
+            setProfessorAssignments(allAssignments)
+        } catch (error) {
+            console.error('❌ Error fetching assignments:', error)
+        } finally {
+            setAssignmentsLoading(false)
+        }
+    }
+
+    const handleCreateAssignment = async (e: React.FormEvent) => {
+        e.preventDefault()
+
+        if (!assignmentForm.file) {
+            toastError('Morate priložiti fajl!')
+            return
+        }
+
+        if (assignmentForm.subjectId === 0) {
+            toastError('Morate odabrati predmet!')
+            return
+        }
+
+        setIsUploading(true)
+
+        try {
+            // Get subject name for S3 metadata
+            const subjectName =
+                subjectsWithStudents.find(
+                    (item) => item.subject.id === assignmentForm.subjectId
+                )?.subject.name || 'Nepoznat_Predmet'
+
+            const formData = new FormData()
+
+            formData.append('professor_subject', subjectName)
+            formData.append('assignment', assignmentForm.title)
+            formData.append('file', assignmentForm.file)
+
+            console.log('📤 Uploadujem:', {
+                professor_subject: subjectName,
+                assignment: assignmentForm.title,
+                file: assignmentForm.file?.name,
+            })
+
+            const response = await fetch(`${NLP_URL}/save_s3`, {
+                method: 'POST',
+                body: formData,
+            })
+
+            if (response.ok) {
+                // Get enrolled students for this subject
+                const enrolledStudentEmails =
+                    subjectsWithStudents
+                        .find((s) => s.subject.id === assignmentForm.subjectId)
+                        ?.students.map((student) => student.email) || []
+
+                // Format emails for Recipients
+                const recipients = enrolledStudentEmails.map((email) => ({
+                    Email: email,
+                }))
+
+                // Send notification only if there are students
+                if (recipients.length > 0) {
+                    const payload = {
+                        type: 'assignment',
+                        subject: subjectName,
+                        Text: `Nova zadaća "${assignmentForm.title}" je postavljena za predmet ${subjectName}. Prijavite se na IPI Smart sistem i preuzmite materijale.`,
+                        Recipients: recipients,
+                    }
+
+                    try {
+                        const response_notification_service = await fetch(
+                            `${NLP_URL}/notification-services`,
+                            {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload),
+                            }
+                        )
+
+                        if (response_notification_service.ok) {
+                            console.log(
+                                '✅ Email notifikacije poslane studentima'
+                            )
+                        } else {
+                            console.error('❌ Greška pri slanju notifikacija')
+                        }
+                    } catch (error) {
+                        console.error('❌ Notification service error:', error)
+                    }
+                }
+
+                toastSuccess('Zadaća uspješno postavljena! 🎉')
+                setShowAssignmentModal(false)
+                setAssignmentForm({
+                    subjectId: 0,
+                    dueDate: '',
+                    title: '',
+                    description: '',
+                    maxPoints: 100,
+                    file: null,
+                })
+                // Refresh assignments list
+                await fetchAllAssignments()
+            } else {
+                const errorData = await response.json().catch(() => ({}))
+                toastError(
+                    errorData.message || 'Greška pri postavljanju zadaće'
+                )
+            }
+        } catch (error) {
+            console.error('❌ Upload error:', error)
+            toastError('Greška pri postavljanju zadaće')
+        } finally {
+            setIsUploading(false)
         }
     }
 
@@ -537,6 +708,39 @@ const ProfessorBoard: React.FC = () => {
         }
     }
 
+    const handleDeleteAssignment = async (
+        folderName: string,
+        fileName: string
+    ) => {
+        // Confirmation dialog
+        const confirmed = window.confirm(
+            `Da li ste sigurni da želite obrisati zadaću "${fileName}"?\n\nOva akcija se ne može poništiti.`
+        )
+
+        if (!confirmed) return
+
+        try {
+            const response = await fetch(`${NLP_URL}/delete_file_s3`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    folder_name: folderName,
+                    file_name: fileName,
+                }),
+            })
+
+            if (response.ok) {
+                toastSuccess('Zadaća uspješno obrisana!')
+                await fetchAllAssignments()
+            } else {
+                toastError('Greška pri brisanju zadaće')
+            }
+        } catch (error) {
+            console.error('Delete assignment error:', error)
+            toastError('Greška pri brisanju zadaće')
+        }
+    }
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-neutral-900 flex items-center justify-center">
@@ -742,6 +946,150 @@ const ProfessorBoard: React.FC = () => {
                                 </div>
                             </div>
                         ))}
+                    </div>
+                )}
+            </div>
+            {/* Assignments Section */}
+            <div className="bg-[#1a1a1a] rounded-xl p-6 border border-neutral-800 mb-8">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-200">
+                        Postavljene Zadaće
+                    </h2>
+                    <button
+                        onClick={() => setShowAssignmentModal(true)}
+                        className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-all"
+                    >
+                        <IconPlus className="w-5 h-5" />
+                        Postavi Zadaću
+                    </button>
+                </div>
+
+                {assignmentsLoading ? (
+                    <div className="text-center py-12">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+                        <p className="text-gray-400">Učitavanje zadaća...</p>
+                    </div>
+                ) : Object.keys(professorAssignments).length === 0 ? (
+                    <div className="text-center py-12 text-gray-400">
+                        <IconClipboardList className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                        <p>Nema postavljenih zadaća</p>
+                    </div>
+                ) : (
+                    <div className="space-y-6">
+                        {/* Subject Tabs */}
+                        <div className="flex gap-2 flex-wrap">
+                            <button
+                                onClick={() => setSelectedAssignmentSubject('')}
+                                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                                    selectedAssignmentSubject === ''
+                                        ? 'bg-purple-600 text-white'
+                                        : 'bg-[#252525] text-gray-400 hover:bg-[#2a2a2a]'
+                                }`}
+                            >
+                                Svi predmeti (
+                                {
+                                    Object.values(professorAssignments).flat()
+                                        .length
+                                }
+                                )
+                            </button>
+                            {Object.entries(professorAssignments).map(
+                                ([subjectName, files]) => (
+                                    <button
+                                        key={subjectName}
+                                        onClick={() =>
+                                            setSelectedAssignmentSubject(
+                                                subjectName
+                                            )
+                                        }
+                                        className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                                            selectedAssignmentSubject ===
+                                            subjectName
+                                                ? 'bg-purple-600 text-white'
+                                                : 'bg-[#252525] text-gray-400 hover:bg-[#2a2a2a]'
+                                        }`}
+                                    >
+                                        {subjectName} ({files.length})
+                                    </button>
+                                )
+                            )}
+                        </div>
+
+                        {/* Assignments Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {Object.entries(professorAssignments)
+                                .filter(
+                                    ([subjectName]) =>
+                                        selectedAssignmentSubject === '' ||
+                                        subjectName ===
+                                            selectedAssignmentSubject
+                                )
+                                .flatMap(([subjectName, files]) =>
+                                    files.map((filePath, index) => {
+                                        const fileName =
+                                            filePath.split('/')[1] || filePath
+                                        const fileExtension =
+                                            fileName
+                                                .split('.')
+                                                .pop()
+                                                ?.toLowerCase() || ''
+
+                                        return (
+                                            <div
+                                                key={`${subjectName}-${index}`}
+                                                className="group relative bg-gradient-to-br from-purple-900/20 to-purple-800/20 hover:from-purple-800/30 hover:to-purple-700/30 p-5 rounded-xl border-2 border-purple-700 hover:border-purple-500 transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/20 hover:scale-105"
+                                            >
+                                                <div className="flex flex-col gap-3">
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="bg-purple-600 p-3 rounded-lg group-hover:bg-purple-500 transition-colors">
+                                                            <IconFileText className="h-6 w-6 text-white" />
+                                                        </div>
+                                                        {fileExtension && (
+                                                            <span className="px-2 py-1 bg-purple-700 text-purple-200 text-xs font-semibold rounded uppercase">
+                                                                {fileExtension}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-xs text-purple-400 font-semibold mb-1">
+                                                            📚 {subjectName}
+                                                        </div>
+                                                        <h4 className="text-white font-semibold text-sm line-clamp-2 mb-2">
+                                                            {fileName}
+                                                        </h4>
+                                                        <p className="text-xs text-gray-400">
+                                                            ✅ Postavljeno
+                                                        </p>
+                                                    </div>
+                                                    <div
+                                                        role="button"
+                                                        onClick={() =>
+                                                            handleDeleteAssignment(
+                                                                subjectName,
+                                                                fileName
+                                                            )
+                                                        }
+                                                        className="flex "
+                                                    >
+                                                        <button
+                                                            onClick={() =>
+                                                                handleDeleteAssignment(
+                                                                    subjectName,
+                                                                    fileName
+                                                                )
+                                                            }
+                                                            className="bg-red-500 text-white font-semibold px-5 py-2.5 rounded-lg shadow-md  shadow-red-500/30 hover:bg-red-600  hover:shadow-lg  hover:shadow-red-500/40  active:bg-red-700 active:scale-95 transition-all duration-200 select-none "
+                                                        >
+                                                            Izbriši
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div className="absolute inset-0 bg-purple-600/0 group-hover:bg-purple-600/5 rounded-xl transition-colors pointer-events-none" />
+                                            </div>
+                                        )
+                                    })
+                                )}
+                        </div>
                     </div>
                 )}
             </div>
@@ -1102,6 +1450,147 @@ const ProfessorBoard: React.FC = () => {
                                     className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-all transform hover:scale-105"
                                 >
                                     Kreiraj Ispit
+                                </button>
+                            </div>
+                        </form>
+                    </motion.div>
+                </div>
+            )}
+            {/* Assignment modal  */}
+            {showAssignmentModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-[#1a1a1a] rounded-xl p-6 w-full max-w-md border border-neutral-800"
+                    >
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl font-bold text-gray-200">
+                                Kreiraj Zadaću
+                            </h2>
+                            <button
+                                onClick={() => setShowAssignmentModal(false)}
+                                className="text-gray-400 hover:text-gray-200"
+                            >
+                                <IconX className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleCreateAssignment}>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-gray-200 mb-2 font-semibold">
+                                        Predmet *
+                                    </label>
+                                    <select
+                                        value={assignmentForm.subjectId}
+                                        onChange={(e) =>
+                                            setAssignmentForm({
+                                                ...assignmentForm,
+                                                subjectId: parseInt(
+                                                    e.target.value
+                                                ),
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
+                                        required
+                                        disabled={isUploading}
+                                    >
+                                        <option value={0}>
+                                            Odaberi predmet
+                                        </option>
+                                        {subjectsWithStudents.map((item) => (
+                                            <option
+                                                key={item.subject.id}
+                                                value={item.subject.id}
+                                            >
+                                                {item.subject.name} (
+                                                {item.subject.code})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-200 mb-2 font-semibold">
+                                        Naziv zadaće *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={assignmentForm.title}
+                                        onChange={(e) =>
+                                            setAssignmentForm({
+                                                ...assignmentForm,
+                                                title: e.target.value,
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
+                                        placeholder="npr. Domaća zadaća 1"
+                                        required
+                                        disabled={isUploading}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-200 mb-2 font-semibold">
+                                        Priloži fajl (PDF, DOCX, ZIP) *
+                                    </label>
+                                    <input
+                                        type="file"
+                                        accept=".pdf,.docx,.doc,.zip,.rar"
+                                        onChange={(e) =>
+                                            setAssignmentForm({
+                                                ...assignmentForm,
+                                                file:
+                                                    e.target.files?.[0] || null,
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600 file:cursor-pointer"
+                                        required
+                                        disabled={isUploading}
+                                    />
+                                    {assignmentForm.file && (
+                                        <p className="text-sm text-gray-400 mt-2 flex items-center gap-2">
+                                            <span>📎</span>
+                                            {assignmentForm.file.name}
+                                            <span className="text-xs text-gray-500">
+                                                (
+                                                {(
+                                                    assignmentForm.file.size /
+                                                    1024 /
+                                                    1024
+                                                ).toFixed(2)}{' '}
+                                                MB)
+                                            </span>
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end gap-3 mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowAssignmentModal(false)
+                                    }
+                                    className="px-6 py-2 text-gray-400 hover:text-gray-200 font-medium transition-colors"
+                                    disabled={isUploading}
+                                >
+                                    Odustani
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-2"
+                                    disabled={isUploading}
+                                >
+                                    {isUploading ? (
+                                        <>
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                            Uploadujem...
+                                        </>
+                                    ) : (
+                                        'Postavi Zadaću'
+                                    )}
                                 </button>
                             </div>
                         </form>
