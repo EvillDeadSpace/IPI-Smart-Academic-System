@@ -20,7 +20,6 @@ interface Homework {
     earnedPoints?: number
 }
 
-// Definiši tip za S3 fajlove (string array)
 type S3File = string
 
 interface SubjectEnrollment {

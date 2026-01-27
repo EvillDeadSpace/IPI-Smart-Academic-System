@@ -223,7 +223,7 @@ def notificationServices() -> Tuple[Response, int]:
     print(json.dumps(data, indent=2, ensure_ascii=False))
 
     if not data:
-        print("❌ ERROR: No data provided in request")
+        print("ERROR: No data provided in request")
         return jsonify({"error": "No data provided"}), 400
 
     print("\n🚀 Calling function_send_notification...")
@@ -231,9 +231,9 @@ def notificationServices() -> Tuple[Response, int]:
     result = function_send_notification(data)
 
     if result:
-        print("✅ Notification sent successfully!")
+        print("Notification sent successfully!")
     else:
-        print("❌ Error sending notification")
+        print("Error sending notification")
 
     print("=" * 60 + "\n")
 
