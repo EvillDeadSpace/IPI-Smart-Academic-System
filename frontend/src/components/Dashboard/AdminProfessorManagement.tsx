@@ -9,49 +9,30 @@ import {
     IconX,
 } from '@tabler/icons-react'
 import { motion } from 'framer-motion'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../Context'
 import { BACKEND_URL } from '../../constants/storage'
 import { toastError, toastSuccess } from '../../lib/toast'
-interface Subject {
-    id: number
-    name: string
-    code: string
-    ects: number
-}
 
-interface Professor {
-    id: number
-    firstName: string
-    lastName: string
-    email: string
-    title: string
-    office: string | null
-    subjects: Subject[]
-}
-
-interface ProfessorFormData {
-    firstName: string
-    lastName: string
-    email: string
-    password: string
-    title: string
-    office: string
-    subjectIds: number[]
-}
+import useFetchProfessorsData from '../../hooks/professorHooks/useFetchProfessorsData'
+import {
+    Professor,
+    ProfessorFormData,
+} from '../../types/AdminTypes/AdminProfessor'
 
 const AdminProfessorManagement: React.FC = () => {
     const navigate = useNavigate()
     const { studentName } = useAuth()
-    const [professors, setProfessors] = useState<Professor[]>([])
-    const [allSubjects, setAllSubjects] = useState<Subject[]>([])
+    const { allSubjects, isLoading, professors, refetch } =
+        useFetchProfessorsData()
+
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isEditMode, setIsEditMode] = useState(false)
     const [selectedProfessorId, setSelectedProfessorId] = useState<
         number | null
     >(null)
-    const [isLoading, setIsLoading] = useState(true)
+
     const [searchTerm, setSearchTerm] = useState('')
 
     const [formData, setFormData] = useState<ProfessorFormData>({
@@ -63,46 +44,6 @@ const AdminProfessorManagement: React.FC = () => {
         office: '',
         subjectIds: [],
     })
-
-    useEffect(() => {
-        fetchProfessors()
-        fetchSubjects()
-    }, [])
-
-    const fetchProfessors = async () => {
-        setIsLoading(true)
-        try {
-            const response = await fetch(`${BACKEND_URL}/api/professors`)
-            if (response.ok) {
-                const data = await response.json()
-                setProfessors(data)
-            }
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
-    const fetchSubjects = async () => {
-        try {
-            const response = await fetch(
-                `${BACKEND_URL}/api/majors/with-subjects`
-            )
-            if (response.ok) {
-                const majors = await response.json()
-                const subjects: Subject[] = []
-                majors.forEach((major: { subjects: Subject[] }) => {
-                    major.subjects.forEach((subject: Subject) => {
-                        if (!subjects.find((s) => s.id === subject.id)) {
-                            subjects.push(subject)
-                        }
-                    })
-                })
-                setAllSubjects(subjects)
-            }
-        } catch {
-            toastError('Greška pri učitavanju predmeta')
-        }
-    }
 
     const openCreateModal = () => {
         setIsEditMode(false)
@@ -154,7 +95,7 @@ const AdminProfessorManagement: React.FC = () => {
                 if (response.ok) {
                     toastSuccess('Profesor uspješno ažuriran!')
                     setIsModalOpen(false)
-                    await fetchProfessors()
+                    await refetch()
                 } else {
                     toastError('Greška pri ažuriranju profesora')
                 }
@@ -169,7 +110,7 @@ const AdminProfessorManagement: React.FC = () => {
                 if (response.ok) {
                     toastSuccess('Profesor uspješno kreiran!')
                     setIsModalOpen(false)
-                    await fetchProfessors()
+                    await refetch()
                 } else {
                     const error = await response.json()
                     toastError(`Greška: ${error.error || 'Unknown error'}`)
@@ -199,7 +140,7 @@ const AdminProfessorManagement: React.FC = () => {
 
             if (response.ok) {
                 toastSuccess('Profesor obrisan!')
-                await fetchProfessors()
+                await refetch()
             } else {
                 toastError('Greška pri brisanju profesora')
             }

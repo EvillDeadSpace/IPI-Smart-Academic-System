@@ -4,45 +4,16 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../Context'
 import { BACKEND_URL, NLP_URL } from '../../constants/storage'
 import { toastError, toastSuccess } from '../../lib/toast'
+import {
+    BackendDocumentRequest,
+    DocumentRequest,
+    StudentFormData,
+} from '../../types/AdminTypes/admin'
+import { BackendNews } from '../../types/NewsTypes/NewsTypes'
 import StudentCard from './AdminComponents/AdminComponent/StudentCard'
 import NewsCard from './AdminComponents/NewsComponent/NewsCard'
 import ProfessorCard from './AdminComponents/ProfessorComponent/ProfessorCard'
 import RequestCard from './AdminComponents/RequestComponent/RequestCard'
-
-interface DocumentRequest {
-    id: number
-    studentName: string
-    email: string
-    documentType: string
-    requestDate: string
-    status: 'PENDING' | 'APPROVED' | 'REJECTED'
-    student?: {
-        firstName: string
-        lastName: string
-        email: string
-    }
-}
-
-interface BackendNews {
-    id: number
-    tagName: string
-    content: string
-    linksParent?: string
-    titles: string
-    likes: number
-}
-
-interface BackendDocumentRequest {
-    id: number
-    documentType: string
-    requestDate: string
-    status: 'PENDING' | 'APPROVED' | 'REJECTED'
-    student: {
-        firstName: string
-        lastName: string
-        email: string
-    }
-}
 
 const AdminPanel: React.FC = () => {
     const navigate = useNavigate()
@@ -283,16 +254,6 @@ const AdminPanel: React.FC = () => {
             console.error('Error deleting news:', error)
             toastError('Greška pri brisanju vijesti')
         }
-    }
-
-    interface StudentFormData {
-        firstName: string
-        lastName: string
-        email: string
-        indexNumber: string
-        dateOfBirth: string
-        majorId: string
-        password: string
     }
 
     const handleAddStudent = async (formData: StudentFormData) => {

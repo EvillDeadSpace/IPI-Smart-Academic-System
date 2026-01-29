@@ -1,23 +1,7 @@
 import { IconPaperBag } from '@tabler/icons-react'
 import { useState } from 'react'
+import { RequestCardProps } from '../../../../types/RequestTypes/Request'
 import RequestModal from './RequestModal'
-
-interface DocumentRequest {
-    id: number
-    studentName: string
-    email: string
-    documentType: string
-    requestDate: string
-    status: 'PENDING' | 'APPROVED' | 'REJECTED'
-}
-
-interface RequestCardProps {
-    requests: DocumentRequest[]
-    loadingRequests: boolean
-    onFetchRequests: () => void
-    onApprove: (id: number) => void
-    onReject: (id: number) => void
-}
 
 export default function RequestCard({
     requests,

@@ -1,89 +1,25 @@
-import React, { useState, useEffect } from 'react'
+import {
+    IconCheck,
+    IconClock,
+    IconDownload,
+    IconFileText,
+    IconX,
+} from '@tabler/icons-react'
+import React, { useState } from 'react'
 import { useAuth } from '../../Context'
 import { BACKEND_URL, NLP_URL } from '../../constants/storage'
-import {
-    IconFileText,
-    IconHeartbeat,
-    IconSchool,
-    IconCertificate,
-    IconClock,
-    IconCheck,
-    IconX,
-    IconDownload,
-} from '@tabler/icons-react'
 
 import { toastError, toastSuccess } from '../../lib/toast'
-interface DocumentRequest {
-    id: number
-    documentType: string
-    status: string
-    requestDate: string
-    processedDate?: string
-    pdfUrl?: string
-    student: {
-        firstName: string
-        lastName: string
-        email: string
-    }
-}
+
+import usePapriologijaFetch from '../../hooks/papirologijaHooks/usePapirologijaHooks'
+import { documentTypes } from '../../types/PapirologijaTypes/papriologija'
 
 const Papirologija: React.FC = () => {
     const { studentMail } = useAuth()
-    const [requests, setRequests] = useState<DocumentRequest[]>([])
-    const [loading, setLoading] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [selectedDocType, setSelectedDocType] = useState('')
 
-    const documentTypes = [
-        {
-            type: 'HEALTH_CERTIFICATE',
-            name: 'Uvjerenje o zdravstvenom osiguranju',
-            icon: IconHeartbeat,
-            color: 'from-red-400 to-red-600',
-            description: 'Za potrebe zdravstvenog osiguranja',
-        },
-        {
-            type: 'STATUS_CONFIRMATION',
-            name: 'Potvrda o statusu studenta',
-            icon: IconSchool,
-            color: 'from-blue-400 to-blue-600',
-            description: 'Za potrebe stipendije, prevoza, itd.',
-        },
-        {
-            type: 'TRANSCRIPT',
-            name: 'Prijepis ocjena',
-            icon: IconCertificate,
-            color: 'from-green-400 to-green-600',
-            description: 'Službeni dokument sa svim ocjenama',
-        },
-        {
-            type: 'ENROLLMENT_CONFIRMATION',
-            name: 'Potvrda o upisu',
-            icon: IconFileText,
-            color: 'from-purple-400 to-purple-600',
-            description: 'Potvrda o upisu na akademsku godinu',
-        },
-    ]
-
-    useEffect(() => {
-        fetchRequests()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    const fetchRequests = async () => {
-        try {
-            setLoading(true)
-            const response = await fetch(
-                `${BACKEND_URL}/api/document-requests?studentEmail=${studentMail}`
-            )
-            if (response.ok) {
-                const data = await response.json()
-                setRequests(data)
-            }
-        } finally {
-            setLoading(false)
-        }
-    }
+    const { loading, requests, refetch } = usePapriologijaFetch(studentMail)
 
     const handleRequestDocument = async (documentType: string) => {
         try {
@@ -124,7 +60,7 @@ const Papirologija: React.FC = () => {
             if (response.ok) {
                 toastSuccess('Zahtjev uspješno poslan!')
                 setIsModalOpen(false)
-                fetchRequests()
+                await refetch()
             } else {
                 const error = await response.json()
                 toastError(`Greška: ${error.error || 'Nepoznata greška'}`)
@@ -317,22 +253,11 @@ const Papirologija: React.FC = () => {
                                                         'bs-BA'
                                                     )}
                                                 </p>
-                                                {request.processedDate && (
-                                                    <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                                                        Obrađeno:{' '}
-                                                        {new Date(
-                                                            request.processedDate
-                                                        ).toLocaleDateString(
-                                                            'bs-BA'
-                                                        )}
-                                                    </p>
-                                                )}
                                             </div>
                                             <div className="flex flex-col sm:items-end gap-2">
                                                 {getStatusBadge(request.status)}
                                                 {request.status ===
-                                                    'APPROVED' &&
-                                                    request.pdfUrl && (
+                                                    'APPROVED' && (
                                                         <button
                                                             onClick={() =>
                                                                 handleDownloadPDF()

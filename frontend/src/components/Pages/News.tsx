@@ -1,109 +1,43 @@
-import { FC, useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
     IconCalendar,
     IconHeart,
-    IconShare,
-    IconTrophy,
-    IconUsers,
-    IconBriefcase,
-    IconCalendarEvent,
     IconMessage,
     IconSend,
+    IconShare,
     IconTrash,
 } from '@tabler/icons-react'
-import Chat from '../Chat'
-import { BACKEND_URL } from '../../config'
+import { AnimatePresence, motion } from 'framer-motion'
+import { FC, useEffect, useState } from 'react'
+import { categories } from '../../constants/news'
 import { useAuth } from '../../Context'
-import { toastSuccess, toastError } from '../../lib/toast'
+import { toastError, toastSuccess } from '../../lib/toast'
+import { NewsItem } from '../../types/NewsTypes/NewsTypes'
 
-interface NewsItem {
-    id: number
-    tagName: string
-    title: string
-    content: string
-    likes: number
-    linksParent?: string
-    createdAt: string
-    updatedAt: string
-}
-
-interface Comment {
-    id: string
-    content: string
-    createdAt: string
-    student: {
-        id: number
-        firstName: string
-        lastName: string
-        email: string
-    }
-}
+import useNewsHooks from '../../hooks/newsHooks/useNewsHooks'
+import Chat from '../Chat'
 
 const News: FC = () => {
     const { studentMail } = useAuth()
     const [selectedCategory, setSelectedCategory] = useState<string>('all')
     const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null)
-    const [newsItems, setNewsItems] = useState<NewsItem[]>([])
-    const [loading, setLoading] = useState(true)
-    const [comments, setComments] = useState<Comment[]>([])
     const [newComment, setNewComment] = useState('')
-    const [loadingComments, setLoadingComments] = useState(false)
 
-    // Category definitions with background images
-    const categories = [
-        {
-            id: 'all',
-            name: 'Sve',
-            icon: IconCalendar,
-            image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&q=85',
-        },
-        {
-            id: 'achievements',
-            name: 'Postignuća',
-            icon: IconTrophy,
-            image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200&q=85',
-        },
-        {
-            id: 'announcements',
-            name: 'Obavještenja',
-            icon: IconUsers,
-            image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=85',
-        },
-        {
-            id: 'partnerships',
-            name: 'Partnerstva',
-            icon: IconBriefcase,
-            image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=1200&q=85',
-        },
-        {
-            id: 'events',
-            name: 'Događaji',
-            icon: IconCalendarEvent,
-            image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&q=85',
-        },
-    ]
+    const {
+        loading,
+        newsItems,
+        comments,
+        setComments,
+        fetchComments,
+        loadingComments,
+        addComment,
+        deleteComment,
+    } = useNewsHooks()
 
     // Get category image by tagName
     const getCategoryImage = (tagName: string) => {
         const category = categories.find((cat) => cat.id === tagName)
         return category?.image || categories[0].image
     }
-
-    useEffect(() => {
-        async function fetchNews() {
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/news`)
-                const data = await response.json()
-                setNewsItems(data)
-            } catch (error) {
-                console.error('Error fetching news:', error)
-            } finally {
-                setLoading(false)
-            }
-        }
-        void fetchNews()
-    }, [])
 
     // Fetch comments when news is selected
     useEffect(() => {
@@ -112,49 +46,23 @@ const News: FC = () => {
         }
     }, [selectedNews])
 
-    const fetchComments = async (newsId: number) => {
-        try {
-            setLoadingComments(true)
-            const response = await fetch(
-                `${BACKEND_URL}/api/news/${newsId}/comments`
-            )
-            const data = await response.json()
-            setComments(data)
-        } catch (error) {
-            console.error('Error fetching comments:', error)
-        } finally {
-            setLoadingComments(false)
-        }
-    }
-
     const handleAddComment = async () => {
         if (!newComment.trim() || !selectedNews || !studentMail) return
 
         try {
-            const response = await fetch(
-                `${BACKEND_URL}/api/news/${selectedNews.id}/comments`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        content: newComment,
-                        email: studentMail,
-                    }),
-                }
-            )
-
-            if (response.ok) {
-                const comment = await response.json()
-                setComments([comment, ...comments])
-                setNewComment('')
-                toastSuccess('Komentar dodat!')
-            } else {
-                const error = await response.json()
-                toastError(error.error || 'Greška prilikom dodavanja')
-            }
-        } catch (error) {
+            await addComment(selectedNews.id, newComment, studentMail)
+            setNewComment('')
+            toastSuccess('Komentar dodat!')
+        } catch (error: unknown) {
             console.error('Error adding comment:', error)
-            toastError('Greška prilikom dodavanja komentara')
+            if (error && typeof error === 'object' && 'message' in error) {
+                toastError(
+                    (error as { message?: string }).message ||
+                        'Greška prilikom dodavanja komentara'
+                )
+            } else {
+                toastError('Greška prilikom dodavanja komentara')
+            }
         }
     }
 
@@ -162,25 +70,18 @@ const News: FC = () => {
         if (!studentMail) return
 
         try {
-            const response = await fetch(
-                `${BACKEND_URL}/api/news/comments/${commentId}`,
-                {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: studentMail }),
-                }
-            )
-
-            if (response.ok) {
-                setComments(comments.filter((c) => c.id !== commentId))
-                toastSuccess('Komentar obrisan!')
-            } else {
-                const errorData = await response.json()
-                toastError(errorData.error || 'Greška prilikom brisanja')
-            }
-        } catch (error) {
+            await deleteComment(commentId, studentMail)
+            toastSuccess('Komentar obrisan!')
+        } catch (error: unknown) {
             console.error('Error deleting comment:', error)
-            toastError('Greška prilikom brisanja komentara')
+            if (error && typeof error === 'object' && 'message' in error) {
+                toastError(
+                    (error as { message?: string }).message ||
+                        'Greška prilikom brisanja komentara'
+                )
+            } else {
+                toastError('Greška prilikom brisanja komentara')
+            }
         }
     }
 

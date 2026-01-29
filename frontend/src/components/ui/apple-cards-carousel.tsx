@@ -1,19 +1,19 @@
 'use client'
-import React, {
-    useEffect,
-    useRef,
-    useState,
-    createContext,
-    useContext,
-    useCallback,
-} from 'react'
 import {
     IconArrowNarrowLeft,
     IconArrowNarrowRight,
     IconX,
 } from '@tabler/icons-react'
-import { cn } from '../../../src/lib/utils'
 import { AnimatePresence, motion } from 'framer-motion'
+import React, {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+} from 'react'
+import { cn } from '../../../src/lib/utils'
 import { useOutsideClick } from '../ui/use-outside-click'
 
 interface CarouselProps {
@@ -266,7 +266,6 @@ export const Card = ({
                 <BlurImage
                     src={card.src}
                     alt={card.title}
-                    fill
                     className="object-cover absolute z-10 inset-0 w-full h-full transform transition-all duration-500 ease-out group-hover:scale-110 group-hover:brightness-110"
                 />
             </motion.button>

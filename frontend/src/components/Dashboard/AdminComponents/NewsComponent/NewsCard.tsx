@@ -2,45 +2,7 @@ import { IconNews } from '@tabler/icons-react'
 import { useState } from 'react'
 import NewsModal from './NewsModal'
 
-interface BackendNews {
-    id: number
-    tagName: string
-    content: string
-    linksParent?: string
-    titles: string
-    likes: number
-}
-
-interface NewsFormData {
-    tagName: string
-    title: string
-    content: string
-    likes: number
-    linksParent: string
-    calendarNews: boolean
-    eventDate: string
-}
-
-interface NewsCardProps {
-    news: BackendNews[]
-    loadingRequests: boolean
-    newsFormData: NewsFormData
-    deleteModalState: {
-        isOpen: boolean
-        newsId: number | null
-        newsTitle: string
-    }
-    onFetchNews: () => void
-    onNewsInputChange: (
-        e: React.ChangeEvent<
-            HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-        >
-    ) => void
-    onNewsSubmit: (e: React.FormEvent) => void
-    onDeleteNews: (id: number) => void
-    onConfirmDelete: () => void
-    onCancelDelete: () => void
-}
+import { NewsCardProps } from '../../../../types/NewsTypes/NewsTypes'
 
 export default function NewsCard({
     news,

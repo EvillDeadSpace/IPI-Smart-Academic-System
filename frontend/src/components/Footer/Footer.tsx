@@ -1,57 +1,15 @@
-import { FC, useState, FormEvent } from 'react'
-import { Link } from 'react-router-dom'
-import { toastSuccess, toastError } from '../../lib/toast'
-import {
-    CiMail,
-    CiPhone,
-    CiLocationOn,
-    CiFacebook,
-    CiInstagram,
-    CiLinkedin,
-    CiYoutube,
-} from 'react-icons/ci'
 import { motion } from 'framer-motion'
+import { FC, FormEvent, useState } from 'react'
+import { CiLocationOn, CiMail, CiPhone } from 'react-icons/ci'
+import { Link } from 'react-router-dom'
+import { toastError, toastSuccess } from '../../lib/toast'
 import { cn } from '../../lib/utils'
+
+import { quickLinks, socialLinks } from '../../constants/links'
 
 const Footer: FC = () => {
     const [email, setEmail] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
-
-    const socialLinks = [
-        {
-            icon: CiYoutube,
-            href: 'https://www.youtube.com/@ipi-akademija',
-            label: 'YouTube',
-            color: 'hover:text-red-400',
-        },
-        {
-            icon: CiFacebook,
-            href: 'https://www.facebook.com/ipiakademija',
-            label: 'Facebook',
-            color: 'hover:text-blue-400',
-        },
-        {
-            icon: CiLinkedin,
-            href: 'https://www.linkedin.com/school/ipi-akademija',
-            label: 'LinkedIn',
-            color: 'hover:text-blue-300',
-        },
-        {
-            icon: CiInstagram,
-            href: 'https://www.instagram.com/ipiakademija',
-            label: 'Instagram',
-            color: 'hover:text-pink-400',
-        },
-    ]
-
-    const quickLinks = [
-        { text: 'O nama', href: '/about' },
-        { text: 'Studijski programi', href: '/programs' },
-        { text: 'Novosti', href: '/news' },
-        { text: 'Kontakt', href: '/contact' },
-        { text: 'Upis', href: '/login' },
-        { text: 'Student portal', href: '/login' },
-    ]
 
     const handleNewsletterSubmit = async (e: FormEvent) => {
         e.preventDefault()

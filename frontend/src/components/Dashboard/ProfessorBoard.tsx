@@ -10,82 +10,37 @@ import {
     IconX,
 } from '@tabler/icons-react'
 import { motion } from 'framer-motion'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { BACKEND_URL, NLP_URL } from '../../constants/storage'
 import { useAuth } from '../../Context'
+import useFetchAboutProfessorData from '../../hooks/professorHooks/useProfessorsHooks'
 import { toastError, toastSuccess } from '../../lib/toast'
 
-// Types matching Prisma backend
-interface SubjectInfo {
-    id: number
-    name: string
-    code: string
-    ects: number
-    isElective: boolean
-    year: number
-    semester: number
-}
-
-interface EnrolledStudent {
-    id: number
-    firstName: string
-    lastName: string
-    email: string
-    indexNumber: string
-    currentGrade?: number
-    currentPoints?: number
-    hasGrade: boolean
-}
-
-interface SubjectWithStudents {
-    subject: SubjectInfo
-    students: EnrolledStudent[]
-}
-
-interface GradeFormData {
-    studentEmail: string
-    studentName: string
-    subjectId: number
-    subjectName: string
-    grade: number
-    points: number
-}
-
-interface ExamData {
-    id: number
-    subjectId: number
-    examTime: string
-    location: string | null
-    maxPoints: number
-    subject: {
-        id: number
-        name: string
-        code: string
-    }
-}
-
-interface ExamFormData {
-    subjectId: number
-    examTime: string
-    location: string
-    maxPoints: number
-}
-
-interface AssignmentFormData {
-    subjectId: number
-    dueDate: string
-    title: string
-    description: string
-    maxPoints: number
-    file: File | null
-}
+import {
+    AssignmentFormData,
+    EnrolledStudent,
+    ExamFormData,
+    GradeFormData,
+    SubjectInfo,
+} from '../../types/ProfessorsTypes/Professors'
 
 const ProfessorBoard: React.FC = () => {
-    const { studentMail, studentName } = useAuth() // Get professor email
-    const [isLoading, setIsLoading] = useState(true)
-    const [subjectsWithStudents, setSubjectsWithStudents] = useState<
-        SubjectWithStudents[]
-    >([])
+    const { studentMail, studentName } = useAuth()
+
+    // Use custom hook for data fetching
+    const {
+        isLoading,
+        subjectsWithStudents,
+        professorId,
+        exams,
+        stats,
+        professorAssignments,
+        assignmentsLoading,
+        refetch,
+        refetchExams,
+        refetchAssignments,
+    } = useFetchAboutProfessorData(studentMail)
+
     const [showGradeModal, setShowGradeModal] = useState(false)
     const [gradeForm, setGradeForm] = useState<GradeFormData>({
         studentEmail: '',
@@ -97,8 +52,6 @@ const ProfessorBoard: React.FC = () => {
     })
     const [showExamModal, setShowExamModal] = useState(false)
     const [showAssignmentModal, setShowAssignmentModal] = useState(false)
-    const [exams, setExams] = useState<ExamData[]>([])
-    const [professorId, setProfessorId] = useState<number | null>(null)
     const [examForm, setExamForm] = useState<ExamFormData>({
         subjectId: 0,
         examTime: '',
@@ -114,10 +67,6 @@ const ProfessorBoard: React.FC = () => {
         file: null,
     })
     const [isUploading, setIsUploading] = useState(false)
-    const [professorAssignments, setProfessorAssignments] = useState<{
-        [subjectName: string]: string[]
-    }>({})
-    const [assignmentsLoading, setAssignmentsLoading] = useState(false)
     const [selectedAssignmentSubject, setSelectedAssignmentSubject] =
         useState<string>('')
 
@@ -131,98 +80,6 @@ const ProfessorBoard: React.FC = () => {
         if (p <= 80) return 8
         if (p <= 89) return 9
         return 10
-    }
-    const [stats, setStats] = useState({
-        totalStudents: 0,
-        totalSubjects: 0,
-        averageGrade: 0,
-        gradedStudents: 0,
-    })
-
-    // Fetch all data and filter by professor's subjects
-    useEffect(() => {
-        if (studentMail) {
-            fetchProfessorData()
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [studentMail])
-
-    // Fetch assignments when subjects are loaded
-    useEffect(() => {
-        if (subjectsWithStudents.length > 0) {
-            fetchAllAssignments()
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [subjectsWithStudents])
-
-    const fetchProfessorData = async () => {
-        setIsLoading(true)
-
-        try {
-            const profResponse = await fetch(
-                `${BACKEND_URL}/api/professors/email/${studentMail}`
-            )
-
-            if (profResponse.ok) {
-                const profData = await profResponse.json()
-                setProfessorId(profData.id)
-                const subjectIds = profData.subjects.map(
-                    (s: { id: number }) => s.id
-                )
-
-                await fetchProfessorExams(profData.id)
-                await fetchAllData(subjectIds)
-            } else {
-                await fetchAllData([])
-            }
-        } catch {
-            setIsLoading(false)
-            toastError('Greška pri dohvaćanju podataka profesora')
-        }
-    }
-
-    const fetchProfessorExams = async (profId: number) => {
-        try {
-            const response = await fetch(
-                `${BACKEND_URL}/api/exams/professor/${profId}`
-            )
-            if (response.ok) {
-                const data = await response.json()
-                setExams(data)
-            }
-        } catch {
-            toastError('Greška pri dohvaćanju ispita')
-        }
-    }
-
-    const fetchAllAssignments = async () => {
-        setAssignmentsLoading(true)
-        const allAssignments: { [subjectName: string]: string[] } = {}
-
-        try {
-            // Fetch assignments for each subject
-            for (const item of subjectsWithStudents) {
-                const response = await fetch(`${NLP_URL}/get_all_file_s3`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ subject: item.subject.name }),
-                })
-
-                if (response.ok) {
-                    const data = await response.json()
-                    const files = data.professor_subject || []
-                    if (files.length > 0) {
-                        allAssignments[item.subject.name] = files
-                    }
-                }
-            }
-
-            setProfessorAssignments(allAssignments)
-        } catch (error) {
-            console.error('❌ Error fetching assignments:', error)
-        } finally {
-            setAssignmentsLoading(false)
-        }
     }
 
     const handleCreateAssignment = async (e: React.FormEvent) => {
@@ -318,7 +175,7 @@ const ProfessorBoard: React.FC = () => {
                     file: null,
                 })
                 // Refresh assignments list
-                await fetchAllAssignments()
+                await refetchAssignments()
             } else {
                 const errorData = await response.json().catch(() => ({}))
                 toastError(
@@ -356,7 +213,7 @@ const ProfessorBoard: React.FC = () => {
                     (s) => s.subject.id === examForm.subjectId
                 )?.subject.name || 'Predmet'
 
-            // Get emails of students enrolled in this specific subject
+            // Get emarefetchtudents enrolled in this specific subject
             const enrolledStudentEmails =
                 subjectsWithStudents
                     .find((s) => s.subject.id === examForm.subjectId)
@@ -418,7 +275,7 @@ const ProfessorBoard: React.FC = () => {
                     location: '',
                     maxPoints: 100,
                 })
-                if (professorId) await fetchProfessorExams(professorId)
+                if (professorId) await refetchExams(professorId)
             } else {
                 toastError('Greška pri kreiranju ispita')
             }
@@ -443,213 +300,13 @@ const ProfessorBoard: React.FC = () => {
             if (response.ok) {
                 toastSuccess('Ispit uspješno obrisan!')
                 // Refresh exams list
-                if (professorId) await fetchProfessorExams(professorId)
+                if (professorId) await refetchExams(professorId)
             } else {
                 toastError('Greška pri brisanju ispita')
             }
         } catch (error) {
             console.error('Delete exam error:', error)
             toastError('Greška pri brisanju ispita')
-        }
-    }
-
-    const fetchAllData = async (allowedSubjectIds: number[] = []) => {
-        setIsLoading(true)
-        try {
-            const majorsRes = await fetch(
-                `${BACKEND_URL}/api/majors/with-subjects`
-            )
-            if (!majorsRes.ok) {
-                toastError('Failed to fetch majors')
-                throw new Error('Failed to fetch majors')
-            }
-
-            const majorsData = await majorsRes.json()
-            const allSubjects: SubjectInfo[] = []
-
-            majorsData.forEach((major: { subjects: SubjectInfo[] }) => {
-                major.subjects.forEach((subject: SubjectInfo) => {
-                    if (!allSubjects.find((s) => s.id === subject.id)) {
-                        allSubjects.push(subject)
-                    }
-                })
-            })
-
-            const filteredSubjects =
-                allowedSubjectIds.length > 0
-                    ? allSubjects.filter((s) =>
-                          allowedSubjectIds.includes(s.id)
-                      )
-                    : allSubjects
-
-            const studentsRes = await fetch(`${BACKEND_URL}/api/students`)
-            if (!studentsRes.ok) {
-                toastError('Failed to fetch students')
-                throw new Error('Failed to fetch students')
-            }
-
-            const studentsResponse = await studentsRes.json()
-            const studentsData = studentsResponse.data || studentsResponse
-
-            const studentsWithEnrollments = await Promise.all(
-                studentsData.map(
-                    async (student: {
-                        id: number
-                        email: string
-                        firstName: string
-                        lastName: string
-                        indexNumber: string
-                    }) => {
-                        try {
-                            const [progressRes, gradesRes] = await Promise.all([
-                                fetch(
-                                    `${BACKEND_URL}/api/student/progress/${student.email}`
-                                ),
-                                fetch(
-                                    `${BACKEND_URL}/api/student/grades/${student.email}`
-                                ),
-                            ])
-
-                            if (!progressRes.ok || !gradesRes.ok)
-                                return {
-                                    ...student,
-                                    enrollments: [],
-                                    grades: [],
-                                }
-
-                            const progress = await progressRes.json()
-                            const grades = await gradesRes.json()
-
-                            return {
-                                ...student,
-                                enrollments: progress.subjectEnrollments || [],
-                                grades: grades || [],
-                            }
-                        } catch {
-                            return { ...student, enrollments: [], grades: [] }
-                        }
-                    }
-                )
-            )
-
-            // Step 4: Group students by subject
-            const subjectMap = new Map<number, EnrolledStudent[]>()
-
-            studentsWithEnrollments.forEach(
-                (student: {
-                    id: number
-                    email: string
-                    firstName: string
-                    lastName: string
-                    indexNumber: string
-                    enrollments: { id: number; name: string }[]
-                    grades: {
-                        grade: number
-                        points: number
-                        subjectId: number
-                        subject?: { id: number }
-                    }[]
-                }) => {
-                    student.enrollments.forEach(
-                        (enrollment: { id: number; name: string }) => {
-                            const subjectId = enrollment.id
-
-                            // Find if student has a grade for this subject
-                            const gradeData = student.grades.find(
-                                (g: {
-                                    subjectId: number
-                                    subject?: { id: number }
-                                }) =>
-                                    g.subjectId === subjectId ||
-                                    g.subject?.id === subjectId
-                            )
-
-                            const enrolledStudent: EnrolledStudent = {
-                                id: student.id,
-                                firstName: student.firstName,
-                                lastName: student.lastName,
-                                email: student.email,
-                                indexNumber: student.indexNumber,
-                                currentGrade: gradeData?.grade,
-                                currentPoints: gradeData?.points,
-                                hasGrade: !!gradeData,
-                            }
-
-                            if (!subjectMap.has(subjectId)) {
-                                subjectMap.set(subjectId, [])
-                            }
-                            subjectMap.get(subjectId)!.push(enrolledStudent)
-                        }
-                    )
-                }
-            )
-
-            // Step 5: Create final structure
-            const result: SubjectWithStudents[] = []
-
-            filteredSubjects.forEach((subject) => {
-                const students = subjectMap.get(subject.id) || []
-
-                if (students.length > 0) {
-                    result.push({ subject, students })
-                } else {
-                    result.push({ subject, students: [] })
-                }
-            })
-
-            setSubjectsWithStudents(result)
-
-            // Calculate stats - ONLY for students enrolled in professor's subjects
-            // Collect all unique students from professor's subjects
-            const uniqueStudentIds = new Set<number>()
-            result.forEach((item) => {
-                item.students.forEach((student) => {
-                    uniqueStudentIds.add(student.id)
-                })
-            })
-
-            const totalStudents = uniqueStudentIds.size // Students in professor's subjects ONLY
-            const totalSubjects = result.length
-
-            // Count graded students (only those in professor's subjects)
-            const studentsInProfessorSubjects = studentsWithEnrollments.filter(
-                (s: { id: number }) => uniqueStudentIds.has(s.id)
-            )
-
-            const gradedStudents = studentsInProfessorSubjects.filter(
-                (s: { grades: { grade: number; subjectId: number }[] }) =>
-                    s.grades.some(
-                        (g: { grade: number; subjectId: number }) =>
-                            g.grade >= 6 &&
-                            allowedSubjectIds.includes(g.subjectId)
-                    )
-            ).length
-
-            // Calculate average grade (only for professor's subjects)
-            const allGrades = studentsInProfessorSubjects.flatMap(
-                (s: { grades: { grade: number; subjectId: number }[] }) =>
-                    s.grades.filter((g: { subjectId: number }) =>
-                        allowedSubjectIds.includes(g.subjectId)
-                    ) || []
-            )
-            const avgGrade =
-                allGrades.length > 0
-                    ? allGrades.reduce(
-                          (sum: number, g: { grade: number }) => sum + g.grade,
-                          0
-                      ) / allGrades.length
-                    : 0
-
-            setStats({
-                totalStudents,
-                totalSubjects,
-                averageGrade: Math.round(avgGrade * 10) / 10,
-                gradedStudents,
-            })
-        } catch {
-            toastError('Greška pri dohvaćanju podataka profesora')
-        } finally {
-            setIsLoading(false)
         }
     }
 
@@ -700,7 +357,7 @@ const ProfessorBoard: React.FC = () => {
             )
             setShowGradeModal(false)
 
-            await fetchProfessorData()
+            await refetch()
         } catch (error) {
             toastError(
                 `Greška pri unosu ocjene: ${error instanceof Error ? error.message : 'Pokušajte ponovo'}`
@@ -731,7 +388,7 @@ const ProfessorBoard: React.FC = () => {
 
             if (response.ok) {
                 toastSuccess('Zadaća uspješno obrisana!')
-                await fetchAllAssignments()
+                await refetchAssignments()
             } else {
                 toastError('Greška pri brisanju zadaće')
             }
@@ -1061,16 +718,7 @@ const ProfessorBoard: React.FC = () => {
                                                             ✅ Postavljeno
                                                         </p>
                                                     </div>
-                                                    <div
-                                                        role="button"
-                                                        onClick={() =>
-                                                            handleDeleteAssignment(
-                                                                subjectName,
-                                                                fileName
-                                                            )
-                                                        }
-                                                        className="flex "
-                                                    >
+                                                    <div className="flex">
                                                         <button
                                                             onClick={() =>
                                                                 handleDeleteAssignment(
@@ -1078,7 +726,7 @@ const ProfessorBoard: React.FC = () => {
                                                                     fileName
                                                                 )
                                                             }
-                                                            className="bg-red-500 text-white font-semibold px-5 py-2.5 rounded-lg shadow-md  shadow-red-500/30 hover:bg-red-600  hover:shadow-lg  hover:shadow-red-500/40  active:bg-red-700 active:scale-95 transition-all duration-200 select-none "
+                                                            className="bg-red-500 text-white font-semibold px-5 py-2.5 rounded-lg shadow-md shadow-red-500/30 hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/40 active:bg-red-700 active:scale-95 transition-all duration-200 select-none"
                                                         >
                                                             Izbriši
                                                         </button>
@@ -1155,65 +803,75 @@ const ProfessorBoard: React.FC = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {item.students.map((student) => (
-                                        <tr
-                                            key={student.id}
-                                            className="border-b border-neutral-800 hover:bg-[#252525] transition-colors"
-                                        >
-                                            <td className="py-4 px-4 text-gray-300">
-                                                {student.indexNumber}
-                                            </td>
-                                            <td className="py-4 px-4 text-gray-200 font-medium">
-                                                {student.firstName}{' '}
-                                                {student.lastName}
-                                            </td>
-                                            <td className="py-4 px-4 text-gray-400 text-sm">
-                                                {student.email}
-                                            </td>
-                                            <td className="py-4 px-4">
-                                                {student.hasGrade ||
-                                                (student.currentPoints !==
-                                                    undefined &&
-                                                    student.currentPoints !==
-                                                        null) ? (
-                                                    <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm font-semibold">
-                                                        {student.currentGrade ??
-                                                            computeGradeFromPoints(
-                                                                student.currentPoints
-                                                            )}
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-gray-500 italic">
-                                                        Nije ocijenjeno
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td className="py-4 px-4 text-gray-300">
-                                                {student.hasGrade
-                                                    ? `${student.currentPoints}/100`
-                                                    : '-'}
-                                            </td>
-                                            <td className="py-4 px-4">
-                                                <button
-                                                    onClick={() =>
-                                                        openGradeModal(
-                                                            student,
-                                                            item.subject
-                                                        )
-                                                    }
-                                                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                                                        student.hasGrade
-                                                            ? 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30'
-                                                            : 'bg-blue-500 text-white hover:bg-blue-600'
-                                                    }`}
-                                                >
+                                    {item.students
+                                        .filter(
+                                            (student, index, self) =>
+                                                index ===
+                                                self.findIndex(
+                                                    (s) =>
+                                                        s.email ===
+                                                        student.email
+                                                )
+                                        )
+                                        .map((student) => (
+                                            <tr
+                                                key={`${item.subject.id}-${student.email}`}
+                                                className="border-b border-neutral-800 hover:bg-[#252525] transition-colors"
+                                            >
+                                                <td className="py-4 px-4 text-gray-300">
+                                                    {student.indexNumber}
+                                                </td>
+                                                <td className="py-4 px-4 text-gray-200 font-medium">
+                                                    {student.firstName}{' '}
+                                                    {student.lastName}
+                                                </td>
+                                                <td className="py-4 px-4 text-gray-400 text-sm">
+                                                    {student.email}
+                                                </td>
+                                                <td className="py-4 px-4">
+                                                    {student.hasGrade ||
+                                                    (student.currentPoints !==
+                                                        undefined &&
+                                                        student.currentPoints !==
+                                                            null) ? (
+                                                        <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm font-semibold">
+                                                            {student.currentGrade ??
+                                                                computeGradeFromPoints(
+                                                                    student.currentPoints
+                                                                )}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-gray-500 italic">
+                                                            Nije ocijenjeno
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td className="py-4 px-4 text-gray-300">
                                                     {student.hasGrade
-                                                        ? 'Ažuriraj'
-                                                        : 'Ocijeni'}
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                                        ? `${student.currentPoints}/100`
+                                                        : '-'}
+                                                </td>
+                                                <td className="py-4 px-4">
+                                                    <button
+                                                        onClick={() =>
+                                                            openGradeModal(
+                                                                student,
+                                                                item.subject
+                                                            )
+                                                        }
+                                                        className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                                                            student.hasGrade
+                                                                ? 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30'
+                                                                : 'bg-blue-500 text-white hover:bg-blue-600'
+                                                        }`}
+                                                    >
+                                                        {student.hasGrade
+                                                            ? 'Ažuriraj'
+                                                            : 'Ocijeni'}
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
                                 </tbody>
                             </table>
                         </div>

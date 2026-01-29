@@ -1,46 +1,16 @@
-import { FC, useState, useEffect, useCallback } from 'react'
 import {
+    IconAlertCircle,
     IconCalendarEvent,
+    IconCheck,
     IconClock,
     IconMapPin,
     IconUserCircle,
-    IconCheck,
-    IconAlertCircle,
 } from '@tabler/icons-react'
+import { FC, useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../../Context'
 import { BACKEND_URL } from '../../constants/storage'
 
-interface Exam {
-    id: number
-    subjectId: number
-    examTime: string
-    location: string | null
-    maxPoints: number
-    subject: {
-        id: number
-        name: string
-        code: string
-        ects: number
-    }
-    professor: {
-        id: number
-        firstName: string
-        lastName: string
-        title: string | null
-    }
-    isRegistered?: boolean
-    registrationId?: number
-    grade?: number
-}
-
-interface ExamRegistration {
-    id: number
-    examId: number
-    studentId: number
-    registrationDate: string
-    status: string
-    exam: Exam
-}
+import { Exam, ExamRegistration } from '../../types/SubjectTypes/exam'
 
 const StudentExams: FC = () => {
     const { studentMail: contextMail } = useAuth()

@@ -1,86 +1,14 @@
-import type { FC } from 'react'
-import { useEffect, useState } from 'react'
 import {
-    IconUserCircle,
     IconBooks,
     IconCalendarTime,
     IconChalkboard,
+    IconUserCircle,
 } from '@tabler/icons-react'
-import { BACKEND_URL } from '../../config'
-import { STORAGE_KEYS } from '../../constants/storage'
-
-interface BackendProfessor {
-    id: number
-    firstName: string
-    lastName: string
-    fullName: string
-}
-
-interface BackendSubject {
-    id: number
-    name: string
-    code: string
-    ects: number
-    semester: number
-    isElective: boolean
-    professor: BackendProfessor | null
-}
-
-interface BackendScheduleResponse {
-    student: {
-        firstName: string
-        lastName: string
-        majorName: string
-        currentYear: number
-    }
-    subjects: BackendSubject[]
-    totalSubjects: number
-    requiredSubjects: number
-    electiveSubjects: number
-}
+import type { FC } from 'react'
+import useFetchStudentData from '../../hooks/studentHooks/useStudentHooks'
 
 const StudentSchedule: FC = () => {
-    const [scheduleData, setScheduleData] =
-        useState<BackendScheduleResponse | null>(null)
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
-
-    useEffect(() => {
-        async function fetchSchedule() {
-            try {
-                const email = localStorage.getItem(STORAGE_KEYS.STUDENT_EMAIL)
-                if (!email) {
-                    setError('No email found. Please login again.')
-                    console.error('No email found in localStorage')
-                    setLoading(false)
-                    return
-                }
-
-                console.log('Fetching schedule for:', email)
-                const response = await fetch(
-                    `${BACKEND_URL}/api/schedule/${email}`
-                )
-
-                if (!response.ok) {
-                    const errorText = await response.text()
-                    console.error('API Error:', response.status, errorText)
-                    setError(`Failed to fetch schedule: ${response.status}`)
-                    setLoading(false)
-                    return
-                }
-
-                const data: BackendScheduleResponse = await response.json()
-                console.log('Schedule data received:', data)
-                setScheduleData(data)
-            } catch (error: any) {
-                console.error('Error fetching schedule:', error)
-                setError(error.message || 'Failed to fetch schedule')
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchSchedule()
-    }, [])
+    const { error, loading, scheduleData } = useFetchStudentData()
 
     if (loading) {
         return (

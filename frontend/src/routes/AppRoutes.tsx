@@ -2,24 +2,15 @@ import { Suspense, lazy } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Login from '../components/Auth/Login'
 import NotFound from '../components/Auth/NotFound'
-import Profile from '../components/Dashboard/Profile/Profile'
-import Settings from '../components/Dashboard/Profile/ProfileSettings'
 import HeroSite from '../components/HeroSite'
 import About from '../components/Pages/About'
-import Calendar from '../components/Pages/Calendar'
 import Contact from '../components/Pages/Contact'
-import Homework from '../components/Pages/Homework'
 import News from '../components/Pages/News'
 import Programs from '../components/Pages/Programs'
 import ProtectedRoute from './ProtectedRoute'
 
-// lazy load heavy dashboard parts
+// Lazy load dashboard components
 const MainBoard = lazy(() => import('../components/Dashboard/MainBoard'))
-const Papirologija = lazy(() => import('../components/Faculty/Papirologija'))
-const StudentExams = lazy(() => import('../components/Faculty/StudentExams'))
-const StudentSchedule = lazy(
-    () => import('../components/Faculty/StudentSchedule')
-)
 const ProfessorBoard = lazy(
     () => import('../components/Dashboard/ProfessorBoard')
 )
@@ -27,6 +18,22 @@ const AdminPanel = lazy(() => import('../components/Dashboard/AdminBoard'))
 const AdminProfessorManagement = lazy(
     () => import('../components/Dashboard/AdminProfessorManagement')
 )
+
+// Lazy load student dashboard pages
+const DashboardHome = lazy(
+    () => import('../components/Dashboard/Sidebar/Dashboard')
+)
+const Profile = lazy(() => import('../components/Dashboard/Profile/Profile'))
+const Settings = lazy(
+    () => import('../components/Dashboard/Profile/ProfileSettings')
+)
+const StudentExams = lazy(() => import('../components/Faculty/StudentExams'))
+const StudentSchedule = lazy(
+    () => import('../components/Faculty/StudentSchedule')
+)
+const Papirologija = lazy(() => import('../components/Faculty/Papirologija'))
+const Calendar = lazy(() => import('../components/Pages/Calendar'))
+const Homework = lazy(() => import('../components/Pages/Homework'))
 
 export default function AppRoutes() {
     return (
@@ -53,6 +60,7 @@ export default function AppRoutes() {
                         </ProtectedRoute>
                     }
                 >
+                    <Route index element={<DashboardHome />} />
                     <Route path="profile" element={<Profile />} />
                     <Route path="settings" element={<Settings />} />
                     <Route path="scheduleexam" element={<StudentExams />} />

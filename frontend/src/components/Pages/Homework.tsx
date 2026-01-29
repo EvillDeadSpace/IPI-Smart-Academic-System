@@ -1,159 +1,20 @@
 import { IconBook, IconClipboardList, IconFileText } from '@tabler/icons-react'
-import { FC, useEffect, useState } from 'react'
-import { BACKEND_URL, NLP_URL } from '../../config'
+import { FC } from 'react'
+import { NLP_URL } from '../../config'
 import { useAuth } from '../../Context'
+import useHomeWork from '../../hooks/studentHooks/useHomeWorkHooks'
 import { toastError, toastSuccess } from '../../lib/toast'
-interface Subject {
-    id: number
-    name: string
-    code: string
-}
-
-interface Homework {
-    id: number
-    title: string
-    description: string
-    subjectId: number
-    dueDate: string
-    status: 'pending' | 'submitted' | 'late'
-    maxPoints: number
-    earnedPoints?: number
-}
-
-// Definiši tip za S3 fajlove (string array)
-type S3File = string
-
-interface SubjectEnrollment {
-    subject: {
-        id: number
-        name: string
-        code: string
-    }
-}
 
 const Homework: FC = () => {
     const { studentMail } = useAuth()
-    const [subjects, setSubjects] = useState<Subject[]>([])
-    const [files, setFiles] = useState<S3File[]>([])
-    const [loading, setLoading] = useState(true)
-    const [filesLoading, setFilesLoading] = useState(false)
-    useEffect(() => {
-        const fetchData = async () => {
-            if (!studentMail) {
-                setLoading(false)
-                return
-            }
-
-            try {
-                setLoading(true)
-                const response = await fetch(
-                    `${BACKEND_URL}/api/students/email/${studentMail}`
-                )
-
-                if (response.ok) {
-                    const responseData = await response.json()
-                    console.log('📦 Raw response:', responseData)
-
-                    const studentData = responseData.data || responseData
-                    console.log('👤 Student data:', studentData)
-                    console.log(
-                        '📚 Subject enrollments:',
-                        studentData.subjectEnrollments
-                    )
-
-                    if (
-                        studentData.subjectEnrollments &&
-                        studentData.subjectEnrollments.length > 0
-                    ) {
-                        const enrolledSubjects =
-                            studentData.subjectEnrollments.map(
-                                (enrollment: SubjectEnrollment) => {
-                                    console.log('📖 Enrollment:', enrollment)
-                                    return {
-                                        id: enrollment.subject.id,
-                                        name: enrollment.subject.name,
-                                        code: enrollment.subject.code,
-                                    }
-                                }
-                            )
-                        console.log('✅ Enrolled subjects:', enrolledSubjects)
-                        setSubjects(enrolledSubjects)
-                        toastSuccess(
-                            `Učitano ${enrolledSubjects.length} predmeta!`
-                        )
-                    } else {
-                        console.warn(
-                            '⚠️ Nema upisanih predmeta za ovog studenta'
-                        )
-                        setSubjects([])
-                        toastError('Ne pohađate nijedan predmet trenutno.')
-                    }
-                } else {
-                    const errorText = await response.text()
-                    console.error(
-                        '❌ Response error:',
-                        response.status,
-                        errorText
-                    )
-                    toastError('Greška pri učitavanju predmeta.')
-                }
-            } catch (error) {
-                console.error('Error fetching subjects:', error)
-                toastError('Greška pri učitavanju podataka.')
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        fetchData()
-    }, [studentMail])
-
-    const [selectedSubjectId, setSelectedSubjectId] = useState<number | null>(
-        null
-    )
-
-    useEffect(() => {
-        if (!selectedSubjectId) {
-            setFiles([])
-            return
-        }
-
-        const selectedSubject = subjects.find((s) => s.id === selectedSubjectId)
-        console.log('📌 Izabrani predmet:', selectedSubject?.name)
-
-        async function fetchHomeworks() {
-            setFilesLoading(true)
-            setFiles([]) // Clear previous files
-            try {
-                const response = await fetch(`${NLP_URL}/get_all_file_s3`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        subject: selectedSubject?.name,
-                    }),
-                })
-                console.log(response)
-                if (!response.ok) {
-                    throw new Error('Fetch failed')
-                }
-
-                const data = await response.json()
-                console.log('📦 Raw homeworks response:', data)
-
-                const fileList = data.professor_subject || []
-                setFiles(fileList)
-            } catch (err) {
-                console.error('❌ Error fetching homeworks:', err)
-                setFiles([])
-            } finally {
-                setFilesLoading(false)
-            }
-        }
-
-        fetchHomeworks()
-    }, [selectedSubjectId, subjects])
+    const {
+        subjects,
+        loading,
+        selectedSubjectId,
+        setSelectedSubjectId,
+        files,
+        filesLoading,
+    } = useHomeWork(studentMail)
 
     // Download file handler
     const handleDownload = async (filePath: string) => {
@@ -247,14 +108,22 @@ const Homework: FC = () => {
                                     <option value="">
                                         -- Izaberite predmet --
                                     </option>
-                                    {subjects.map((subject) => (
-                                        <option
-                                            key={subject.id}
-                                            value={subject.id}
-                                        >
-                                            {subject.code} - {subject.name}
-                                        </option>
-                                    ))}
+                                    {subjects
+                                        .filter(
+                                            (subject, index, self) =>
+                                                index ===
+                                                self.findIndex(
+                                                    (s) => s.id === subject.id
+                                                )
+                                        )
+                                        .map((subject) => (
+                                            <option
+                                                key={subject.id}
+                                                value={subject.id}
+                                            >
+                                                {subject.code} - {subject.name}
+                                            </option>
+                                        ))}
                                 </select>
                             </div>
 

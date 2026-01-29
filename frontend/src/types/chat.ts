@@ -6,3 +6,6 @@ export interface ChatContextType {
     isChatOpen: boolean
     setIsChatOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
+export interface ChatProviderProps {
+    children: React.ReactNode
+}

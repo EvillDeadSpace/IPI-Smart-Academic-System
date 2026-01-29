@@ -1,22 +1,5 @@
-import { IconFileText, IconX, IconCheck } from '@tabler/icons-react'
-
-interface DocumentRequest {
-    id: number
-    studentName: string
-    email: string
-    documentType: string
-    requestDate: string
-    status: 'PENDING' | 'APPROVED' | 'REJECTED'
-}
-
-interface RequestModalProps {
-    isOpen: boolean
-    onClose: () => void
-    requests: DocumentRequest[]
-    loadingRequests: boolean
-    onApprove: (id: number) => void
-    onReject: (id: number) => void
-}
+import { IconCheck, IconFileText, IconX } from '@tabler/icons-react'
+import { RequestModalProps } from '../../../../types/RequestTypes/Request'
 
 export default function RequestModal({
     isOpen,

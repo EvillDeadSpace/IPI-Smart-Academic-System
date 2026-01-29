@@ -1,148 +1,11 @@
-import { useEffect, useState } from 'react'
 import { useAuth } from '../../../Context'
-import { BACKEND_URL } from '../../../constants/storage'
 
-import { toastError } from '../../../lib/toast'
-interface Subject {
-    id: number
-    name: string
-    ects: number
-    semester: string
-    academicYear: string
-}
-
-interface Grade {
-    id: number
-    grade: number
-    points: number
-    subject: {
-        id: number
-        name: string
-        ects: number
-        isElective: boolean
-    }
-}
-
-interface StudentProgress {
-    student: {
-        id: number
-        firstName: string
-        lastName: string
-        email: string
-        indexNumber: string
-        currentYear: number
-        status: string
-    }
-    major: {
-        id: number
-        name: string
-        code: string
-        duration: number
-    }
-    progress: {
-        currentYear: number
-        totalECTSEarned: number
-        enrolledECTS: number
-        passedSubjects: number
-        totalSubjects: number
-        canProgressToNextYear: boolean
-        nextYear: number | null
-        ectsNeededForNextYear: number
-    }
-    yearEnrollments: unknown[]
-    subjectEnrollments: Subject[]
-}
+import useFetchProgress from '../../../hooks/profileHooks/useFetchHooks'
 
 const Profile = () => {
     const { studentMail } = useAuth()
-    const [progress, setProgress] = useState<StudentProgress | null>(null)
-    const [grades, setGrades] = useState<Grade[]>([])
-    const [subjectsMap, setSubjectsMap] = useState<Record<number, string>>({})
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
-
-    useEffect(() => {
-        const fetchProgress = async () => {
-            try {
-                const response = await fetch(
-                    `${BACKEND_URL}/api/student/progress/${studentMail}`
-                )
-                if (!response.ok) {
-                    toastError('Neuspjelo dohvaćanje podataka o napretku')
-                    throw new Error('Neuspjelo dohvaćanje podataka o napretku')
-                }
-                const data = await response.json()
-                setProgress(data)
-            } catch (err) {
-                setError(
-                    toastError(
-                        err instanceof Error
-                            ? err.message
-                            : 'Dogodila se greška'
-                    )
-                )
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        const fetchGrades = async () => {
-            try {
-                const response = await fetch(
-                    `${BACKEND_URL}/api/student/grades/${studentMail}`
-                )
-                if (response.ok) {
-                    const data = await response.json()
-                    setGrades(data)
-                }
-            } catch {
-                toastError('Neuspjelo dohvaćanje ocjena')
-            }
-        }
-
-        const fetchSubjectsLookup = async () => {
-            try {
-                const resp = await fetch(
-                    `${BACKEND_URL}/api/majors/with-subjects`
-                )
-                if (!resp.ok) return
-                const majors = await resp.json()
-                const map: Record<number, string> = {}
-                if (Array.isArray(majors)) {
-                    majors.forEach((m: unknown) => {
-                        if (m && typeof m === 'object') {
-                            const mm = m as { subjects?: unknown[] }
-                            if (Array.isArray(mm.subjects)) {
-                                mm.subjects.forEach((s: unknown) => {
-                                    if (s && typeof s === 'object') {
-                                        const ss = s as {
-                                            id?: string | number
-                                            name?: string
-                                        }
-                                        const maybeId = ss.id
-                                        const maybeName = ss.name
-                                        if (typeof maybeId !== 'undefined') {
-                                            map[Number(maybeId)] =
-                                                typeof maybeName === 'string'
-                                                    ? maybeName
-                                                    : map[Number(maybeId)] || ''
-                                        }
-                                    }
-                                })
-                            }
-                        }
-                    })
-                }
-                setSubjectsMap(map)
-            } catch {
-                toastError('Neuspjelo dohvaćanje podataka o predmetima')
-            }
-        }
-
-        fetchProgress()
-        fetchGrades()
-        fetchSubjectsLookup()
-    }, [studentMail])
+    const { loading, error, progress, grades, subjectsMap } =
+        useFetchProgress(studentMail)
 
     if (loading) {
         return (
@@ -221,7 +84,11 @@ const Profile = () => {
     // Improved card styling, added clearer badges and accessible progress bar.
 
     // Separate enrolled subjects into required and elective
-    const requiredSubjects = progress?.subjectEnrollments || []
+    // Filter out duplicates by subject.id to avoid React key warnings
+    const requiredSubjects = (progress?.subjectEnrollments || []).filter(
+        (subject, index, self) =>
+            index === self.findIndex((s) => s.id === subject.id)
+    )
 
     // We don't have separate electiveSubjects in current response,
     // so we'll show all enrolled subjects in one list

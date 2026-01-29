@@ -1,21 +1,10 @@
-import {
-    IconArrowLeft,
-    IconCalendarEvent,
-    IconCalendarTime,
-    IconClipboardList,
-    IconFileText,
-    IconLayoutDashboard,
-    IconPencilPlus,
-    IconUserCircle,
-} from '@tabler/icons-react'
 import { motion } from 'motion/react'
 import { useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom' // Import Link from react-router-dom
+import { Link } from 'react-router-dom'
+import { links } from '../../../constants/links'
 import { useAuth } from '../../../Context'
 import { cn } from '../../../lib/utils'
 import { Sidebar, SidebarBody, SidebarLink } from '../../ui/sidebar'
-import Dashboard from './Dashboard'
-
 export const Logo = () => {
     const { studentMail } = useAuth()
     return (
@@ -35,79 +24,9 @@ export const Logo = () => {
     )
 }
 
-export function SidebarDemo() {
+export function SidebarDemo({ children }: { children?: React.ReactNode }) {
     const [open, setOpen] = useState(false)
-
-    const location = useLocation()
-
-    const { studentName, logout } = useAuth()
-    const nav = useNavigate()
-    const links = [
-        {
-            label: 'Dashboard',
-            to: '/dashboard',
-            icon: (
-                <IconLayoutDashboard className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
-        },
-        {
-            label: 'Profile',
-            to: '/dashboard/profile',
-            icon: (
-                <IconUserCircle className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
-        },
-        {
-            label: 'Upis na godinu',
-            to: '/dashboard/settings',
-            icon: (
-                <IconClipboardList className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
-        },
-        {
-            label: 'Nadolazeci ispiti',
-            to: '/dashboard/scheduleexam',
-            icon: (
-                <IconCalendarEvent className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
-        },
-        {
-            label: 'Raspored predavanja',
-            to: '/dashboard/studentschedule',
-            icon: (
-                <IconCalendarTime className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
-        },
-        {
-            label: 'Papirologija',
-            to: '/dashboard/papirologija',
-            icon: (
-                <IconFileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
-        },
-        {
-            label: 'Kalendar',
-            to: '/dashboard/calendar',
-            icon: (
-                <IconCalendarEvent className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
-        },
-        {
-            label: 'Zadaca',
-            to: '/dashboard/homework',
-            icon: (
-                <IconPencilPlus className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
-        },
-        {
-            label: 'Logout',
-            to: '',
-            onclick: () => logout(nav),
-            icon: (
-                <IconArrowLeft className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
-        },
-    ]
+    const { studentName } = useAuth()
 
     return (
         <div
@@ -147,7 +66,7 @@ export function SidebarDemo() {
                     </div>
                 </SidebarBody>
             </Sidebar>
-            <Dashboard currentRoute={location.pathname} />
+            {children}
         </div>
     )
 }

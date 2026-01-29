@@ -1,21 +1,7 @@
-import React from 'react'
 import { IconBook2 } from '@tabler/icons-react'
+import React from 'react'
 
-interface Subject {
-    id: number
-    name: string
-    ects: number
-    isRequired: boolean
-    year: number
-}
-
-interface SubjectListProps {
-    title: string
-    subjects: Subject[]
-    isElective?: boolean
-    selectedElectives?: number[]
-    onElectiveChange?: (subjectId: number) => void
-}
+import { SubjectListProps } from '../../../types/subject'
 
 const SubjectList: React.FC<SubjectListProps> = ({
     title,

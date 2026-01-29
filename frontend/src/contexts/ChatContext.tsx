@@ -1,45 +1,17 @@
-import { createContext, useContext, useEffect, useState } from 'react'
-import { API_ENDPOINTS } from '../constants/storage'
+import { createContext, useContext, useState } from 'react'
 
-import { ChatContextType } from '../types/chat'
+import { ChatContextType, ChatProviderProps } from '../types/chat'
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined)
 
-interface ChatProviderProps {
-    children: React.ReactNode
-}
+// Custom hooks for fetch status
+import useFetchStatus from '../hooks/chatHooks/useChatHooks'
 
 // Context for Chat
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
-    const [status, setStatus] = useState<boolean>(false)
     const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
 
-    useEffect(() => {
-        // Function to fetch status from the backend
-        const fetchStatus = async () => {
-            try {
-                const response = await fetch(API_ENDPOINTS.STATUS_CHECK)
-                const data = await response.json()
-
-                // Only update the status if it's different from the current one
-                if (data.status !== status) {
-                    setStatus(data.status)
-                }
-            } catch {
-                setStatus(false)
-            }
-        }
-
-        fetchStatus()
-
-        const interval = setInterval(() => {
-            fetchStatus()
-        }, 5000) // 5000 milliseconds = 5 seconds
-
-        return () => {
-            clearInterval(interval) // Clear interval when the component is unmounted
-        }
-    }, [status])
+    const { setStatus, status } = useFetchStatus()
 
     return (
         <ChatContext.Provider

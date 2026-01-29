@@ -1,11 +1,13 @@
 import type { FC } from 'react'
-
-import { SidebarDemo } from './SIdebar/Sidebar'
+import { Outlet } from 'react-router-dom'
+import { SidebarDemo } from './Sidebar/Sidebar'
 
 const MainBoard: FC = () => {
     return (
         <div className="h-screen w-screen bg-gray-50">
-            <SidebarDemo />
+            <SidebarDemo>
+                <Outlet />
+            </SidebarDemo>
         </div>
     )
 }

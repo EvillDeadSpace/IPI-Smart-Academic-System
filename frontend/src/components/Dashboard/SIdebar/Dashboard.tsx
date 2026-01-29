@@ -4,84 +4,15 @@ import {
     IconCertificate,
     IconChartBar,
 } from '@tabler/icons-react'
-import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../Context'
-import { BACKEND_URL } from '../../../constants/storage'
-import { toastError, toastSuccess } from '../../../lib/toast'
-import Papirologija from '../../Faculty/Papirologija'
-import StudentExams from '../../Faculty/StudentExams'
-import StudentSchedule from '../../Faculty/StudentSchedule'
-import Calendar from '../../Pages/Calendar'
-import Homework from '../../Pages/Homework'
-import Profile from '../Profile/Profile'
-import Settings from '../Profile/ProfileSettings'
-type ProgressShape = {
-    progress: {
-        passedSubjects: number
-        totalSubjects: number
-        totalECTSEarned: number
-        enrolledECTS: number
-    }
-}
+import useFetchStudentProgress from '../../../hooks/dashboardHooks/useDasboardFetch'
 
-type GradeShape = { grade: number }
-
-const Dashboard = ({ currentRoute }: { currentRoute: string }) => {
+const Dashboard = () => {
     const navigate = useNavigate()
     const { studentMail } = useAuth()
 
-    const [progress, setProgress] = useState<ProgressShape | null>(null)
-    const [grades, setGrades] = useState<GradeShape[]>([])
-
-    useEffect(() => {
-        if (!studentMail) return
-
-        const fetchData = async () => {
-            try {
-                const p = await fetch(
-                    `${BACKEND_URL}/api/student/progress/${studentMail}`
-                )
-                if (p.ok) setProgress((await p.json()) as ProgressShape)
-                const g = await fetch(
-                    `${BACKEND_URL}/api/student/grades/${studentMail}`
-                )
-                if (g.ok) setGrades((await g.json()) as GradeShape[])
-                toastSuccess('Podaci za dashboard su uspješno učitani.')
-            } catch {
-                toastError('Greška pri učitavanju podataka za dashboard.')
-            }
-        }
-
-        fetchData()
-    }, [studentMail])
-
-    if (currentRoute === '/dashboard/settings') {
-        return <Settings />
-    }
-
-    if (currentRoute === '/dashboard/profile') {
-        return <Profile />
-    }
-
-    if (currentRoute === '/dashboard/scheduleexam') {
-        return <StudentExams />
-    }
-
-    if (currentRoute === '/dashboard/studentschedule') {
-        return <StudentSchedule />
-    }
-
-    if (currentRoute === '/dashboard/papirologija') {
-        return <Papirologija />
-    }
-    if (currentRoute === '/dashboard/calendar') {
-        return <Calendar />
-    }
-
-    if (currentRoute === '/dashboard/homework') {
-        return <Homework />
-    }
+    const { grades, progress } = useFetchStudentProgress(studentMail)
 
     return (
         // Outer container with background
