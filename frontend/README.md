@@ -8,6 +8,8 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.4-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Framer Motion](https://img.shields.io/badge/Framer_Motion-12.23-FF0055?style=for-the-badge&logo=framer&logoColor=white)](https://www.framer.com/motion/)
+[![Animations](https://img.shields.io/badge/Animations-Advanced-FF6B6B?style=for-the-badge&logo=adobe-after-effects&logoColor=white)](#)
 
 **[🚀 Live Demo](https://ipi-smart-academic-system.vercel.app)** • **[📚 Main Docs](../README.md)** • **[🐛 Report Bug](https://github.com/EvillDeadSpace/IPI-Smart-Academic-System/issues)**
 

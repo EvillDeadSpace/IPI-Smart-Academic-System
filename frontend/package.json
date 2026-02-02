@@ -13,7 +13,10 @@
     "dependencies": {
         "@react-spring/web": "^9.7.5",
         "@tabler/icons-react": "^3.30.0",
+        "aos": "^2.3.4",
         "clsx": "^2.1.1",
+        "framer-motion": "^12.30.0",
+        "gsap": "^3.14.2",
         "lottie-react": "^2.4.0",
         "mini-svg-data-uri": "^1.4.4",
         "motion": "^12.23.12",
@@ -22,6 +25,7 @@
         "react-fast-marquee": "^1.6.5",
         "react-hot-toast": "^2.6.0",
         "react-icons": "^5.4.0",
+        "react-intersection-observer": "^10.0.2",
         "react-router-dom": "^7.1.1",
         "tailwind-merge": "^3.3.1"
     },

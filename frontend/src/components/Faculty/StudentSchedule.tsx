@@ -4,8 +4,21 @@ import {
     IconChalkboard,
     IconUserCircle,
 } from '@tabler/icons-react'
+import { motion } from 'framer-motion'
 import type { FC } from 'react'
 import useFetchStudentData from '../../hooks/studentHooks/useStudentHooks'
+import {
+    fadeInUp,
+    pageTransition,
+    staggerContainer,
+} from '../../lib/animations'
+import {
+    AnimatedCard,
+    AnimatedCounter,
+    AnimatedList,
+    AnimatedListItem,
+    FloatingElements,
+} from '../ui'
 
 const StudentSchedule: FC = () => {
     const { error, loading, scheduleData } = useFetchStudentData()
@@ -13,9 +26,24 @@ const StudentSchedule: FC = () => {
     if (loading) {
         return (
             <div className="flex flex-1 h-screen bg-white dark:bg-neutral-900 items-center justify-center">
-                <div className="text-neutral-600 dark:text-neutral-400">
-                    Loading schedule...
-                </div>
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center"
+                >
+                    <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{
+                            duration: 1,
+                            repeat: Infinity,
+                            ease: 'linear',
+                        }}
+                        className="rounded-full h-12 w-12 border-b-2 border-t-2 border-blue-600 mx-auto mb-4"
+                    />
+                    <p className="text-neutral-600 dark:text-neutral-400">
+                        Loading schedule...
+                    </p>
+                </motion.div>
             </div>
         )
     }
@@ -54,223 +82,303 @@ const StudentSchedule: FC = () => {
     )
 
     return (
-        <div className="flex flex-1 h-screen bg-white dark:bg-neutral-900">
-            <div className="flex flex-1 overflow-auto border-l border-neutral-200 dark:border-neutral-700">
+        <motion.div
+            variants={pageTransition}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="flex flex-1 h-screen bg-white dark:bg-neutral-900 relative overflow-hidden"
+        >
+            <FloatingElements count={3} />
+            <div className="flex flex-1 overflow-auto border-l border-neutral-200 dark:border-neutral-700 relative z-10">
                 <div className="p-6 pb-6 flex flex-col gap-6 flex-1 w-full min-h-full">
                     {/* Welcome Section */}
-                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white">
-                        <h1 className="text-2xl font-semibold mb-2">
-                            Raspored kurseva - Godina{' '}
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl"
+                    >
+                        <motion.h1
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="text-2xl font-semibold mb-2"
+                        >
+                            📚 Raspored kurseva - Godina{' '}
                             {scheduleData.student.currentYear}
-                        </h1>
-                        <p className="opacity-90">
+                        </motion.h1>
+                        <motion.p
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 0.9 }}
+                            transition={{ delay: 0.3 }}
+                        >
                             {scheduleData.student.majorName} -{' '}
                             {scheduleData.student.firstName}{' '}
                             {scheduleData.student.lastName}
-                        </p>
-                    </div>
+                        </motion.p>
+                    </motion.div>
 
                     {/* Quick Stats */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700">
+                    <motion.div
+                        variants={staggerContainer}
+                        initial="initial"
+                        animate="animate"
+                        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                    >
+                        <AnimatedCard
+                            delay={0.1}
+                            className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700"
+                        >
                             <div className="flex items-center gap-4">
-                                <div className="bg-purple-100 dark:bg-purple-900/20 p-3 rounded-lg">
+                                <motion.div
+                                    whileHover={{ scale: 1.1, rotate: 360 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="bg-purple-100 dark:bg-purple-900/20 p-3 rounded-lg"
+                                >
                                     <IconBooks className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                                </div>
+                                </motion.div>
                                 <div>
                                     <p className="text-sm text-neutral-600 dark:text-neutral-400">
                                         Ukupno Predmeta
                                     </p>
-                                    <p className="text-2xl font-semibold text-neutral-900 dark:text-white">
-                                        {scheduleData.totalSubjects}
-                                    </p>
+                                    <AnimatedCounter
+                                        value={scheduleData.totalSubjects}
+                                        className="text-2xl font-semibold text-neutral-900 dark:text-white"
+                                    />
                                 </div>
                             </div>
-                        </div>
-                        <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700">
+                        </AnimatedCard>
+                        <AnimatedCard
+                            delay={0.2}
+                            className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700"
+                        >
                             <div className="flex items-center gap-4">
-                                <div className="bg-blue-100 dark:bg-blue-900/20 p-3 rounded-lg">
+                                <motion.div
+                                    whileHover={{ scale: 1.1, rotate: 360 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="bg-blue-100 dark:bg-blue-900/20 p-3 rounded-lg"
+                                >
                                     <IconChalkboard className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                                </div>
+                                </motion.div>
                                 <div>
                                     <p className="text-sm text-neutral-600 dark:text-neutral-400">
                                         Časova Sedmično
                                     </p>
-                                    <p className="text-2xl font-semibold text-neutral-900 dark:text-white">
-                                        {scheduleData.requiredSubjects}
-                                    </p>
+                                    <AnimatedCounter
+                                        value={scheduleData.requiredSubjects}
+                                        className="text-2xl font-semibold text-neutral-900 dark:text-white"
+                                    />
                                 </div>
                             </div>
-                        </div>
-                        <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700">
+                        </AnimatedCard>
+                        <AnimatedCard
+                            delay={0.3}
+                            className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700"
+                        >
                             <div className="flex items-center gap-4">
-                                <div className="bg-green-100 dark:bg-green-900/20 p-3 rounded-lg">
+                                <motion.div
+                                    whileHover={{ scale: 1.1, rotate: 360 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="bg-green-100 dark:bg-green-900/20 p-3 rounded-lg"
+                                >
                                     <IconCalendarTime className="h-6 w-6 text-green-600 dark:text-green-400" />
-                                </div>
+                                </motion.div>
                                 <div>
                                     <p className="text-sm text-neutral-600 dark:text-neutral-400">
                                         Izborni predmeti
                                     </p>
-                                    <p className="text-2xl font-semibold text-neutral-900 dark:text-white">
-                                        {scheduleData.electiveSubjects}
-                                    </p>
+                                    <AnimatedCounter
+                                        value={scheduleData.electiveSubjects}
+                                        className="text-2xl font-semibold text-neutral-900 dark:text-white"
+                                    />
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                        </AnimatedCard>
+                    </motion.div>
 
                     {/* Schedule Grid */}
-                    <div className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700">
+                    <motion.div
+                        variants={fadeInUp}
+                        initial="initial"
+                        animate="animate"
+                        className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700"
+                    >
                         <div className="p-6">
-                            <h2 className="text-xl font-semibold text-neutral-900 dark:text-white mb-4">
-                                Godisnje Raspored Predmeta
-                            </h2>
+                            <motion.h2
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.4 }}
+                                className="text-xl font-semibold text-neutral-900 dark:text-white mb-4"
+                            >
+                                📅 Godišnji Raspored Predmeta
+                            </motion.h2>
                             <div className="space-y-6">
                                 {/* Semester 1 */}
                                 {semester1Subjects.length > 0 && (
                                     <div className="space-y-3">
-                                        <h3 className="text-lg font-medium text-blue-600 dark:text-blue-400">
-                                            Semestar 1
-                                        </h3>
-                                        <div className="space-y-3">
+                                        <motion.h3
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.5 }}
+                                            className="text-lg font-medium text-blue-600 dark:text-blue-400"
+                                        >
+                                            🌟 Semestar 1
+                                        </motion.h3>
+                                        <AnimatedList>
                                             {semester1Subjects.map(
-                                                (subject) => (
-                                                    <div
+                                                (subject, index) => (
+                                                    <AnimatedListItem
                                                         key={subject.id}
-                                                        className="bg-neutral-50 dark:bg-neutral-900 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700"
+                                                        index={index}
                                                     >
-                                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                                            <div className="space-y-2">
-                                                                <div className="flex items-center gap-3">
-                                                                    <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
-                                                                        {
-                                                                            subject.name
-                                                                        }
-                                                                    </h3>
-                                                                    <span
-                                                                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                                                            subject.isElective
-                                                                                ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
-                                                                                : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                                                                        }`}
-                                                                    >
-                                                                        {subject.isElective
-                                                                            ? 'Izborni'
-                                                                            : 'Obavezni'}
-                                                                    </span>
-                                                                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                                                                        {
-                                                                            subject.ects
-                                                                        }{' '}
-                                                                        ECTS
-                                                                    </span>
-                                                                </div>
-                                                                <div className="flex flex-wrap gap-4 text-sm text-neutral-600 dark:text-neutral-400">
-                                                                    <div className="flex items-center gap-2">
-                                                                        <IconBooks className="h-4 w-4" />
-                                                                        <span>
+                                                        <AnimatedCard
+                                                            delay={index * 0.05}
+                                                            className="bg-neutral-50 dark:bg-neutral-900 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700"
+                                                        >
+                                                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                                                <div className="space-y-2">
+                                                                    <div className="flex items-center gap-3">
+                                                                        <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
                                                                             {
-                                                                                subject.code
+                                                                                subject.name
                                                                             }
+                                                                        </h3>
+                                                                        <span
+                                                                            className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                                                                subject.isElective
+                                                                                    ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
+                                                                                    : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                                                                            }`}
+                                                                        >
+                                                                            {subject.isElective
+                                                                                ? 'Izborni'
+                                                                                : 'Obavezni'}
+                                                                        </span>
+                                                                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                                                                            {
+                                                                                subject.ects
+                                                                            }{' '}
+                                                                            ECTS
                                                                         </span>
                                                                     </div>
-                                                                    {subject.professor && (
+                                                                    <div className="flex flex-wrap gap-4 text-sm text-neutral-600 dark:text-neutral-400">
                                                                         <div className="flex items-center gap-2">
-                                                                            <IconUserCircle className="h-4 w-4" />
+                                                                            <IconBooks className="h-4 w-4" />
                                                                             <span>
                                                                                 {
-                                                                                    subject
-                                                                                        .professor
-                                                                                        .fullName
+                                                                                    subject.code
                                                                                 }
                                                                             </span>
                                                                         </div>
-                                                                    )}
+                                                                        {subject.professor && (
+                                                                            <div className="flex items-center gap-2">
+                                                                                <IconUserCircle className="h-4 w-4" />
+                                                                                <span>
+                                                                                    {
+                                                                                        subject
+                                                                                            .professor
+                                                                                            .fullName
+                                                                                    }
+                                                                                </span>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    </div>
+                                                        </AnimatedCard>
+                                                    </AnimatedListItem>
                                                 )
                                             )}
-                                        </div>
+                                        </AnimatedList>
                                     </div>
                                 )}
 
                                 {/* Semester 2 */}
                                 {semester2Subjects.length > 0 && (
                                     <div className="space-y-3">
-                                        <h3 className="text-lg font-medium text-blue-600 dark:text-blue-400">
-                                            Semester 2
-                                        </h3>
-                                        <div className="space-y-3">
+                                        <motion.h3
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.6 }}
+                                            className="text-lg font-medium text-blue-600 dark:text-blue-400"
+                                        >
+                                            ⭐ Semestar 2
+                                        </motion.h3>
+                                        <AnimatedList>
                                             {semester2Subjects.map(
-                                                (subject) => (
-                                                    <div
+                                                (subject, index) => (
+                                                    <AnimatedListItem
                                                         key={subject.id}
-                                                        className="bg-neutral-50 dark:bg-neutral-900 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700"
+                                                        index={index}
                                                     >
-                                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                                            <div className="space-y-2">
-                                                                <div className="flex items-center gap-3">
-                                                                    <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
-                                                                        {
-                                                                            subject.name
-                                                                        }
-                                                                    </h3>
-                                                                    <span
-                                                                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                                                            subject.isElective
-                                                                                ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
-                                                                                : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                                                                        }`}
-                                                                    >
-                                                                        {subject.isElective
-                                                                            ? 'Izborni'
-                                                                            : 'Obavezni'}
-                                                                    </span>
-                                                                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                                                                        {
-                                                                            subject.ects
-                                                                        }{' '}
-                                                                        ECTS
-                                                                    </span>
-                                                                </div>
-                                                                <div className="flex flex-wrap gap-4 text-sm text-neutral-600 dark:text-neutral-400">
-                                                                    <div className="flex items-center gap-2">
-                                                                        <IconBooks className="h-4 w-4" />
-                                                                        <span>
+                                                        <AnimatedCard
+                                                            delay={index * 0.05}
+                                                            className="bg-neutral-50 dark:bg-neutral-900 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700"
+                                                        >
+                                                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                                                <div className="space-y-2">
+                                                                    <div className="flex items-center gap-3">
+                                                                        <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
                                                                             {
-                                                                                subject.code
+                                                                                subject.name
                                                                             }
+                                                                        </h3>
+                                                                        <span
+                                                                            className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                                                                subject.isElective
+                                                                                    ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
+                                                                                    : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                                                                            }`}
+                                                                        >
+                                                                            {subject.isElective
+                                                                                ? 'Izborni'
+                                                                                : 'Obavezni'}
+                                                                        </span>
+                                                                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                                                                            {
+                                                                                subject.ects
+                                                                            }{' '}
+                                                                            ECTS
                                                                         </span>
                                                                     </div>
-                                                                    {subject.professor && (
+                                                                    <div className="flex flex-wrap gap-4 text-sm text-neutral-600 dark:text-neutral-400">
                                                                         <div className="flex items-center gap-2">
-                                                                            <IconUserCircle className="h-4 w-4" />
+                                                                            <IconBooks className="h-4 w-4" />
                                                                             <span>
                                                                                 {
-                                                                                    subject
-                                                                                        .professor
-                                                                                        .fullName
+                                                                                    subject.code
                                                                                 }
                                                                             </span>
                                                                         </div>
-                                                                    )}
+                                                                        {subject.professor && (
+                                                                            <div className="flex items-center gap-2">
+                                                                                <IconUserCircle className="h-4 w-4" />
+                                                                                <span>
+                                                                                    {
+                                                                                        subject
+                                                                                            .professor
+                                                                                            .fullName
+                                                                                    }
+                                                                                </span>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    </div>
+                                                        </AnimatedCard>
+                                                    </AnimatedListItem>
                                                 )
                                             )}
-                                        </div>
+                                        </AnimatedList>
                                     </div>
                                 )}
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
             </div>
-        </div>
+        </motion.div>
     )
 }
 

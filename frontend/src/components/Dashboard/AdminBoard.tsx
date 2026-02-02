@@ -1,8 +1,10 @@
 import { IconLogout, IconSchool } from '@tabler/icons-react'
+import { motion } from 'framer-motion'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../Context'
 import { BACKEND_URL, NLP_URL } from '../../constants/storage'
+import { fadeInUp, staggerContainer } from '../../lib/animations'
 import { toastError, toastSuccess } from '../../lib/toast'
 import {
     BackendDocumentRequest,
@@ -10,6 +12,7 @@ import {
     StudentFormData,
 } from '../../types/AdminTypes/admin'
 import { BackendNews } from '../../types/NewsTypes/NewsTypes'
+import { FloatingElements } from '../ui'
 import StudentCard from './AdminComponents/AdminComponent/StudentCard'
 import NewsCard from './AdminComponents/NewsComponent/NewsCard'
 import ProfessorCard from './AdminComponents/ProfessorComponent/ProfessorCard'
@@ -344,9 +347,16 @@ const AdminPanel: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
+            {/* Floating background elements */}
+            <FloatingElements count={3} />
             {/* Top Navigation Bar */}
-            <nav className="bg-white shadow-sm border-b border-gray-200">
+            <motion.nav
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="bg-white shadow-sm border-b border-gray-200 relative z-20"
+            >
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
                         <div className="flex items-center space-x-4">
@@ -369,11 +379,19 @@ const AdminPanel: React.FC = () => {
                         </button>
                     </div>
                 </div>
-            </nav>
+            </motion.nav>
 
             {/* Main Content */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <motion.div
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+                className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10"
+            >
+                <motion.div
+                    variants={fadeInUp}
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                >
                     {/* Card 1: Add Student */}
                     <StudentCard onSubmit={handleAddStudent} />
 
@@ -408,8 +426,8 @@ const AdminPanel: React.FC = () => {
                             })
                         }
                     />
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
         </div>
     )
 }

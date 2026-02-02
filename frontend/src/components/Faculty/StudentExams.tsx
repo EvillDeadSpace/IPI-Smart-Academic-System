@@ -6,11 +6,20 @@ import {
     IconMapPin,
     IconUserCircle,
 } from '@tabler/icons-react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { FC, useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../../Context'
 import { BACKEND_URL } from '../../constants/storage'
-
+import { pageTransition, staggerContainer } from '../../lib/animations'
 import { Exam, ExamRegistration } from '../../types/SubjectTypes/exam'
+import {
+    AnimatedButton,
+    AnimatedCard,
+    AnimatedCounter,
+    AnimatedList,
+    AnimatedListItem,
+    FloatingElements,
+} from '../ui'
 
 const StudentExams: FC = () => {
     const { studentMail: contextMail } = useAuth()
@@ -159,84 +168,155 @@ const StudentExams: FC = () => {
     if (loading) {
         return (
             <div className="flex flex-1 h-screen bg-white dark:bg-neutral-900 items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center"
+                >
+                    <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{
+                            duration: 1,
+                            repeat: Infinity,
+                            ease: 'linear',
+                        }}
+                        className="rounded-full h-12 w-12 border-b-2 border-t-2 border-blue-600 mx-auto mb-4"
+                    />
                     <p className="text-gray-600 dark:text-gray-400">
                         Učitavanje ispita...
                     </p>
-                </div>
+                </motion.div>
             </div>
         )
     }
 
     return (
-        <div className="flex flex-1 h-screen bg-white dark:bg-neutral-900">
-            <div className="flex flex-1 overflow-auto border-l border-neutral-200 dark:border-neutral-700">
+        <motion.div
+            variants={pageTransition}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="flex flex-1 h-screen bg-white dark:bg-neutral-900 relative overflow-hidden"
+        >
+            {/* Floating background elements */}
+            <FloatingElements count={3} />
+
+            <div className="flex flex-1 overflow-auto border-l border-neutral-200 dark:border-neutral-700 relative z-10">
                 <div className="p-6 pb-6 flex flex-col gap-6 flex-1 w-full min-h-full">
                     {/* Welcome Section */}
-                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white">
-                        <h1 className="text-2xl font-semibold mb-2">
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl"
+                    >
+                        <motion.h1
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="text-2xl font-semibold mb-2"
+                        >
                             📝 Moji Ispiti
-                        </h1>
-                        <p className="opacity-90">
+                        </motion.h1>
+                        <motion.p
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 0.9 }}
+                            transition={{ delay: 0.3 }}
+                        >
                             Pregled prijavljenih, dostupnih i završenih ispita
-                        </p>
-                    </div>
+                        </motion.p>
+                    </motion.div>
 
                     {/* Quick Stats */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700">
+                    <motion.div
+                        variants={staggerContainer}
+                        initial="initial"
+                        animate="animate"
+                        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                    >
+                        <AnimatedCard
+                            delay={0.1}
+                            className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700"
+                        >
                             <div className="flex items-center gap-4">
-                                <div className="bg-green-100 dark:bg-green-900/20 p-3 rounded-lg">
+                                <motion.div
+                                    whileHover={{ scale: 1.1, rotate: 360 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="bg-green-100 dark:bg-green-900/20 p-3 rounded-lg"
+                                >
                                     <IconCheck className="h-6 w-6 text-green-600 dark:text-green-400" />
-                                </div>
+                                </motion.div>
                                 <div>
                                     <p className="text-sm text-neutral-600 dark:text-neutral-400">
                                         Prijavljeni Ispiti
                                     </p>
-                                    <p className="text-2xl font-semibold text-neutral-900 dark:text-white">
-                                        {registeredExams.length}
-                                    </p>
+                                    <AnimatedCounter
+                                        value={registeredExams.length}
+                                        className="text-2xl font-semibold text-neutral-900 dark:text-white"
+                                    />
                                 </div>
                             </div>
-                        </div>
-                        <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700">
+                        </AnimatedCard>
+
+                        <AnimatedCard
+                            delay={0.2}
+                            className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700"
+                        >
                             <div className="flex items-center gap-4">
-                                <div className="bg-amber-100 dark:bg-amber-900/20 p-3 rounded-lg">
+                                <motion.div
+                                    whileHover={{ scale: 1.1, rotate: 360 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="bg-amber-100 dark:bg-amber-900/20 p-3 rounded-lg"
+                                >
                                     <IconCalendarEvent className="h-6 w-6 text-amber-600 dark:text-amber-400" />
-                                </div>
+                                </motion.div>
                                 <div>
                                     <p className="text-sm text-neutral-600 dark:text-neutral-400">
                                         Dostupni Ispiti
                                     </p>
-                                    <p className="text-2xl font-semibold text-neutral-900 dark:text-white">
-                                        {availableExams.length}
-                                    </p>
+                                    <AnimatedCounter
+                                        value={availableExams.length}
+                                        className="text-2xl font-semibold text-neutral-900 dark:text-white"
+                                    />
                                 </div>
                             </div>
-                        </div>
-                        <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700">
+                        </AnimatedCard>
+
+                        <AnimatedCard
+                            delay={0.3}
+                            className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700"
+                        >
                             <div className="flex items-center gap-4">
-                                <div className="bg-blue-100 dark:bg-blue-900/20 p-3 rounded-lg">
+                                <motion.div
+                                    whileHover={{ scale: 1.1, rotate: 360 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="bg-blue-100 dark:bg-blue-900/20 p-3 rounded-lg"
+                                >
                                     <IconAlertCircle className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                                </div>
+                                </motion.div>
                                 <div>
                                     <p className="text-sm text-neutral-600 dark:text-neutral-400">
                                         Završeni Ispiti
                                     </p>
-                                    <p className="text-2xl font-semibold text-neutral-900 dark:text-white">
-                                        {completedExams.length}
-                                    </p>
+                                    <AnimatedCounter
+                                        value={completedExams.length}
+                                        className="text-2xl font-semibold text-neutral-900 dark:text-white"
+                                    />
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                        </AnimatedCard>
+                    </motion.div>
 
                     {/* Tabs */}
-                    <div className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700">
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+                    >
                         <div className="border-b border-neutral-200 dark:border-neutral-700">
                             <div className="flex gap-2 p-2">
-                                <button
+                                <AnimatedButton
                                     onClick={() => setActiveTab('registered')}
                                     className={`flex-1 px-4 py-3 rounded-lg font-medium transition-colors ${
                                         activeTab === 'registered'
@@ -245,8 +325,8 @@ const StudentExams: FC = () => {
                                     }`}
                                 >
                                     ✅ Prijavljeni ({registeredExams.length})
-                                </button>
-                                <button
+                                </AnimatedButton>
+                                <AnimatedButton
                                     onClick={() => setActiveTab('available')}
                                     className={`flex-1 px-4 py-3 rounded-lg font-medium transition-colors ${
                                         activeTab === 'available'
@@ -255,8 +335,8 @@ const StudentExams: FC = () => {
                                     }`}
                                 >
                                     📅 Dostupni ({availableExams.length})
-                                </button>
-                                <button
+                                </AnimatedButton>
+                                <AnimatedButton
                                     onClick={() => setActiveTab('completed')}
                                     className={`flex-1 px-4 py-3 rounded-lg font-medium transition-colors ${
                                         activeTab === 'completed'
@@ -265,420 +345,526 @@ const StudentExams: FC = () => {
                                     }`}
                                 >
                                     ✔️ Završeni ({completedExams.length})
-                                </button>
+                                </AnimatedButton>
                             </div>
                         </div>
 
-                        <div className="p-6">
+                        <AnimatePresence mode="wait">
                             {/* REGISTERED EXAMS TAB */}
                             {activeTab === 'registered' && (
-                                <div className="space-y-4">
+                                <motion.div
+                                    key="registered"
+                                    variants={fadeInUp}
+                                    initial="initial"
+                                    animate="animate"
+                                    exit="exit"
+                                    className="p-6 space-y-4"
+                                >
                                     {registeredExams.length === 0 ? (
-                                        <div className="text-center py-12">
-                                            <div className="bg-neutral-100 dark:bg-neutral-800 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            className="text-center py-12"
+                                        >
+                                            <motion.div
+                                                animate={{ y: [0, -10, 0] }}
+                                                transition={{
+                                                    duration: 2,
+                                                    repeat: Infinity,
+                                                    ease: 'easeInOut',
+                                                }}
+                                                className="bg-neutral-100 dark:bg-neutral-800 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4"
+                                            >
                                                 <IconCalendarEvent className="h-8 w-8 text-neutral-400" />
-                                            </div>
+                                            </motion.div>
                                             <p className="text-neutral-600 dark:text-neutral-400 mb-2">
                                                 Trenutno nemate prijavljenih
                                                 ispita
                                             </p>
-                                            <button
+                                            <AnimatedButton
                                                 onClick={() =>
                                                     setActiveTab('available')
                                                 }
                                                 className="text-blue-600 hover:underline"
                                             >
                                                 Pogledaj dostupne ispite →
-                                            </button>
-                                        </div>
+                                            </AnimatedButton>
+                                        </motion.div>
                                     ) : (
-                                        registeredExams.map((registration) => {
-                                            const exam = registration.exam
-                                            const daysUntil = getDaysUntilExam(
-                                                exam.examTime
-                                            )
-                                            return (
-                                                <div
-                                                    key={registration.id}
-                                                    className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10 rounded-xl p-6 border-2 border-green-200 dark:border-green-800"
-                                                >
-                                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                                        <div className="space-y-3 flex-1">
-                                                            <div className="flex items-start justify-between">
-                                                                <div>
-                                                                    <h3 className="text-xl font-semibold text-neutral-900 dark:text-white mb-1">
-                                                                        {
-                                                                            exam
-                                                                                .subject
-                                                                                .name
-                                                                        }
-                                                                    </h3>
-                                                                    <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                                                                        {
-                                                                            exam
-                                                                                .subject
-                                                                                .code
-                                                                        }{' '}
-                                                                        •{' '}
-                                                                        {
-                                                                            exam
-                                                                                .subject
-                                                                                .ects
-                                                                        }{' '}
-                                                                        ECTS
-                                                                    </p>
-                                                                </div>
-                                                                {daysUntil >
-                                                                    0 && (
-                                                                    <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-3 py-1 rounded-full text-sm font-medium">
-                                                                        {daysUntil ===
-                                                                        1
-                                                                            ? 'Sutra'
-                                                                            : `Za ${daysUntil} dana`}
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                                                                <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
-                                                                    <IconCalendarEvent className="h-4 w-4 text-green-600 dark:text-green-400" />
-                                                                    <span className="font-medium">
-                                                                        {formatDate(
-                                                                            exam.examTime
-                                                                        )}
-                                                                    </span>
-                                                                </div>
-                                                                <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
-                                                                    <IconClock className="h-4 w-4 text-green-600 dark:text-green-400" />
-                                                                    <span className="font-medium">
-                                                                        {formatTime(
-                                                                            exam.examTime
-                                                                        )}
-                                                                    </span>
-                                                                </div>
-                                                                <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
-                                                                    <IconMapPin className="h-4 w-4 text-green-600 dark:text-green-400" />
-                                                                    <span>
-                                                                        {exam.location ||
-                                                                            'Lokacija nije navedena'}
-                                                                    </span>
-                                                                </div>
-                                                                <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
-                                                                    <IconUserCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-                                                                    <span>
-                                                                        {exam
-                                                                            .professor
-                                                                            .title ||
-                                                                            ''}{' '}
-                                                                        {
-                                                                            exam
-                                                                                .professor
-                                                                                .firstName
-                                                                        }{' '}
-                                                                        {
-                                                                            exam
-                                                                                .professor
-                                                                                .lastName
-                                                                        }
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-                                                                <span className="bg-neutral-100 dark:bg-neutral-800 px-2 py-1 rounded">
-                                                                    Max bodova:{' '}
-                                                                    {
-                                                                        exam.maxPoints
-                                                                    }
-                                                                </span>
-                                                                <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded">
-                                                                    Status:{' '}
-                                                                    {
-                                                                        registration.status
-                                                                    }
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex flex-col gap-2">
-                                                            <button
-                                                                onClick={() =>
-                                                                    handleUnregisterExam(
-                                                                        registration.id
-                                                                    )
+                                        <AnimatedList>
+                                            {registeredExams.map(
+                                                (registration, index) => {
+                                                    const exam =
+                                                        registration.exam
+                                                    const daysUntil =
+                                                        getDaysUntilExam(
+                                                            exam.examTime
+                                                        )
+                                                    return (
+                                                        <AnimatedListItem
+                                                            key={
+                                                                registration.id
+                                                            }
+                                                            index={index}
+                                                        >
+                                                            <AnimatedCard
+                                                                delay={
+                                                                    index * 0.1
                                                                 }
-                                                                className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-colors font-medium"
+                                                                className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10 rounded-xl p-6 border-2 border-green-200 dark:border-green-800"
                                                             >
-                                                                Odjavi se
-                                                            </button>
-                                                            <p className="text-xs text-neutral-500 dark:text-neutral-400 text-center">
-                                                                Prijavljen{' '}
-                                                                {formatDate(
-                                                                    registration.registrationDate
-                                                                )}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )
-                                        })
+                                                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                                                    <div className="space-y-3 flex-1">
+                                                                        <div className="flex items-start justify-between">
+                                                                            <div>
+                                                                                <h3 className="text-xl font-semibold text-neutral-900 dark:text-white mb-1">
+                                                                                    {
+                                                                                        exam
+                                                                                            .subject
+                                                                                            .name
+                                                                                    }
+                                                                                </h3>
+                                                                                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                                                                                    {
+                                                                                        exam
+                                                                                            .subject
+                                                                                            .code
+                                                                                    }{' '}
+                                                                                    •{' '}
+                                                                                    {
+                                                                                        exam
+                                                                                            .subject
+                                                                                            .ects
+                                                                                    }{' '}
+                                                                                    ECTS
+                                                                                </p>
+                                                                            </div>
+                                                                            {daysUntil >
+                                                                                0 && (
+                                                                                <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-3 py-1 rounded-full text-sm font-medium">
+                                                                                    {daysUntil ===
+                                                                                    1
+                                                                                        ? 'Sutra'
+                                                                                        : `Za ${daysUntil} dana`}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                                                            <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                                                                                <IconCalendarEvent className="h-4 w-4 text-green-600 dark:text-green-400" />
+                                                                                <span className="font-medium">
+                                                                                    {formatDate(
+                                                                                        exam.examTime
+                                                                                    )}
+                                                                                </span>
+                                                                            </div>
+                                                                            <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                                                                                <IconClock className="h-4 w-4 text-green-600 dark:text-green-400" />
+                                                                                <span className="font-medium">
+                                                                                    {formatTime(
+                                                                                        exam.examTime
+                                                                                    )}
+                                                                                </span>
+                                                                            </div>
+                                                                            <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                                                                                <IconMapPin className="h-4 w-4 text-green-600 dark:text-green-400" />
+                                                                                <span>
+                                                                                    {exam.location ||
+                                                                                        'Lokacija nije navedena'}
+                                                                                </span>
+                                                                            </div>
+                                                                            <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                                                                                <IconUserCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                                                                                <span>
+                                                                                    {exam
+                                                                                        .professor
+                                                                                        .title ||
+                                                                                        ''}{' '}
+                                                                                    {
+                                                                                        exam
+                                                                                            .professor
+                                                                                            .firstName
+                                                                                    }{' '}
+                                                                                    {
+                                                                                        exam
+                                                                                            .professor
+                                                                                            .lastName
+                                                                                    }
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
+                                                                            <span className="bg-neutral-100 dark:bg-neutral-800 px-2 py-1 rounded">
+                                                                                Max
+                                                                                bodova:{' '}
+                                                                                {
+                                                                                    exam.maxPoints
+                                                                                }
+                                                                            </span>
+                                                                            <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded">
+                                                                                Status:{' '}
+                                                                                {
+                                                                                    registration.status
+                                                                                }
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="flex flex-col gap-2">
+                                                                        <AnimatedButton
+                                                                            onClick={() =>
+                                                                                handleUnregisterExam(
+                                                                                    registration.id
+                                                                                )
+                                                                            }
+                                                                            className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-colors font-medium"
+                                                                        >
+                                                                            Odjavi
+                                                                            se
+                                                                        </AnimatedButton>
+                                                                        <p className="text-xs text-neutral-500 dark:text-neutral-400 text-center">
+                                                                            Prijavljen{' '}
+                                                                            {formatDate(
+                                                                                registration.registrationDate
+                                                                            )}
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </AnimatedCard>
+                                                        </AnimatedListItem>
+                                                    )
+                                                }
+                                            )}
+                                        </AnimatedList>
                                     )}
-                                </div>
+                                </motion.div>
                             )}
 
                             {/* AVAILABLE EXAMS TAB */}
                             {activeTab === 'available' && (
-                                <div className="space-y-4">
+                                <motion.div
+                                    key="available"
+                                    variants={fadeInUp}
+                                    initial="initial"
+                                    animate="animate"
+                                    exit="exit"
+                                    className="p-6 space-y-4"
+                                >
                                     {availableExams.length === 0 ? (
-                                        <div className="text-center py-12">
-                                            <div className="bg-neutral-100 dark:bg-neutral-800 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            className="text-center py-12"
+                                        >
+                                            <motion.div
+                                                animate={{ y: [0, -10, 0] }}
+                                                transition={{
+                                                    duration: 2,
+                                                    repeat: Infinity,
+                                                    ease: 'easeInOut',
+                                                }}
+                                                className="bg-neutral-100 dark:bg-neutral-800 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4"
+                                            >
                                                 <IconCalendarEvent className="h-8 w-8 text-neutral-400" />
-                                            </div>
+                                            </motion.div>
                                             <p className="text-neutral-600 dark:text-neutral-400">
                                                 Trenutno nema dostupnih ispita
                                                 za vaše predmete
                                             </p>
-                                        </div>
+                                        </motion.div>
                                     ) : (
-                                        availableExams.map((exam) => {
-                                            const daysUntil = getDaysUntilExam(
-                                                exam.examTime
-                                            )
-                                            const canRegister =
-                                                daysUntil > 0 &&
-                                                !exam.isRegistered
-                                            return (
-                                                <div
-                                                    key={exam.id}
-                                                    className={`rounded-xl p-6 border-2 transition-all ${
-                                                        exam.isRegistered
-                                                            ? 'bg-neutral-50 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-700 opacity-60'
-                                                            : 'bg-white dark:bg-neutral-800 border-amber-200 dark:border-amber-800 hover:border-amber-400 dark:hover:border-amber-600'
-                                                    }`}
-                                                >
-                                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                                        <div className="space-y-3 flex-1">
-                                                            <div className="flex items-start justify-between">
-                                                                <div>
-                                                                    <h3 className="text-xl font-semibold text-neutral-900 dark:text-white mb-1">
-                                                                        {
-                                                                            exam
-                                                                                .subject
-                                                                                .name
-                                                                        }
-                                                                    </h3>
-                                                                    <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                                                                        {
-                                                                            exam
-                                                                                .subject
-                                                                                .code
-                                                                        }{' '}
-                                                                        •{' '}
-                                                                        {
-                                                                            exam
-                                                                                .subject
-                                                                                .ects
-                                                                        }{' '}
-                                                                        ECTS
-                                                                    </p>
-                                                                </div>
-                                                                {exam.isRegistered && (
-                                                                    <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-sm font-medium">
-                                                                        ✓
-                                                                        Prijavljen
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                                                                <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
-                                                                    <IconCalendarEvent className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                                                                    <span className="font-medium">
-                                                                        {formatDate(
-                                                                            exam.examTime
+                                        <AnimatedList>
+                                            {availableExams.map(
+                                                (exam, index) => {
+                                                    const daysUntil =
+                                                        getDaysUntilExam(
+                                                            exam.examTime
+                                                        )
+                                                    const canRegister =
+                                                        daysUntil > 0 &&
+                                                        !exam.isRegistered
+                                                    return (
+                                                        <AnimatedListItem
+                                                            key={exam.id}
+                                                            index={index}
+                                                        >
+                                                            <AnimatedCard
+                                                                delay={
+                                                                    index * 0.1
+                                                                }
+                                                                className={`rounded-xl p-6 border-2 transition-all ${
+                                                                    exam.isRegistered
+                                                                        ? 'bg-neutral-50 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-700 opacity-60'
+                                                                        : 'bg-white dark:bg-neutral-800 border-amber-200 dark:border-amber-800 hover:border-amber-400 dark:hover:border-amber-600'
+                                                                }`}
+                                                            >
+                                                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                                                    <div className="space-y-3 flex-1">
+                                                                        <div className="flex items-start justify-between">
+                                                                            <div>
+                                                                                <h3 className="text-xl font-semibold text-neutral-900 dark:text-white mb-1">
+                                                                                    {
+                                                                                        exam
+                                                                                            .subject
+                                                                                            .name
+                                                                                    }
+                                                                                </h3>
+                                                                                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                                                                                    {
+                                                                                        exam
+                                                                                            .subject
+                                                                                            .code
+                                                                                    }{' '}
+                                                                                    •{' '}
+                                                                                    {
+                                                                                        exam
+                                                                                            .subject
+                                                                                            .ects
+                                                                                    }{' '}
+                                                                                    ECTS
+                                                                                </p>
+                                                                            </div>
+                                                                            {exam.isRegistered && (
+                                                                                <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-sm font-medium">
+                                                                                    ✓
+                                                                                    Prijavljen
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                                                            <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                                                                                <IconCalendarEvent className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                                                                                <span className="font-medium">
+                                                                                    {formatDate(
+                                                                                        exam.examTime
+                                                                                    )}
+                                                                                </span>
+                                                                            </div>
+                                                                            <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                                                                                <IconClock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                                                                                <span className="font-medium">
+                                                                                    {formatTime(
+                                                                                        exam.examTime
+                                                                                    )}
+                                                                                </span>
+                                                                            </div>
+                                                                            <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                                                                                <IconMapPin className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                                                                                <span>
+                                                                                    {exam.location ||
+                                                                                        'Lokacija nije navedena'}
+                                                                                </span>
+                                                                            </div>
+                                                                            <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                                                                                <IconUserCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                                                                                <span>
+                                                                                    {exam
+                                                                                        .professor
+                                                                                        .title ||
+                                                                                        ''}{' '}
+                                                                                    {
+                                                                                        exam
+                                                                                            .professor
+                                                                                            .firstName
+                                                                                    }{' '}
+                                                                                    {
+                                                                                        exam
+                                                                                            .professor
+                                                                                            .lastName
+                                                                                    }
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="text-sm text-neutral-600 dark:text-neutral-400">
+                                                                            <span className="bg-neutral-100 dark:bg-neutral-800 px-2 py-1 rounded">
+                                                                                Max
+                                                                                bodova:{' '}
+                                                                                {
+                                                                                    exam.maxPoints
+                                                                                }
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div>
+                                                                        {canRegister ? (
+                                                                            <AnimatedButton
+                                                                                onClick={() =>
+                                                                                    handleRegisterExam(
+                                                                                        exam.id
+                                                                                    )
+                                                                                }
+                                                                                className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors font-medium whitespace-nowrap"
+                                                                            >
+                                                                                Prijavi
+                                                                                se
+                                                                            </AnimatedButton>
+                                                                        ) : exam.isRegistered ? (
+                                                                            <motion.span
+                                                                                initial={{
+                                                                                    scale: 0,
+                                                                                }}
+                                                                                animate={{
+                                                                                    scale: 1,
+                                                                                }}
+                                                                                className="text-green-600 dark:text-green-400 text-sm font-medium"
+                                                                            >
+                                                                                Već
+                                                                                prijavljen
+                                                                            </motion.span>
+                                                                        ) : (
+                                                                            <span className="text-neutral-500 text-sm">
+                                                                                Ispit
+                                                                                prošao
+                                                                            </span>
                                                                         )}
-                                                                    </span>
+                                                                    </div>
                                                                 </div>
-                                                                <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
-                                                                    <IconClock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                                                                    <span className="font-medium">
-                                                                        {formatTime(
-                                                                            exam.examTime
-                                                                        )}
-                                                                    </span>
-                                                                </div>
-                                                                <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
-                                                                    <IconMapPin className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                                                                    <span>
-                                                                        {exam.location ||
-                                                                            'Lokacija nije navedena'}
-                                                                    </span>
-                                                                </div>
-                                                                <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
-                                                                    <IconUserCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                                                                    <span>
-                                                                        {exam
-                                                                            .professor
-                                                                            .title ||
-                                                                            ''}{' '}
-                                                                        {
-                                                                            exam
-                                                                                .professor
-                                                                                .firstName
-                                                                        }{' '}
-                                                                        {
-                                                                            exam
-                                                                                .professor
-                                                                                .lastName
-                                                                        }
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                            <div className="text-sm text-neutral-600 dark:text-neutral-400">
-                                                                <span className="bg-neutral-100 dark:bg-neutral-800 px-2 py-1 rounded">
-                                                                    Max bodova:{' '}
-                                                                    {
-                                                                        exam.maxPoints
-                                                                    }
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                        <div>
-                                                            {canRegister ? (
-                                                                <button
-                                                                    onClick={() =>
-                                                                        handleRegisterExam(
-                                                                            exam.id
-                                                                        )
-                                                                    }
-                                                                    className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors font-medium whitespace-nowrap"
-                                                                >
-                                                                    Prijavi se
-                                                                </button>
-                                                            ) : exam.isRegistered ? (
-                                                                <span className="text-green-600 dark:text-green-400 text-sm font-medium">
-                                                                    Već
-                                                                    prijavljen
-                                                                </span>
-                                                            ) : (
-                                                                <span className="text-neutral-500 text-sm">
-                                                                    Ispit prošao
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )
-                                        })
+                                                            </AnimatedCard>
+                                                        </AnimatedListItem>
+                                                    )
+                                                }
+                                            )}
+                                        </AnimatedList>
                                     )}
-                                </div>
+                                </motion.div>
                             )}
 
                             {/* COMPLETED EXAMS TAB */}
                             {activeTab === 'completed' && (
-                                <div className="space-y-4">
+                                <motion.div
+                                    key="completed"
+                                    variants={fadeInUp}
+                                    initial="initial"
+                                    animate="animate"
+                                    exit="exit"
+                                    className="p-6 space-y-4"
+                                >
                                     {completedExams.length === 0 ? (
-                                        <div className="text-center py-12">
-                                            <div className="bg-neutral-100 dark:bg-neutral-800 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            className="text-center py-12"
+                                        >
+                                            <motion.div
+                                                animate={{ y: [0, -10, 0] }}
+                                                transition={{
+                                                    duration: 2,
+                                                    repeat: Infinity,
+                                                    ease: 'easeInOut',
+                                                }}
+                                                className="bg-neutral-100 dark:bg-neutral-800 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4"
+                                            >
                                                 <IconCheck className="h-8 w-8 text-neutral-400" />
-                                            </div>
+                                            </motion.div>
                                             <p className="text-neutral-600 dark:text-neutral-400">
                                                 Nemate završenih ispita
                                             </p>
-                                        </div>
+                                        </motion.div>
                                     ) : (
-                                        completedExams.map((exam) => (
-                                            <div
-                                                key={exam.id}
-                                                className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-xl p-6 border-2 border-blue-200 dark:border-blue-800"
-                                            >
-                                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                                    <div className="space-y-3 flex-1">
-                                                        <div className="flex items-start justify-between">
-                                                            <div>
-                                                                <h3 className="text-xl font-semibold text-neutral-900 dark:text-white mb-1">
-                                                                    {
-                                                                        exam
-                                                                            .subject
-                                                                            .name
-                                                                    }
-                                                                </h3>
-                                                                <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                                                                    {
-                                                                        exam
-                                                                            .subject
-                                                                            .code
-                                                                    }{' '}
-                                                                    •{' '}
-                                                                    {
-                                                                        exam
-                                                                            .subject
-                                                                            .ects
-                                                                    }{' '}
-                                                                    ECTS
-                                                                </p>
-                                                            </div>
-                                                            {exam.grade && (
-                                                                <div className="text-right">
-                                                                    <div
-                                                                        className={`text-3xl font-bold ${getGradeColor(
-                                                                            exam.grade
-                                                                        )}`}
-                                                                    >
-                                                                        {
-                                                                            exam.grade
-                                                                        }
+                                        <AnimatedList>
+                                            {completedExams.map(
+                                                (exam, index) => (
+                                                    <AnimatedListItem
+                                                        key={exam.id}
+                                                        index={index}
+                                                    >
+                                                        <AnimatedCard
+                                                            delay={index * 0.1}
+                                                            className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-xl p-6 border-2 border-blue-200 dark:border-blue-800"
+                                                        >
+                                                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                                                <div className="space-y-3 flex-1">
+                                                                    <div className="flex items-start justify-between">
+                                                                        <div>
+                                                                            <h3 className="text-xl font-semibold text-neutral-900 dark:text-white mb-1">
+                                                                                {
+                                                                                    exam
+                                                                                        .subject
+                                                                                        .name
+                                                                                }
+                                                                            </h3>
+                                                                            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                                                                                {
+                                                                                    exam
+                                                                                        .subject
+                                                                                        .code
+                                                                                }{' '}
+                                                                                •{' '}
+                                                                                {
+                                                                                    exam
+                                                                                        .subject
+                                                                                        .ects
+                                                                                }{' '}
+                                                                                ECTS
+                                                                            </p>
+                                                                        </div>
+                                                                        {exam.grade && (
+                                                                            <div className="text-right">
+                                                                                <div
+                                                                                    className={`text-3xl font-bold ${getGradeColor(
+                                                                                        exam.grade
+                                                                                    )}`}
+                                                                                >
+                                                                                    {
+                                                                                        exam.grade
+                                                                                    }
+                                                                                </div>
+                                                                                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                                                                    Ocjena
+                                                                                </p>
+                                                                            </div>
+                                                                        )}
                                                                     </div>
-                                                                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                                                                        Ocjena
-                                                                    </p>
+                                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                                                        <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                                                                            <IconCalendarEvent className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                                                            <span>
+                                                                                {formatDate(
+                                                                                    exam.examTime
+                                                                                )}
+                                                                            </span>
+                                                                        </div>
+                                                                        <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                                                                            <IconMapPin className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                                                            <span>
+                                                                                {exam.location ||
+                                                                                    'Lokacija nije navedena'}
+                                                                            </span>
+                                                                        </div>
+                                                                        <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                                                                            <IconUserCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                                                            <span>
+                                                                                {exam
+                                                                                    .professor
+                                                                                    .title ||
+                                                                                    ''}{' '}
+                                                                                {
+                                                                                    exam
+                                                                                        .professor
+                                                                                        .firstName
+                                                                                }{' '}
+                                                                                {
+                                                                                    exam
+                                                                                        .professor
+                                                                                        .lastName
+                                                                                }
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
-                                                            )}
-                                                        </div>
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                                                            <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
-                                                                <IconCalendarEvent className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                                                                <span>
-                                                                    {formatDate(
-                                                                        exam.examTime
-                                                                    )}
-                                                                </span>
                                                             </div>
-                                                            <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
-                                                                <IconMapPin className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                                                                <span>
-                                                                    {exam.location ||
-                                                                        'Lokacija nije navedena'}
-                                                                </span>
-                                                            </div>
-                                                            <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
-                                                                <IconUserCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                                                                <span>
-                                                                    {exam
-                                                                        .professor
-                                                                        .title ||
-                                                                        ''}{' '}
-                                                                    {
-                                                                        exam
-                                                                            .professor
-                                                                            .firstName
-                                                                    }{' '}
-                                                                    {
-                                                                        exam
-                                                                            .professor
-                                                                            .lastName
-                                                                    }
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))
+                                                        </AnimatedCard>
+                                                    </AnimatedListItem>
+                                                )
+                                            )}
+                                        </AnimatedList>
                                     )}
-                                </div>
+                                </motion.div>
                             )}
-                        </div>
-                    </div>
+                        </AnimatePresence>
+                    </motion.div>
                 </div>
             </div>
-        </div>
+        </motion.div>
     )
 }
 

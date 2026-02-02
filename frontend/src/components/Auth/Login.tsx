@@ -1,16 +1,17 @@
+import { motion } from 'framer-motion'
 import { FC, useState } from 'react'
+import {
+    AiOutlineArrowRight,
+    AiOutlineEye,
+    AiOutlineEyeInvisible,
+    AiOutlineLock,
+    AiOutlineMail,
+} from 'react-icons/ai'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../Context'
 import { BACKEND_URL } from '../../constants/storage'
-import { motion } from 'framer-motion'
-import {
-    AiOutlineEye,
-    AiOutlineEyeInvisible,
-    AiOutlineMail,
-    AiOutlineLock,
-    AiOutlineArrowRight,
-} from 'react-icons/ai'
-import { toastError, toastSuccess, toastInfo } from '../../lib/toast'
+import { toastError, toastInfo, toastSuccess } from '../../lib/toast'
+import { FloatingElements } from '../ui'
 
 const Login: FC = () => {
     const [password, setPassword] = useState<string>('')
@@ -164,10 +165,46 @@ const Login: FC = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center px-4 pt-24 pb-12 relative overflow-hidden">
-            {/* Background decorative elements */}
-            <div className="absolute top-0 left-0 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-pulse" />
-            <div className="absolute bottom-0 right-0 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-pulse" />
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-indigo-400 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-pulse" />
+            {/* Enhanced background with FloatingElements */}
+            <FloatingElements count={5} />
+
+            {/* Additional gradient blobs */}
+            <motion.div
+                animate={{
+                    scale: [1, 1.2, 1],
+                    opacity: [0.15, 0.25, 0.15],
+                }}
+                transition={{
+                    duration: 8,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                }}
+                className="absolute top-0 left-0 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl"
+            />
+            <motion.div
+                animate={{
+                    scale: [1, 1.1, 1],
+                    opacity: [0.15, 0.2, 0.15],
+                }}
+                transition={{
+                    duration: 10,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                }}
+                className="absolute bottom-0 right-0 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl"
+            />
+            <motion.div
+                animate={{
+                    scale: [1, 1.3, 1],
+                    opacity: [0.15, 0.3, 0.15],
+                }}
+                transition={{
+                    duration: 12,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                }}
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-indigo-400 rounded-full mix-blend-multiply filter blur-3xl"
+            />
 
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
