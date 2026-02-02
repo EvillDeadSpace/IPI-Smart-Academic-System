@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import { GiHamburgerMenu } from 'react-icons/gi'
 import { IoClose } from 'react-icons/io5'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../Context'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
 
 import { navLinks } from './AnimationHeader'
 
@@ -14,7 +14,21 @@ const Header = () => {
     const [scrolled, setScrolled] = useState(false)
     const nav = useNavigate()
     const location = useLocation()
-    const { studentMail, logout } = useAuth()
+    const { studentMail, logout, userType } = useAuth()
+
+    // Function to get dashboard route based on user type
+    const getDashboardRoute = () => {
+        switch (userType) {
+            case 'STUDENT':
+                return '/dashboard/home'
+            case 'PROFESSOR':
+                return '/profesor'
+            case 'ADMIN':
+                return '/admin'
+            default:
+                return '/login'
+        }
+    }
 
     useEffect(() => {
         const debounce = (func: () => void, delay: number) => {
@@ -121,7 +135,7 @@ const Header = () => {
                                         >
                                             <div className="py-1">
                                                 <Link
-                                                    to="/dashboard"
+                                                    to={getDashboardRoute()}
                                                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 transition-colors duration-300"
                                                 >
                                                     Dashboard
@@ -222,7 +236,7 @@ const Header = () => {
                                                 </div>
                                             </div>
                                             <Link
-                                                to="/dashboard"
+                                                to={getDashboardRoute()}
                                                 onClick={toggleSidebar}
                                                 className="block w-full px-4 py-2 mt-4 text-center text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors duration-300"
                                             >
