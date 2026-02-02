@@ -4,6 +4,16 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 
 def preprocess_text_for_comparison(text: str) -> str:
+    """
+    Prepare input text for similarity comparison by normalizing and removing stop words.
+
+    The text is first passed through `normalize_text`, then split into tokens.
+    Tokens that appear in the global `STOP_WORDS` set are removed, and the
+    remaining tokens are joined back into a single space-separated string.
+
+    :param text: Raw input text to be preprocessed.
+    :return: A normalized string with stop words removed, suitable for vectorization.
+    """
     toks = normalize_text(text=text).split()
     return " ".join([t for t in toks if t not in STOP_WORDS])
 

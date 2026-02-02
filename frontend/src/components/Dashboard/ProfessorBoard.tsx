@@ -442,7 +442,10 @@ const ProfessorBoard: React.FC = () => {
                 toastError(errMsg)
             }
         } catch (error) {
-            toastError('Greška pri poređenju zadaća')
+            toastError(
+                'Greška pri poređenju zadaća' +
+                    (error instanceof Error ? `: ${error.message}` : '')
+            )
             console.error('Comparison error:', error)
         } finally {
             setIsComparing(false)
@@ -1040,7 +1043,7 @@ const ProfessorBoard: React.FC = () => {
                                         </div>
                                         <div className="mt-2 text-xs text-gray-400">
                                             {(similaritySummary?.score ?? 0) >=
-                                                0.9 && (
+                                                SIMILARITY_THRESHOLD_CRITICAL && (
                                                 <>
                                                     <strong>Upozorenje:</strong>{' '}
                                                     Visoka vjerovatnoća
@@ -1048,9 +1051,10 @@ const ProfessorBoard: React.FC = () => {
                                                 </>
                                             )}
                                             {(similaritySummary?.score ?? 0) <
-                                                0.9 &&
+                                                SIMILARITY_THRESHOLD_CRITICAL &&
                                                 (similaritySummary?.score ??
-                                                    0) >= 0.75 && (
+                                                    0) >=
+                                                    SIMILARITY_THRESHOLD_WARNING && (
                                                     <>
                                                         <strong>
                                                             Preporuka:
@@ -1060,9 +1064,10 @@ const ProfessorBoard: React.FC = () => {
                                                     </>
                                                 )}
                                             {(similaritySummary?.score ?? 0) <
-                                                0.75 &&
+                                                SIMILARITY_THRESHOLD_WARNING &&
                                                 (similaritySummary?.score ??
-                                                    0) >= 0.45 && (
+                                                    0) >=
+                                                    SIMILARITY_THRESHOLD_NOTICE && (
                                                     <>
                                                         <strong>
                                                             Napomena:
@@ -1073,7 +1078,7 @@ const ProfessorBoard: React.FC = () => {
                                                     </>
                                                 )}
                                             {(similaritySummary?.score ?? 0) <
-                                                0.45 && (
+                                                SIMILARITY_THRESHOLD_NOTICE && (
                                                 <>
                                                     <strong>Ok:</strong> Niska
                                                     sličnost, radovi su
