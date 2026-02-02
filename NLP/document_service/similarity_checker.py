@@ -3,7 +3,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 
-def preprocess(text: str) -> str:
+def preprocess_text_for_comparison(text: str) -> str:
     toks = normalize_text(text=text).split()
     return " ".join([t for t in toks if t not in STOP_WORDS])
 
@@ -28,8 +28,11 @@ def compare_two_text(file_a, file_b):
     file_a = ensure_str(file_a)
     file_b = ensure_str(file_b)
 
-    docs = [preprocess(file_a), preprocess(file_b)]
-    vec = TfidfVectorizer(ngram_range=(1, 1), stop_words=STOP_WORDS).fit_transform(docs)
+    docs = [
+        preprocess_text_for_comparison(file_a),
+        preprocess_text_for_comparison(file_b),
+    ]
+    vec = TfidfVectorizer(ngram_range=(1, 3), stop_words=STOP_WORDS).fit_transform(docs)
     sim_matrix = cosine_similarity(vec)
     overall = float(sim_matrix[0, 1])
 

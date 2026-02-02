@@ -17,5 +17,7 @@ def extract_text(file_from_user):
             text = "\n".join(para.text for para in doc.paragraphs)
             texts.append(text)
         else:
-            raise ValueError("Samo PDF i DOCX fajlovi!")
+            raise ValueError(
+                f"Unsupported file type for '{file.filename}'. Only PDF and DOCX files are allowed."
+            )
     return texts

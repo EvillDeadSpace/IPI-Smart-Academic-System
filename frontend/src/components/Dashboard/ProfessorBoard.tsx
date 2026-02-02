@@ -27,6 +27,10 @@ import {
     SubjectInfo,
 } from '../../types/ProfessorsTypes/Professors'
 
+const SIMILARITY_THRESHOLD_CRITICAL = 0.9
+const SIMILARITY_THRESHOLD_WARNING = 0.75
+const SIMILARITY_THRESHOLD_NOTICE = 0.45
+
 const ProfessorBoard: React.FC = () => {
     const { studentMail, studentName } = useAuth()
 
@@ -45,7 +49,8 @@ const ProfessorBoard: React.FC = () => {
     } = useFetchAboutProfessorData(studentMail)
 
     // For compairing file similarity states
-    const [similarity, setSimilarity] = useState<SimilarityResult | null>(null)
+    const [similarityResult, setSimilarityResult] =
+        useState<SimilarityResult | null>(null)
     const [compareFile1, setCompareFile1] = useState<File | null>(null)
     const [compareFile2, setCompareFile2] = useState<File | null>(null)
     const [isComparing, setIsComparing] = useState(false)
@@ -428,7 +433,7 @@ const ProfessorBoard: React.FC = () => {
             const result = await response.json().catch(() => null)
 
             if (response.ok && result) {
-                setSimilarity(result)
+                setSimilarityResult(result)
                 toastSuccess('Rezultat dobijen')
             } else {
                 const errMsg =
@@ -453,15 +458,15 @@ const ProfessorBoard: React.FC = () => {
         let color = 'bg-green-600'
         let textColor = 'text-green-300'
 
-        if (score >= 0.9) {
+        if (score >= SIMILARITY_THRESHOLD_CRITICAL) {
             label = 'Vrlo visoka sličnost — mogući plagijat'
             color = 'bg-red-600'
             textColor = 'text-red-300'
-        } else if (score >= 0.75) {
+        } else if (score >= SIMILARITY_THRESHOLD_WARNING) {
             label = 'Visoka sličnost — provjeriti prepisivanje'
             color = 'bg-orange-600'
             textColor = 'text-orange-300'
-        } else if (score >= 0.45) {
+        } else if (score >= SIMILARITY_THRESHOLD_NOTICE) {
             label = 'Ista tema — slične ideje'
             color = 'bg-yellow-500'
             textColor = 'text-yellow-300'
@@ -470,7 +475,7 @@ const ProfessorBoard: React.FC = () => {
         return { score, pct, label, color, textColor }
     }
 
-    const similaritySummary = summarizeSimilarity(similarity)
+    const similaritySummary = summarizeSimilarity(similarityResult)
 
     if (isLoading) {
         return (
@@ -984,7 +989,7 @@ const ProfessorBoard: React.FC = () => {
                             )}
                         </motion.button>
                     </div>
-                    {similarity ? (
+                    {similarityResult ? (
                         <div className="mt-6 p-6 bg-gradient-to-r from-slate-900 to-slate-800 border border-neutral-700 rounded-lg">
                             <div className="flex items-start justify-between gap-6">
                                 <div className="flex-1">
@@ -1087,7 +1092,7 @@ const ProfessorBoard: React.FC = () => {
                                     </h4>
                                     <pre className="text-xs text-gray-200 bg-transparent overflow-auto p-2">
                                         {JSON.stringify(
-                                            similarity.result.matrix,
+                                            similarityResult.result.matrix,
                                             null,
                                             2
                                         )}
