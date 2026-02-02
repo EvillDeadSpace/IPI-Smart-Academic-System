@@ -61,3 +61,11 @@ export interface AssignmentFormData {
     maxPoints: number
     file: File | null
 }
+
+export interface SimilarityResult {
+    message: string
+    result: {
+        matrix: number[][]
+        score: number
+    }
+}

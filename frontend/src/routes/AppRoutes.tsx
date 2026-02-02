@@ -61,6 +61,7 @@ export default function AppRoutes() {
                     }
                 >
                     <Route index element={<DashboardHome />} />
+                    <Route path="home" element={<DashboardHome />} />
                     <Route path="profile" element={<Profile />} />
                     <Route path="settings" element={<Settings />} />
                     <Route path="scheduleexam" element={<StudentExams />} />

@@ -3,8 +3,10 @@ import {
     IconCalendarEvent,
     IconClipboardList,
     IconFileText,
+    IconGitCompare,
     IconPlus,
     IconTrash,
+    IconUpload,
     IconUserCircle,
     IconUsers,
     IconX,
@@ -21,6 +23,7 @@ import {
     EnrolledStudent,
     ExamFormData,
     GradeFormData,
+    SimilarityResult,
     SubjectInfo,
 } from '../../types/ProfessorsTypes/Professors'
 
@@ -40,6 +43,12 @@ const ProfessorBoard: React.FC = () => {
         refetchExams,
         refetchAssignments,
     } = useFetchAboutProfessorData(studentMail)
+
+    // For compairing file similarity states
+    const [similarity, setSimilarity] = useState<SimilarityResult | null>(null)
+    const [compareFile1, setCompareFile1] = useState<File | null>(null)
+    const [compareFile2, setCompareFile2] = useState<File | null>(null)
+    const [isComparing, setIsComparing] = useState(false)
 
     const [showGradeModal, setShowGradeModal] = useState(false)
     const [gradeForm, setGradeForm] = useState<GradeFormData>({
@@ -69,6 +78,8 @@ const ProfessorBoard: React.FC = () => {
     const [isUploading, setIsUploading] = useState(false)
     const [selectedAssignmentSubject, setSelectedAssignmentSubject] =
         useState<string>('')
+
+    // Comparison states for assignments
 
     // Convert points (0-100) into grade (5-10) using thresholds
     const computeGradeFromPoints = (points: number | null | undefined) => {
@@ -369,7 +380,6 @@ const ProfessorBoard: React.FC = () => {
         folderName: string,
         fileName: string
     ) => {
-        // Confirmation dialog
         const confirmed = window.confirm(
             `Da li ste sigurni da želite obrisati zadaću "${fileName}"?\n\nOva akcija se ne može poništiti.`
         )
@@ -397,6 +407,72 @@ const ProfessorBoard: React.FC = () => {
             toastError('Greška pri brisanju zadaće')
         }
     }
+
+    const handleCompareAssignments = async () => {
+        if (!compareFile1 || !compareFile2) {
+            toastError('Morate odabrati oba fajla za poređenje!')
+            return
+        }
+        setIsComparing(true)
+        try {
+            toastSuccess('Poređenje zadaća u toku...')
+
+            // Send files to NLP service endpoint
+            const formData = new FormData()
+            formData.append('file_1', compareFile1 as File)
+            formData.append('file_2', compareFile2 as File)
+
+            const response = await fetch(`${NLP_URL}/check_two_file`, {
+                method: 'POST',
+                body: formData,
+            })
+
+            const result = await response.json().catch(() => null)
+
+            if (response.ok && result) {
+                setSimilarity(result)
+                toastSuccess('Rezultat dobijen')
+            } else {
+                const errMsg =
+                    result?.message ||
+                    (await response.text().catch(() => 'Greška na NLP servisu'))
+                toastError(errMsg)
+            }
+        } catch (error) {
+            toastError('Greška pri poređenju zadaća')
+            console.error('Comparison error:', error)
+        } finally {
+            setIsComparing(false)
+        }
+    }
+
+    // Helper to summarize similarity into label, color and percent
+    const summarizeSimilarity = (sim: SimilarityResult | null) => {
+        if (!sim) return null
+        const score = sim.result?.score ?? 0
+        const pct = Number((score * 100).toFixed(1))
+        let label = 'Niska sličnost — različiti radovi'
+        let color = 'bg-green-600'
+        let textColor = 'text-green-300'
+
+        if (score >= 0.9) {
+            label = 'Vrlo visoka sličnost — mogući plagijat'
+            color = 'bg-red-600'
+            textColor = 'text-red-300'
+        } else if (score >= 0.75) {
+            label = 'Visoka sličnost — provjeriti prepisivanje'
+            color = 'bg-orange-600'
+            textColor = 'text-orange-300'
+        } else if (score >= 0.45) {
+            label = 'Ista tema — slične ideje'
+            color = 'bg-yellow-500'
+            textColor = 'text-yellow-300'
+        }
+
+        return { score, pct, label, color, textColor }
+    }
+
+    const similaritySummary = summarizeSimilarity(similarity)
 
     if (isLoading) {
         return (
@@ -523,7 +599,12 @@ const ProfessorBoard: React.FC = () => {
             </div>
 
             {/* Exams Section */}
-            <div className="bg-[#1a1a1a] rounded-xl p-6 border border-neutral-800 mb-8">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+                className="bg-[#1a1a1a] rounded-xl p-6 border border-neutral-800 mb-8"
+            >
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold text-gray-200">
                         Raspored Ispita
@@ -544,10 +625,17 @@ const ProfessorBoard: React.FC = () => {
                     </div>
                 ) : (
                     <div className="space-y-4">
-                        {exams.map((exam) => (
-                            <div
+                        {exams.map((exam, examIndex) => (
+                            <motion.div
                                 key={exam.id}
-                                className="bg-[#252525] rounded-lg p-4 border border-neutral-700 hover:border-neutral-600 transition-all"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{
+                                    delay: examIndex * 0.1,
+                                    duration: 0.4,
+                                }}
+                                whileHover={{ scale: 1.02, x: 5 }}
+                                className="bg-[#252525] rounded-lg p-4 border border-neutral-700 hover:border-blue-500/50 transition-all"
                             >
                                 <div className="flex justify-between items-start">
                                     <div className="flex-1">
@@ -587,27 +675,35 @@ const ProfessorBoard: React.FC = () => {
                                         <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm font-medium">
                                             Zakazan
                                         </span>
-                                        <button
+                                        <motion.button
+                                            whileHover={{ scale: 1.1 }}
+                                            whileTap={{ scale: 0.9 }}
                                             onClick={() =>
                                                 handleDeleteExam(
                                                     exam.id,
                                                     exam.subject.name
                                                 )
                                             }
-                                            className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-all hover:scale-110"
+                                            className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-all"
                                             title="Obriši ispit"
                                         >
                                             <IconTrash className="w-5 h-5" />
-                                        </button>
+                                        </motion.button>
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
                         ))}
                     </div>
                 )}
-            </div>
+            </motion.div>
+
             {/* Assignments Section */}
-            <div className="bg-[#1a1a1a] rounded-xl p-6 border border-neutral-800 mb-8">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25, duration: 0.5 }}
+                className="bg-[#1a1a1a] rounded-xl p-6 border border-neutral-800 mb-8"
+            >
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold text-gray-200">
                         Postavljene Zadaće
@@ -635,7 +731,9 @@ const ProfessorBoard: React.FC = () => {
                     <div className="space-y-6">
                         {/* Subject Tabs */}
                         <div className="flex gap-2 flex-wrap">
-                            <button
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                                 onClick={() => setSelectedAssignmentSubject('')}
                                 className={`px-4 py-2 rounded-lg font-medium transition-all ${
                                     selectedAssignmentSubject === ''
@@ -649,11 +747,13 @@ const ProfessorBoard: React.FC = () => {
                                         .length
                                 }
                                 )
-                            </button>
+                            </motion.button>
                             {Object.entries(professorAssignments).map(
                                 ([subjectName, files]) => (
-                                    <button
+                                    <motion.button
                                         key={subjectName}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
                                         onClick={() =>
                                             setSelectedAssignmentSubject(
                                                 subjectName
@@ -667,7 +767,7 @@ const ProfessorBoard: React.FC = () => {
                                         }`}
                                     >
                                         {subjectName} ({files.length})
-                                    </button>
+                                    </motion.button>
                                 )
                             )}
                         </div>
@@ -692,9 +792,25 @@ const ProfessorBoard: React.FC = () => {
                                                 ?.toLowerCase() || ''
 
                                         return (
-                                            <div
+                                            <motion.div
                                                 key={`${subjectName}-${index}`}
-                                                className="group relative bg-gradient-to-br from-purple-900/20 to-purple-800/20 hover:from-purple-800/30 hover:to-purple-700/30 p-5 rounded-xl border-2 border-purple-700 hover:border-purple-500 transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/20 hover:scale-105"
+                                                initial={{
+                                                    opacity: 0,
+                                                    scale: 0.9,
+                                                }}
+                                                animate={{
+                                                    opacity: 1,
+                                                    scale: 1,
+                                                }}
+                                                transition={{
+                                                    delay: index * 0.05,
+                                                    duration: 0.3,
+                                                }}
+                                                whileHover={{
+                                                    scale: 1.05,
+                                                    y: -5,
+                                                }}
+                                                className="group relative bg-gradient-to-br from-purple-900/20 to-purple-800/20 hover:from-purple-800/30 hover:to-purple-700/30 p-5 rounded-xl border-2 border-purple-700 hover:border-purple-500 transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/20"
                                             >
                                                 <div className="flex flex-col gap-3">
                                                     <div className="flex items-start justify-between">
@@ -719,41 +835,326 @@ const ProfessorBoard: React.FC = () => {
                                                         </p>
                                                     </div>
                                                     <div className="flex">
-                                                        <button
+                                                        <motion.button
+                                                            whileHover={{
+                                                                scale: 1.05,
+                                                            }}
+                                                            whileTap={{
+                                                                scale: 0.95,
+                                                            }}
                                                             onClick={() =>
                                                                 handleDeleteAssignment(
                                                                     subjectName,
                                                                     fileName
                                                                 )
                                                             }
-                                                            className="bg-red-500 text-white font-semibold px-5 py-2.5 rounded-lg shadow-md shadow-red-500/30 hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/40 active:bg-red-700 active:scale-95 transition-all duration-200 select-none"
+                                                            className="bg-red-500 text-white font-semibold px-5 py-2.5 rounded-lg shadow-md shadow-red-500/30 hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/40 transition-all duration-200 select-none"
                                                         >
                                                             Izbriši
-                                                        </button>
+                                                        </motion.button>
                                                     </div>
                                                 </div>
                                                 <div className="absolute inset-0 bg-purple-600/0 group-hover:bg-purple-600/5 rounded-xl transition-colors pointer-events-none" />
-                                            </div>
+                                            </motion.div>
                                         )
                                     })
                                 )}
                         </div>
                     </div>
                 )}
-            </div>
+            </motion.div>
+
+            {/* Compare Assignments Section */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-gradient-to-br from-[#1a1a1a] to-[#151515] rounded-xl p-8 border border-neutral-800 mb-8 relative overflow-hidden"
+            >
+                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl"></div>
+
+                <div className="relative z-10">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+                            <IconGitCompare className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-bold text-gray-200">
+                                Uporedi Zadaće
+                            </h2>
+                            <p className="text-sm text-gray-400">
+                                Provjera sličnosti pomoću NLP servisa
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <motion.div
+                            whileHover={{ scale: 1.02 }}
+                            className="bg-[#252525] rounded-xl p-6 border-2 border-dashed border-neutral-700 hover:border-blue-500 transition-all"
+                        >
+                            <div className="flex flex-col items-center justify-center text-center">
+                                <div className="p-4 bg-blue-500/10 rounded-full mb-4">
+                                    <IconUpload className="w-8 h-8 text-blue-400" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-200 mb-2">
+                                    Prva zadaća
+                                </h3>
+                                <p className="text-sm text-gray-400 mb-4">
+                                    {compareFile1
+                                        ? compareFile1.name
+                                        : 'Odaberite fajl'}
+                                </p>
+                                <label className="cursor-pointer">
+                                    <input
+                                        type="file"
+                                        accept=".pdf,.docx,.doc,.txt"
+                                        onChange={(e) =>
+                                            setCompareFile1(
+                                                e.target.files?.[0] || null
+                                            )
+                                        }
+                                        className="hidden"
+                                    />
+                                    <span className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all inline-block">
+                                        {compareFile1
+                                            ? 'Promijeni'
+                                            : 'Odaberi fajl'}
+                                    </span>
+                                </label>
+                            </div>
+                        </motion.div>
+
+                        <motion.div
+                            whileHover={{ scale: 1.02 }}
+                            className="bg-[#252525] rounded-xl p-6 border-2 border-dashed border-neutral-700 hover:border-purple-500 transition-all"
+                        >
+                            <div className="flex flex-col items-center justify-center text-center">
+                                <div className="p-4 bg-purple-500/10 rounded-full mb-4">
+                                    <IconUpload className="w-8 h-8 text-purple-400" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-200 mb-2">
+                                    Druga zadaća
+                                </h3>
+                                <p className="text-sm text-gray-400 mb-4">
+                                    {compareFile2
+                                        ? compareFile2.name
+                                        : 'Odaberite fajl'}
+                                </p>
+                                <label className="cursor-pointer">
+                                    <input
+                                        type="file"
+                                        accept=".pdf,.docx,.doc,.txt"
+                                        onChange={(e) =>
+                                            setCompareFile2(
+                                                e.target.files?.[0] || null
+                                            )
+                                        }
+                                        className="hidden"
+                                    />
+                                    <span className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-all inline-block">
+                                        {compareFile2
+                                            ? 'Promijeni'
+                                            : 'Odaberi fajl'}
+                                    </span>
+                                </label>
+                            </div>
+                        </motion.div>
+                    </div>
+
+                    <div className="mt-6 flex justify-center">
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={handleCompareAssignments}
+                            disabled={
+                                !compareFile1 || !compareFile2 || isComparing
+                            }
+                            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg font-semibold shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-3"
+                        >
+                            {isComparing ? (
+                                <>
+                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                    Poređenje u toku...
+                                </>
+                            ) : (
+                                <>
+                                    <IconGitCompare className="w-5 h-5" />
+                                    Uporedi zadaće
+                                </>
+                            )}
+                        </motion.button>
+                    </div>
+                    {similarity ? (
+                        <div className="mt-6 p-6 bg-gradient-to-r from-slate-900 to-slate-800 border border-neutral-700 rounded-lg">
+                            <div className="flex items-start justify-between gap-6">
+                                <div className="flex-1">
+                                    <h3 className="text-lg font-semibold text-gray-200">
+                                        Analiza sličnosti
+                                    </h3>
+                                    <div className="mt-4">
+                                        <div className="flex items-center gap-4">
+                                            <div
+                                                className={`px-3 py-1 rounded-full text-sm font-semibold ${similaritySummary?.textColor} ${similaritySummary?.color}`}
+                                            >
+                                                {similaritySummary?.label}
+                                            </div>
+                                            <div className="ml-auto text-right">
+                                                <div className="text-3xl font-bold text-white">
+                                                    {similaritySummary?.pct}%
+                                                </div>
+                                                <div className="text-xs text-gray-400">
+                                                    Ukupna sličnost
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-3 h-2 w-full bg-neutral-800 rounded overflow-hidden">
+                                            <div
+                                                className={`${similaritySummary?.color} h-2`}
+                                                style={{
+                                                    width: `${similaritySummary?.pct}%`,
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="w-60">
+                                    <div className="text-lg text-gray-400 mb-2">
+                                        Quick verdict
+                                    </div>
+                                    <div className="p-3 bg-[#0b1220] rounded border border-neutral-700">
+                                        <div className="text-sm text-gray-200 font-medium mb-1">
+                                            {similaritySummary?.label}
+                                        </div>
+                                        <div className="text-xs text-gray-400">
+                                            Ocjena:{' '}
+                                            <span className="font-semibold text-white">
+                                                {similaritySummary?.pct}%
+                                            </span>
+                                        </div>
+                                        <div className="mt-2 text-xs text-gray-400">
+                                            {(similaritySummary?.score ?? 0) >=
+                                                0.9 && (
+                                                <>
+                                                    <strong>Upozorenje:</strong>{' '}
+                                                    Visoka vjerovatnoća
+                                                    prepisivanja.
+                                                </>
+                                            )}
+                                            {(similaritySummary?.score ?? 0) <
+                                                0.9 &&
+                                                (similaritySummary?.score ??
+                                                    0) >= 0.75 && (
+                                                    <>
+                                                        <strong>
+                                                            Preporuka:
+                                                        </strong>{' '}
+                                                        Detaljno provjeriti
+                                                        slične dijelove.
+                                                    </>
+                                                )}
+                                            {(similaritySummary?.score ?? 0) <
+                                                0.75 &&
+                                                (similaritySummary?.score ??
+                                                    0) >= 0.45 && (
+                                                    <>
+                                                        <strong>
+                                                            Napomena:
+                                                        </strong>{' '}
+                                                        Iste teme/ideje — moguće
+                                                        preklapanje
+                                                        literaturama.
+                                                    </>
+                                                )}
+                                            {(similaritySummary?.score ?? 0) <
+                                                0.45 && (
+                                                <>
+                                                    <strong>Ok:</strong> Niska
+                                                    sličnost, radovi su
+                                                    različiti.
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="bg-[#111827] p-3 rounded border border-neutral-700">
+                                    <h4 className="text-sm text-gray-300 font-medium mb-2">
+                                        Matrica sličnosti
+                                    </h4>
+                                    <pre className="text-xs text-gray-200 bg-transparent overflow-auto p-2">
+                                        {JSON.stringify(
+                                            similarity.result.matrix,
+                                            null,
+                                            2
+                                        )}
+                                    </pre>
+                                </div>
+                                <div className="bg-[#111827] p-3 rounded border border-neutral-700">
+                                    <h4 className="text-lg text-gray-300 font-medium mb-2">
+                                        Tumačenje
+                                    </h4>
+                                    <ul className="text-lg text-gray-400 list-disc list-inside">
+                                        <li>
+                                            <strong>Ocjena</strong>: Postotak
+                                            sličnosti između dva poslana fajla.
+                                        </li>
+                                        <li>
+                                            <strong>Matrica</strong>: Matrica
+                                            parnih sličnosti (po
+                                            segmentima/rečenicama).
+                                        </li>
+                                        <li>
+                                            <strong>Zaključak</strong>:
+                                            Koristite kao smjernicu — provjerite
+                                            istaknute dijelove u detaljnom
+                                            izvještaju.
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    ) : null}
+
+                    <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                        <p className="text-sm text-blue-300 text-center">
+                            💡 NLP servis će analizirati sličnost između dvije
+                            zadaće i pružiti detaljan izvještaj
+                        </p>
+                    </div>
+                </div>
+            </motion.div>
 
             {/* Subjects with Students */}
-            <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-200">
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.35, duration: 0.6 }}
+                className="space-y-6"
+            >
+                <motion.h2
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4, duration: 0.5 }}
+                    className="text-2xl font-bold text-gray-200"
+                >
                     Predmeti i Studenti
-                </h2>
+                </motion.h2>
 
                 {subjectsWithStudents.map((item, index) => (
                     <motion.div
                         key={item.subject.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
+                        transition={{
+                            delay: 0.45 + index * 0.08,
+                            duration: 0.5,
+                        }}
                         className="bg-[#1a1a1a] rounded-xl p-6 border border-neutral-800"
                     >
                         {/* Subject Header */}
@@ -794,12 +1195,24 @@ const ProfessorBoard: React.FC = () => {
                             <table className="w-full">
                                 <thead>
                                     <tr className="text-left text-gray-400 border-b border-neutral-700">
-                                        <th className="pb-3 px-4">Indeks</th>
-                                        <th className="pb-3 px-4">Ime</th>
-                                        <th className="pb-3 px-4">Email</th>
-                                        <th className="pb-3 px-4">Ocjena</th>
-                                        <th className="pb-3 px-4">Bodovi</th>
-                                        <th className="pb-3 px-4">Akcije</th>
+                                        <th className="pb-3 px-4 font-semibold">
+                                            Indeks
+                                        </th>
+                                        <th className="pb-3 px-4 font-semibold">
+                                            Ime
+                                        </th>
+                                        <th className="pb-3 px-4 font-semibold">
+                                            Email
+                                        </th>
+                                        <th className="pb-3 px-4 font-semibold">
+                                            Ocjena
+                                        </th>
+                                        <th className="pb-3 px-4 font-semibold">
+                                            Bodovi
+                                        </th>
+                                        <th className="pb-3 px-4 font-semibold">
+                                            Akcije
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -813,9 +1226,18 @@ const ProfessorBoard: React.FC = () => {
                                                         student.email
                                                 )
                                         )
-                                        .map((student) => (
-                                            <tr
+                                        .map((student, studentIndex) => (
+                                            <motion.tr
                                                 key={`${item.subject.id}-${student.email}`}
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                transition={{
+                                                    delay:
+                                                        0.5 +
+                                                        index * 0.08 +
+                                                        studentIndex * 0.02,
+                                                    duration: 0.3,
+                                                }}
                                                 className="border-b border-neutral-800 hover:bg-[#252525] transition-colors"
                                             >
                                                 <td className="py-4 px-4 text-gray-300">
@@ -852,7 +1274,13 @@ const ProfessorBoard: React.FC = () => {
                                                         : '-'}
                                                 </td>
                                                 <td className="py-4 px-4">
-                                                    <button
+                                                    <motion.button
+                                                        whileHover={{
+                                                            scale: 1.05,
+                                                        }}
+                                                        whileTap={{
+                                                            scale: 0.95,
+                                                        }}
                                                         onClick={() =>
                                                             openGradeModal(
                                                                 student,
@@ -868,9 +1296,9 @@ const ProfessorBoard: React.FC = () => {
                                                         {student.hasGrade
                                                             ? 'Ažuriraj'
                                                             : 'Ocijeni'}
-                                                    </button>
+                                                    </motion.button>
                                                 </td>
-                                            </tr>
+                                            </motion.tr>
                                         ))}
                                 </tbody>
                             </table>
@@ -879,7 +1307,11 @@ const ProfessorBoard: React.FC = () => {
                 ))}
 
                 {subjectsWithStudents.length === 0 && (
-                    <div className="bg-[#1a1a1a] rounded-xl p-12 text-center border border-neutral-800">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-[#1a1a1a] rounded-xl p-12 text-center border border-neutral-800"
+                    >
                         <IconClipboardList className="w-16 h-16 text-gray-600 mx-auto mb-4" />
                         <h3 className="text-xl font-bold text-gray-400 mb-2">
                             Nema upisanih studenata
@@ -887,9 +1319,9 @@ const ProfessorBoard: React.FC = () => {
                         <p className="text-gray-500">
                             Trenutno nema studenata upisanih na predmete.
                         </p>
-                    </div>
+                    </motion.div>
                 )}
-            </div>
+            </motion.div>
 
             {/* Grade Modal */}
             {showGradeModal && (

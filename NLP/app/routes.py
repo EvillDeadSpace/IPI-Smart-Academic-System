@@ -6,6 +6,7 @@ from flask_limiter.util import get_remote_address
 from app.services import generate_response_with_rag
 from app.nlp_utils import load_text_file, search_in_text
 
+from document_service.extract_file import extract_text
 from notification_service.main import function_send_notification
 from document_service.main import generate_health_pdf
 import json
@@ -14,6 +15,8 @@ from s3_bucket.main import delete_file_from_s3, upload_file, get_all_files_s3
 from s3_bucket.main import get_file_stream
 import io
 import mimetypes
+
+from document_service.similarity_checker import compare_two_text
 
 # Create Flask Blueprint for main routes
 main_bp: Blueprint = Blueprint("main", __name__)
@@ -335,3 +338,32 @@ def remove_file_s3():
         )
     except Exception:
         raise
+
+
+# Route for similarity check
+@main_bp.route("/check_two_file", methods=["POST"])
+def find_similarity():
+    try:
+        if "file_1" not in request.files or "file_2" not in request.files:
+            return jsonify({"message": "Request two file for compare! "})
+
+        file_1 = request.files["file_1"]
+        file_2 = request.files["file_2"]
+
+        # Extract text from pdf or docs to can compair
+        processingFile_1 = extract_text(file_1)
+        processingFile_2 = extract_text(file_2)
+
+        result = compare_two_text(processingFile_1, processingFile_2)
+
+    except Exception as e:
+        return jsonify({"message": "Problem with NLP service", "error": str(e)}), 500
+
+    return (
+        jsonify(
+            {
+                "result": result,
+            }
+        ),
+        200,
+    )

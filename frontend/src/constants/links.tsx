@@ -19,7 +19,7 @@ interface DashboardTypes {
 export const links: DashboardTypes[] = [
     {
         label: 'Dashboard',
-        to: '/dashboard',
+        to: '/dashboard/home',
         icon: (
             <IconLayoutDashboard className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
         ),
