@@ -345,16 +345,19 @@ def remove_file_s3():
 def find_similarity():
     try:
         if "file_1" not in request.files or "file_2" not in request.files:
-            return jsonify({"message": "Request two file for compare! "})
+            return (
+                jsonify({"error": "Both file_1 and file_2 parameters are required"}),
+                400,
+            )
 
         file_1 = request.files["file_1"]
         file_2 = request.files["file_2"]
 
-        # Extract text from pdf or docs to can compair
-        processingFile_1 = extract_text(file_1)
-        processingFile_2 = extract_text(file_2)
+        # Extract text from pdf or docs so we can compare
+        extracted_text_1 = extract_text(file_1)
+        extracted_text_2 = extract_text(file_2)
 
-        result = compare_two_text(processingFile_1, processingFile_2)
+        result = compare_two_text(extracted_text_1, extracted_text_2)
 
     except Exception as e:
         return jsonify({"message": "Problem with NLP service", "error": str(e)}), 500

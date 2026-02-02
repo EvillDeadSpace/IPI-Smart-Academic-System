@@ -17,5 +17,5 @@ def extract_text(file_from_user):
             text = "\n".join(para.text for para in doc.paragraphs)
             texts.append(text)
         else:
-            return "Samo PDF i DOCX fajlovi!", 400
+            raise ValueError("Samo PDF i DOCX fajlovi!")
     return texts

@@ -9,8 +9,17 @@ def preprocess(text: str) -> str:
 
 
 def compare_two_text(file_a, file_b):
-    # Accept strings or lists of strings (from extract_text). If list provided, join into one string.
     def ensure_str(x):
+        """
+        Normalize input to a single string.
+
+        Accepts either a string or a sequence (list or tuple) of elements such as
+        text fragments returned by extract_text. If a list or tuple is provided,
+        all elements are converted to strings and joined with newline characters.
+
+        :param x: A string, or a list/tuple of items that can be converted to strings.
+        :return: A single string representation of the input.
+        """
         if isinstance(x, (list, tuple)):
             # join elements (make sure elements are strings)
             return "\n".join(str(e) for e in x)

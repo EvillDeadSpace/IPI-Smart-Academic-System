@@ -79,8 +79,6 @@ const ProfessorBoard: React.FC = () => {
     const [selectedAssignmentSubject, setSelectedAssignmentSubject] =
         useState<string>('')
 
-    // Comparison states for assignments
-
     // Convert points (0-100) into grade (5-10) using thresholds
     const computeGradeFromPoints = (points: number | null | undefined) => {
         if (points === null || points === undefined || isNaN(points)) return 5
@@ -1023,7 +1021,7 @@ const ProfessorBoard: React.FC = () => {
 
                                 <div className="w-60">
                                     <div className="text-lg text-gray-400 mb-2">
-                                        Quick verdict
+                                        Brza procjena
                                     </div>
                                     <div className="p-3 bg-[#0b1220] rounded border border-neutral-700">
                                         <div className="text-sm text-gray-200 font-medium mb-1">
@@ -1096,10 +1094,10 @@ const ProfessorBoard: React.FC = () => {
                                     </pre>
                                 </div>
                                 <div className="bg-[#111827] p-3 rounded border border-neutral-700">
-                                    <h4 className="text-lg text-gray-300 font-medium mb-2">
+                                    <h4 className="text-sm text-gray-300 font-medium mb-2">
                                         Tumačenje
                                     </h4>
-                                    <ul className="text-lg text-gray-400 list-disc list-inside">
+                                    <ul className="text-sm text-gray-400 list-disc list-inside">
                                         <li>
                                             <strong>Ocjena</strong>: Postotak
                                             sličnosti između dva poslana fajla.
