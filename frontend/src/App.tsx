@@ -1,11 +1,11 @@
+import { BrowserRouter as Router, useLocation } from 'react-router-dom'
 import './App.css'
+import Header from './components/Header/Header'
+import Toaster from './components/ui/Toast'
 import { AuthProvider } from './Context'
 import { ChatProvider } from './contexts/ChatContext'
-import { BrowserRouter as Router, useLocation } from 'react-router-dom'
-import Header from './components/Header/Header'
-import AppRoutes from './routes/AppRoutes'
 import './index.css'
-import Toaster from './components/ui/Toast'
+import AppRoutes from './routes/AppRoutes'
 
 function AppContent() {
     const location = useLocation()
