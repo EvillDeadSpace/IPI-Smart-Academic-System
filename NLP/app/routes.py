@@ -340,7 +340,7 @@ def remove_file_s3():
         raise
 
 
-# Route for similarity check
+# Route for similarity check and comparison between two files for plagiarism detection
 @main_bp.route("/check_two_file", methods=["POST"])
 def find_similarity():
     try:
