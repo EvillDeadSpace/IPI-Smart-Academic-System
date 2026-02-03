@@ -329,7 +329,7 @@ def remove_file_s3():
     file_name = data.get("file_name")
 
     if not file_name or not folder_name:
-        return jsonify({"error": "Problem with payload for delete file! 🤖"})
+        return jsonify({"error": "Problem with payload for delete file!"}), 400
     try:
         delete_file_from_s3(folder_name, file_name)
         return (
