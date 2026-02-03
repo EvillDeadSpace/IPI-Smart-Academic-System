@@ -30,14 +30,14 @@ function AppContent() {
 function App() {
     return (
         <div className="overflow-x-hidden hide-scrollbar">
-            <AuthProvider>
-                <ChatProvider>
-                    <Router>
+            <Router>
+                <AuthProvider>
+                    <ChatProvider>
                         <AppContent />
                         <Toaster />
-                    </Router>
-                </ChatProvider>
-            </AuthProvider>
+                    </ChatProvider>
+                </AuthProvider>
+            </Router>
         </div>
     )
 }

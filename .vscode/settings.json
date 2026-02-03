@@ -102,7 +102,7 @@
     "other": true
   },
   "workbench.colorTheme": "Default Dark Modern",
-  "workbench.iconTheme": "vs-seti",
+  "workbench.iconTheme": "material-icon-theme",
   "workbench.tree.indent": 20,
   "workbench.startupEditor": "none",
   "files.autoSave": "afterDelay",
