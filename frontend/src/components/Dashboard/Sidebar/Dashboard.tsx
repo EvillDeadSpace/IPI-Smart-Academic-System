@@ -12,7 +12,34 @@ const Dashboard = () => {
     const navigate = useNavigate()
     const { studentMail } = useAuth()
 
-    const { grades, progress } = useFetchStudentProgress(studentMail)
+    const { grades, progress, isLoading, hasError, refetchAll } = useFetchStudentProgress(studentMail)
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-1 h-screen bg-white dark:bg-neutral-900 items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-neutral-600 dark:text-neutral-400">Učitavanje podataka...</p>
+                </div>
+            </div>
+        )
+    }
+
+    if (hasError) {
+        return (
+            <div className="flex flex-1 h-screen bg-white dark:bg-neutral-900 items-center justify-center">
+                <div className="text-center">
+                    <p className="text-red-600 dark:text-red-400 mb-4">Greška pri učitavanju podataka</p>
+                    <button
+                        onClick={refetchAll}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        Pokušaj ponovo
+                    </button>
+                </div>
+            </div>
+        )
+    }
 
     return (
         // Outer container with background
@@ -22,7 +49,7 @@ const Dashboard = () => {
                 {/* Content container with padding */}
                 <div className="p-6 pb-6 flex flex-col gap-6 flex-1 w-full min-h-full">
                     {/* Welcome Section */}
-                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white">
+                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white relative">
                         <h1 className="text-2xl font-semibold mb-2">
                             Dobrodošli na Studentski Portal
                         </h1>
@@ -30,6 +57,13 @@ const Dashboard = () => {
                             Pristupite svim važnim informacijama na jednom
                             mjestu
                         </p>
+                        <button
+                            onClick={refetchAll}
+                            className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                            title="Osvježi podatke"
+                        >
+                            <IconChartBar className="h-5 w-5" />
+                        </button>
                     </div>
 
                     {/* Quick Stats */}

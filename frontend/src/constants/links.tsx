@@ -33,7 +33,7 @@ export const links: DashboardTypes[] = [
     },
     {
         label: 'Upis na godinu',
-        to: '/dashboard/settings',
+        to: '/dashboard/enrollment-for-the-year',
         icon: (
             <IconClipboardList className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
         ),

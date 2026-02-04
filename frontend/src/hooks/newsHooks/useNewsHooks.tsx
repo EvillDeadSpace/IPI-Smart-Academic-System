@@ -1,29 +1,27 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useCallback, useState } from 'react'
 import { BACKEND_URL } from '../../config'
-import { Comment, NewsItem } from '../../types/NewsTypes/NewsTypes'
+import { toastError } from '../../lib/toast'
+import { Comment } from '../../types/NewsTypes/NewsTypes'
 
 export default function useNewsHooks() {
-    const [loading, setLoading] = useState(true)
-    const [newsItems, setNewsItems] = useState<NewsItem[]>([])
     const [loadingComments, setLoadingComments] = useState(false)
     const [comments, setComments] = useState<Comment[]>([])
 
-    const fetchNews = useCallback(async () => {
-        setLoading(true)
-        try {
-            const response = await fetch(`${BACKEND_URL}/api/news`)
-            const data = await response.json()
-            setNewsItems(data)
-        } catch (error) {
-            console.error('Error fetching news:', error)
-        } finally {
-            setLoading(false)
-        }
-    }, [])
+    const fetchNewsQuery = async () => {
+        const response = await fetch(`${BACKEND_URL}/api/news`)
 
-    useEffect(() => {
-        fetchNews()
-    }, [fetchNews])
+        if (!response.ok) {
+            toastError('Greska pri dohvacanju vjesti.')
+        }
+
+        return await response.json()
+    }
+
+    const { data, isLoading } = useQuery({
+        queryKey: ['newsItems'],
+        queryFn: fetchNewsQuery,
+    })
 
     const fetchComments = useCallback(async (newsId: number) => {
         setLoadingComments(true)
@@ -96,14 +94,13 @@ export default function useNewsHooks() {
     )
 
     return {
-        loading,
-        newsItems,
         loadingComments,
         comments,
         fetchComments,
         addComment,
         deleteComment,
         setComments,
-        refetchNews: fetchNews,
+        data,
+        isLoading,
     }
 }

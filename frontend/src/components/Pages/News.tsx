@@ -23,14 +23,14 @@ const News: FC = () => {
     const [newComment, setNewComment] = useState('')
 
     const {
-        loading,
-        newsItems,
         comments,
         setComments,
         fetchComments,
         loadingComments,
         addComment,
         deleteComment,
+        data,
+        isLoading,
     } = useNewsHooks()
 
     // Get category image by tagName
@@ -84,20 +84,7 @@ const News: FC = () => {
             }
         }
     }
-
-    // Filter news by selected category
-    const filteredNews =
-        selectedCategory === 'all'
-            ? newsItems
-            : newsItems.filter((news) => news.tagName === selectedCategory)
-
-    // Get count for each category
-    const getCategoryCount = (categoryId: string) => {
-        if (categoryId === 'all') return newsItems.length
-        return newsItems.filter((news) => news.tagName === categoryId).length
-    }
-
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-blue-50">
                 <div className="text-center">
@@ -108,6 +95,19 @@ const News: FC = () => {
                 </div>
             </div>
         )
+    }
+
+    // Filter news by selected category
+    const filteredNews =
+        selectedCategory === 'all'
+            ? data
+            : data.filter((news: NewsItem) => news.tagName === selectedCategory)
+
+    // Get count for each category
+    const getCategoryCount = (categoryId: string) => {
+        if (categoryId === 'all') return data.length
+        return data.filter((news: NewsItem) => news.tagName === categoryId)
+            .length
     }
 
     return (

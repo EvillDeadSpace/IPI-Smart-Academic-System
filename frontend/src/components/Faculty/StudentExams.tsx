@@ -6,124 +6,27 @@ import {
     IconMapPin,
     IconUserCircle,
 } from '@tabler/icons-react'
-import { FC, useCallback, useEffect, useState } from 'react'
+import { FC, useState } from 'react'
 import { useAuth } from '../../Context'
-import { BACKEND_URL } from '../../constants/storage'
-
-import { Exam, ExamRegistration } from '../../types/SubjectTypes/exam'
+import useStudentExams from '../../hooks/studentHooks/useStudentExams'
 
 const StudentExams: FC = () => {
     const { studentMail: contextMail } = useAuth()
+    const studentMail = contextMail || localStorage.getItem('student mail') || ''
 
-    // Fallback to localStorage if Context is empty
-    const studentMail =
-        contextMail || localStorage.getItem('student mail') || ''
+    const [activeTab, setActiveTab] = useState<'available' | 'registered' | 'completed'>('registered')
 
-    const [availableExams, setAvailableExams] = useState<Exam[]>([])
-    const [registeredExams, setRegisteredExams] = useState<ExamRegistration[]>(
-        []
-    )
-    const [completedExams, setCompletedExams] = useState<Exam[]>([])
-    const [loading, setLoading] = useState(true)
-    const [activeTab, setActiveTab] = useState<
-        'available' | 'registered' | 'completed'
-    >('registered')
-
-    const fetchExamData = useCallback(async () => {
-        if (!studentMail) {
-            setLoading(false)
-            return
-        }
-
-        setLoading(true)
-        try {
-            // Fetch available exams for student's enrolled subjects
-            const availableResponse = await fetch(
-                `${BACKEND_URL}/api/exams/available/${studentMail}`
-            )
-            if (availableResponse.ok) {
-                const data = await availableResponse.json()
-                setAvailableExams(data)
-            }
-
-            // Fetch registered exams
-            const registeredResponse = await fetch(
-                `${BACKEND_URL}/api/exams/registered/${studentMail}`
-            )
-            if (registeredResponse.ok) {
-                const data = await registeredResponse.json()
-                setRegisteredExams(data)
-            }
-
-            // Fetch completed exams (with grades)
-            const completedResponse = await fetch(
-                `${BACKEND_URL}/api/exams/completed/${studentMail}`
-            )
-            if (completedResponse.ok) {
-                const data = await completedResponse.json()
-                setCompletedExams(data)
-            }
-        } finally {
-            setLoading(false)
-        }
-    }, [studentMail])
-
-    useEffect(() => {
-        fetchExamData()
-    }, [fetchExamData])
-
-    const handleRegisterExam = async (examId: number) => {
-        if (!studentMail) {
-            alert('Greška: Student email nije pronađen.')
-            return
-        }
-
-        try {
-            const response = await fetch(
-                `${BACKEND_URL}/api/exams/${examId}/register`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        email: studentMail,
-                    }),
-                }
-            )
-
-            if (response.ok) {
-                await fetchExamData()
-                alert('Uspješno ste se prijavili na ispit!')
-            } else {
-                const error = await response.json()
-                alert(error.error || 'Greška pri prijavi na ispit.')
-            }
-        } catch {
-            alert('Greška pri prijavi na ispit.')
-        }
-    }
-
-    const handleUnregisterExam = async (registrationId: number) => {
-        try {
-            const response = await fetch(
-                `${BACKEND_URL}/api/exams/registration/${registrationId}`,
-                {
-                    method: 'DELETE',
-                }
-            )
-
-            if (response.ok) {
-                await fetchExamData()
-                alert('Uspješno ste se odjavili sa ispita!')
-            } else {
-                const error = await response.json()
-                alert(error.error || 'Greška pri odjavi sa ispita.')
-            }
-        } catch {
-            alert('Greška pri odjavi sa ispita.')
-        }
-    }
+    const {
+        availableExams,
+        registeredExams,
+        completedExams,
+        isLoading,
+        hasError,
+        registerForExam,
+        unregisterFromExam,
+        isRegistering,
+        isUnregistering,
+    } = useStudentExams(studentMail)
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString)
@@ -156,7 +59,7 @@ const StudentExams: FC = () => {
         return 'text-red-600 dark:text-red-400'
     }
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="flex flex-1 h-screen bg-white dark:bg-neutral-900 items-center justify-center">
                 <div className="text-center">
@@ -164,6 +67,16 @@ const StudentExams: FC = () => {
                     <p className="text-gray-600 dark:text-gray-400">
                         Učitavanje ispita...
                     </p>
+                </div>
+            </div>
+        )
+    }
+
+    if (hasError) {
+        return (
+            <div className="flex flex-1 h-screen bg-white dark:bg-neutral-900 items-center justify-center">
+                <div className="text-center">
+                    <p className="text-red-600 dark:text-red-400 mb-4">Greška pri učitavanju ispita</p>
                 </div>
             </div>
         )
@@ -400,13 +313,14 @@ const StudentExams: FC = () => {
                                                         <div className="flex flex-col gap-2">
                                                             <button
                                                                 onClick={() =>
-                                                                    handleUnregisterExam(
+                                                                    unregisterFromExam(
                                                                         registration.id
                                                                     )
                                                                 }
-                                                                className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-colors font-medium"
+                                                                disabled={isUnregistering}
+                                                                className="bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white px-6 py-2 rounded-lg transition-colors font-medium"
                                                             >
-                                                                Odjavi se
+                                                                {isUnregistering ? 'Odjava...' : 'Odjavi se'}
                                                             </button>
                                                             <p className="text-xs text-neutral-500 dark:text-neutral-400 text-center">
                                                                 Prijavljen{' '}
@@ -543,13 +457,14 @@ const StudentExams: FC = () => {
                                                             {canRegister ? (
                                                                 <button
                                                                     onClick={() =>
-                                                                        handleRegisterExam(
+                                                                        registerForExam(
                                                                             exam.id
                                                                         )
                                                                     }
-                                                                    className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors font-medium whitespace-nowrap"
+                                                                    disabled={isRegistering}
+                                                                    className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white px-6 py-2 rounded-lg transition-colors font-medium whitespace-nowrap"
                                                                 >
-                                                                    Prijavi se
+                                                                    {isRegistering ? 'Prijava...' : 'Prijavi se'}
                                                                 </button>
                                                             ) : exam.isRegistered ? (
                                                                 <span className="text-green-600 dark:text-green-400 text-sm font-medium">

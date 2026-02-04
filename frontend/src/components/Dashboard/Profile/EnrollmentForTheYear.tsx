@@ -9,7 +9,7 @@ import {
 } from '../../../hooks/profileHooks/profileHooks'
 import SubjectList from './SubjectList'
 
-const Settings = () => {
+const EnrollmentForTheYear = () => {
     const { studentMail } = useAuth()
 
     // Form state management
@@ -231,4 +231,4 @@ const Settings = () => {
     )
 }
 
-export default Settings
+export default EnrollmentForTheYear
