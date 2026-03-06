@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom'
 import { UserDetails } from './user'
 
 export interface AuthContextType {
@@ -8,9 +7,8 @@ export interface AuthContextType {
     setStudentMail: React.Dispatch<React.SetStateAction<string>>
     userType: string
     setUserType: React.Dispatch<React.SetStateAction<string>>
-    login: (userMail: string, userName: string, userType: string) => void
-    logout: (navigate: ReturnType<typeof useNavigate>) => void
     userDetails: UserDetails | null
-    setUserDetails: (details: UserDetails | null) => void
-    isLoading: boolean // NEW: Loading state for session restoration
+    isLoading: boolean
+    login: (userMail: string, userName: string, userType: string) => void
+    logout: () => void
 }

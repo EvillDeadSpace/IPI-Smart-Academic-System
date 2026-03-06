@@ -1,5 +1,5 @@
-﻿import express, { Express, Request, Response, NextFunction } from "express";
-import cors from "cors";
+﻿import cors from "cors";
+import express, { Express, NextFunction, Request, Response } from "express";
 import apiRouter from "./routes/index";
 import pdfRouter from "./routes/pdf.routes";
 

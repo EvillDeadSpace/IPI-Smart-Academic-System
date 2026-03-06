@@ -24,8 +24,8 @@ const DashboardHome = lazy(
     () => import('../components/Dashboard/Sidebar/Dashboard')
 )
 const Profile = lazy(() => import('../components/Dashboard/Profile/Profile'))
-const Settings = lazy(
-    () => import('../components/Dashboard/Profile/ProfileSettings')
+const EnrollmentForTheYear = lazy(
+    () => import('../components/Dashboard/Profile/EnrollmentForTheYear')
 )
 const StudentExams = lazy(() => import('../components/Faculty/StudentExams'))
 const StudentSchedule = lazy(
@@ -63,7 +63,10 @@ export default function AppRoutes() {
                     <Route index element={<DashboardHome />} />
                     <Route path="home" element={<DashboardHome />} />
                     <Route path="profile" element={<Profile />} />
-                    <Route path="settings" element={<Settings />} />
+                    <Route
+                        path="enrollment-for-the-year"
+                        element={<EnrollmentForTheYear />}
+                    />
                     <Route path="scheduleexam" element={<StudentExams />} />
                     <Route
                         path="studentschedule"

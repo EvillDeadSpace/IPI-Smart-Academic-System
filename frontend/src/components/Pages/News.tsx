@@ -23,14 +23,14 @@ const News: FC = () => {
     const [newComment, setNewComment] = useState('')
 
     const {
-        loading,
-        newsItems,
         comments,
         setComments,
         fetchComments,
         loadingComments,
         addComment,
         deleteComment,
+        data,
+        isLoading,
     } = useNewsHooks()
 
     // Get category image by tagName
@@ -84,20 +84,7 @@ const News: FC = () => {
             }
         }
     }
-
-    // Filter news by selected category
-    const filteredNews =
-        selectedCategory === 'all'
-            ? newsItems
-            : newsItems.filter((news) => news.tagName === selectedCategory)
-
-    // Get count for each category
-    const getCategoryCount = (categoryId: string) => {
-        if (categoryId === 'all') return newsItems.length
-        return newsItems.filter((news) => news.tagName === categoryId).length
-    }
-
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-blue-50">
                 <div className="text-center">
@@ -108,6 +95,19 @@ const News: FC = () => {
                 </div>
             </div>
         )
+    }
+
+    // Filter news by selected category
+    const filteredNews =
+        selectedCategory === 'all'
+            ? data
+            : data.filter((news: NewsItem) => news.tagName === selectedCategory)
+
+    // Get count for each category
+    const getCategoryCount = (categoryId: string) => {
+        if (categoryId === 'all') return data.length
+        return data.filter((news: NewsItem) => news.tagName === categoryId)
+            .length
     }
 
     return (
@@ -228,74 +228,78 @@ const News: FC = () => {
                         </motion.div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {filteredNews.map((news, index) => (
-                                <motion.div
-                                    key={news.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.1 }}
-                                    whileHover={{ y: -10 }}
-                                    className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer group"
-                                    onClick={() => setSelectedNews(news)}
-                                >
-                                    {/* Background Image */}
-                                    <div className="relative h-48 overflow-hidden">
-                                        <img
-                                            src={getCategoryImage(news.tagName)}
-                                            alt={news.tagName}
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                            {filteredNews.map(
+                                (news: NewsItem, index: number) => (
+                                    <motion.div
+                                        key={news.id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: index * 0.1 }}
+                                        whileHover={{ y: -10 }}
+                                        className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer group"
+                                        onClick={() => setSelectedNews(news)}
+                                    >
+                                        {/* Background Image */}
+                                        <div className="relative h-48 overflow-hidden">
+                                            <img
+                                                src={getCategoryImage(
+                                                    news.tagName
+                                                )}
+                                                alt={news.tagName}
+                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
-                                        {/* Category Badge on Image */}
-                                        <div className="absolute top-4 left-4">
-                                            <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-gray-800 rounded-full text-sm font-semibold shadow-lg">
-                                                {news.tagName}
-                                            </span>
-                                        </div>
-
-                                        {/* Likes on Image */}
-                                        <div className="absolute top-4 right-4 flex items-center gap-1 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg">
-                                            <IconHeart className="w-4 h-4 text-red-500" />
-                                            <span className="text-sm font-medium text-gray-800">
-                                                {news.likes}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {/* News Content */}
-                                    <div className="p-6">
-                                        <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                                            {news.title}
-                                        </h3>
-
-                                        <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                                            {news.content}
-                                        </p>
-
-                                        <div className="flex items-center justify-between text-sm text-gray-500 pt-4 border-t border-gray-100">
-                                            <div className="flex items-center gap-2">
-                                                <IconCalendar className="w-4 h-4" />
-                                                <span>
-                                                    {new Date(
-                                                        news.createdAt
-                                                    ).toLocaleDateString(
-                                                        'bs-BA',
-                                                        {
-                                                            day: 'numeric',
-                                                            month: 'short',
-                                                            year: 'numeric',
-                                                        }
-                                                    )}
+                                            {/* Category Badge on Image */}
+                                            <div className="absolute top-4 left-4">
+                                                <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-gray-800 rounded-full text-sm font-semibold shadow-lg">
+                                                    {news.tagName}
                                                 </span>
                                             </div>
-                                            <span className="text-blue-600 font-semibold group-hover:text-purple-600 transition-colors">
-                                                Pročitaj →
-                                            </span>
+
+                                            {/* Likes on Image */}
+                                            <div className="absolute top-4 right-4 flex items-center gap-1 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg">
+                                                <IconHeart className="w-4 h-4 text-red-500" />
+                                                <span className="text-sm font-medium text-gray-800">
+                                                    {news.likes}
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
-                                </motion.div>
-                            ))}
+
+                                        {/* News Content */}
+                                        <div className="p-6">
+                                            <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                                                {news.title}
+                                            </h3>
+
+                                            <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                                                {news.content}
+                                            </p>
+
+                                            <div className="flex items-center justify-between text-sm text-gray-500 pt-4 border-t border-gray-100">
+                                                <div className="flex items-center gap-2">
+                                                    <IconCalendar className="w-4 h-4" />
+                                                    <span>
+                                                        {new Date(
+                                                            news.createdAt
+                                                        ).toLocaleDateString(
+                                                            'bs-BA',
+                                                            {
+                                                                day: 'numeric',
+                                                                month: 'short',
+                                                                year: 'numeric',
+                                                            }
+                                                        )}
+                                                    </span>
+                                                </div>
+                                                <span className="text-blue-600 font-semibold group-hover:text-purple-600 transition-colors">
+                                                    Pročitaj →
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )
+                            )}
                         </div>
                     )}
                 </div>

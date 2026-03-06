@@ -1,39 +1,42 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { BACKEND_URL } from '../../config'
 import { BackendExam, BackendNews, Event } from '../../types/calendar'
+
 export default function useCalendarFeatures() {
-    const [events, setEvents] = useState<Event[]>([])
+    const {
+        data: events = [],
+        isLoading,
+        error,
+    } = useQuery({
+        queryKey: ['calendarEvents'],
+        queryFn: async () => {
+            // Fetch exams
+            const examsResponse = await fetch(
+                `${BACKEND_URL}/api/exams/calendar/all`
+            )
+            const examsData: BackendExam[] = await examsResponse.json()
 
-    // Fetch exam and news calendar data from backend
-    useEffect(() => {
-        async function fetchCalendarEvents() {
-            try {
-                // Fetch exams
-                const examsResponse = await fetch(
-                    `${BACKEND_URL}/api/exams/calendar/all`
-                )
-                const examsData: BackendExam[] = await examsResponse.json()
+            console.log('test')
+            // Fetch calendar news
+            const newsResponse = await fetch(`${BACKEND_URL}/api/news`)
+            const allNews: BackendNews[] = await newsResponse.json()
+            const calendarNews = allNews.filter(
+                (news) => news.calendarNews && news.eventDate
+            )
 
-                // Fetch calendar news (calendarNews = true)
-                const newsResponse = await fetch(`${BACKEND_URL}/api/news`)
-                const allNews: BackendNews[] = await newsResponse.json()
-                const calendarNews = allNews.filter(
-                    (news) => news.calendarNews && news.eventDate
-                )
+            // Transform and combine
+            const examEvents = examsData.map(transformExamToEvent)
+            const newsEvents = calendarNews.map(transformNewsToEvent)
 
-                // Transform and combine
-                const examEvents = examsData.map(transformExamToEvent)
-                const newsEvents = calendarNews.map(transformNewsToEvent)
+            return [...examEvents, ...newsEvents]
+        },
 
-                setEvents([...examEvents, ...newsEvents])
-            } catch (error) {
-                console.error('Error fetching calendar events:', error)
-            }
-        }
-        fetchCalendarEvents()
-    }, [])
+        // Cache events for 5 minutes and garbage collect after 10 minutes to balance freshness and performance
+        staleTime: 5 * 60 * 1000,
+        gcTime: 10 * 60 * 1000,
+    })
 
-    return { events }
+    return { events, isLoading, error }
 }
 
 const transformNewsToEvent = (news: BackendNews): Event => {

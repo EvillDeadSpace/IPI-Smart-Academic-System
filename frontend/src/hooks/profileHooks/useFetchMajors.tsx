@@ -1,35 +1,37 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { BACKEND_URL } from '../../config'
 import { toastError } from '../../lib/toast'
 import { Major } from '../../types/SubjectTypes/ProfileSettings'
+import { useEffect } from 'react'
 
 export function useFetchMajors() {
-    const [isLoading, setIsLoading] = useState(true)
-    const [majors, setMajors] = useState<Major[]>([])
-    const [error, setError] = useState<string | null>(null)
+    const {
+        data: majors = [],
+        isLoading,
+        error: queryError,
+    } = useQuery({
+        queryKey: ['majorsWithSubjects'],
+        queryFn: async () => {
+            const response = await fetch(
+                `${BACKEND_URL}/api/majors/with-subjects`
+            )
+            if (!response.ok) throw new Error('Neuspjelo dohvaćanje smjerova')
+            return (await response.json()) as Major[]
+        },
+        staleTime: 10 * 60 * 1000,
+        gcTime: 30 * 60 * 1000,
+        retry: 2,
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+    })
 
     useEffect(() => {
-        const fetchMajors = async () => {
-            try {
-                const response = await fetch(
-                    `${BACKEND_URL}/api/majors/with-subjects`
-                )
-                if (!response.ok) {
-                    toastError('Neuspjelo dohvaćanje smjerova')
-                    throw new Error('Neuspjelo dohvaćanje smjerova')
-                }
-                const data = await response.json()
-                setMajors(data)
-            } catch {
-                setError('Neuspjelo učitavanje smjerova i predmeta')
-                toastError('Neuspjelo učitavanje smjerova i predmeta')
-            } finally {
-                setIsLoading(false)
-            }
+        if (queryError) {
+            toastError('Neuspjelo učitavanje smjerova i predmeta')
         }
+    }, [queryError])
 
-        fetchMajors()
-    }, [])
+    const error = queryError ? 'Neuspjelo učitavanje smjerova i predmeta' : null
 
     return { majors, isLoading, error }
 }
