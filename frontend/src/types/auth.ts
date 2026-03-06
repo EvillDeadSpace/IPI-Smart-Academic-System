@@ -8,7 +8,6 @@ export interface AuthContextType {
     userType: string
     setUserType: React.Dispatch<React.SetStateAction<string>>
     userDetails: UserDetails | null
-    setUserDetails: React.Dispatch<React.SetStateAction<UserDetails | null>>
     isLoading: boolean
     login: (userMail: string, userName: string, userType: string) => void
     logout: () => void

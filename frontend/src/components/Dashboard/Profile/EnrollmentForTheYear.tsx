@@ -118,7 +118,7 @@ const EnrollmentForTheYear = () => {
                                         <select
                                             value={selectedMajor}
                                             onChange={handleMajorChange}
-                                            className="w-full p-3 bg-gray-50 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                            className="w-full p-3 bg-gray-50 text-white dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                         >
                                             <option value="">
                                                 Odaberi smjer
@@ -138,14 +138,14 @@ const EnrollmentForTheYear = () => {
                                     <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700">
                                         <div className="flex items-center gap-3 mb-4">
                                             <IconBook2 className="w-6 h-6 text-blue-500" />
-                                            <h2 className="text-lg font-semibold dark:text-white">
+                                            <h2 className="text-lg  font-semibold dark:text-white">
                                                 Odaberi godinu
                                             </h2>
                                         </div>
                                         <select
                                             value={selectedYear}
                                             onChange={handleYearChange}
-                                            className="w-full p-3 bg-gray-50 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                            className="w-full p-3 text-white bg-gray-50 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                         >
                                             <option value="">
                                                 Odaberi godinu

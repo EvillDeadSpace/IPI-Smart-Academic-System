@@ -11,12 +11,10 @@ import useFetchStatus from '../hooks/chatHooks/useChatHooks'
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
 
-    const { setStatus, status } = useFetchStatus()
+    const { status } = useFetchStatus()
 
     return (
-        <ChatContext.Provider
-            value={{ status, setStatus, isChatOpen, setIsChatOpen }}
-        >
+        <ChatContext.Provider value={{ status, isChatOpen, setIsChatOpen }}>
             {children}
         </ChatContext.Provider>
     )

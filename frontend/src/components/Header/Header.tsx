@@ -141,7 +141,7 @@ const Header = () => {
                                                     Dashboard
                                                 </Link>
                                                 <button
-                                                    onClick={() => logout(nav)}
+                                                    onClick={() => logout()}
                                                     className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-300"
                                                 >
                                                     Odjava
@@ -244,7 +244,7 @@ const Header = () => {
                                             </Link>
                                             <button
                                                 onClick={() => {
-                                                    logout(nav)
+                                                    logout()
                                                     toggleSidebar()
                                                 }}
                                                 className="block w-full px-4 py-2 mt-2 text-center text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-300"
