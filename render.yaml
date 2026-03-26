@@ -11,10 +11,10 @@ services:
       - key: PYTHON_VERSION
         value: 3.10.0
       - key: OPENROUTER_MODEL
-        value: mistralai/ministral-8b
+        value: mistralai/mistral-7b-instruct:free
       - key: FLASK_ENV
         value: production
       - key: PORT
         value: 5000
       - key: USE_RAG
-        value: false
+        value: true
