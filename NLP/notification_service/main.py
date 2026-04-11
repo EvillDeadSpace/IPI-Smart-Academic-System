@@ -1,21 +1,21 @@
-from notification_service.initClient import mailjet
 import json
-from typing import Dict, Any, Optional
+from typing import Any
+
 from notification_service.emailTamplete import (
     create_professional_email_html,
+    format_assignment_notification,
     format_exam_notification,
     format_welcome_email,
-    format_assignment_notification,
 )
+from notification_service.initClient import mailjet
 
-
-const_data_for_email: Dict[str, str] = {
+const_data_for_email: dict[str, str] = {
     "FromEmail": "amartubic1@gmail.com",
     "FromName": "IPI Smart Akademija",
 }
 
 
-def function_send_notification(received_data: Optional[Dict[str, Any]]) -> bool:
+def function_send_notification(received_data: dict[str, Any] | None) -> bool:
     print("Function start")
     print(f"Received data: {json.dumps(received_data, indent=2)}")
 
@@ -67,18 +67,18 @@ def function_send_notification(received_data: Optional[Dict[str, Any]]) -> bool:
 
     try:
         response_json = result.json()
-        print(f"\nFull Response:")
+        print("\nFull Response:")
         print(json.dumps(response_json, indent=2))
 
         if result.status_code == 200:
             sent = response_json.get("Sent", [])
             if sent:
-                print(f"\n✓ Email sent successfully!")
+                print("\n✓ Email sent successfully!")
                 print(f"  To: {sent[0].get('Email')}")
                 print(f"  MessageID: {sent[0].get('MessageID')}")
                 return True
             else:
-                print(f"\n✗ Failed to send email - No recipients in 'Sent' array")
+                print("\n✗ Failed to send email - No recipients in 'Sent' array")
                 return False
         else:
             print(f"\n✗ Failed to send email (Status {result.status_code})")

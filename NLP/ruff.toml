@@ -1,0 +1,52 @@
+# Ruff configuration for IPI Smart Academic System - NLP service
+
+# Target Python version
+target-version = "py311"
+
+# Max line length (Black-compatible default)
+line-length = 100
+
+# Files/folders to exclude
+exclude = [
+    "__pycache__",
+    ".venv",
+    "*.pyc",
+    "faiss_index.bin",
+    "text_chunks.pkl",
+]
+
+[lint]
+# Rule sets to enable:
+# E, W  = pycodestyle (basic style errors/warnings)
+# F     = pyflakes (undefined names, unused imports)
+# I     = isort (import sorting)
+# B     = flake8-bugbear (common bugs and design issues)
+# UP    = pyupgrade (modernize Python syntax)
+# SIM   = flake8-simplify (simplify code suggestions)
+select = ["E", "W", "F", "I", "B", "UP", "SIM"]
+
+# Rules to ignore:
+# E501  = line too long (handled by formatter)
+# B008  = do not perform function calls in default arguments (Flask/FastAPI pattern)
+ignore = ["E501", "B008"]
+
+# Allow unused variables prefixed with underscore
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.isort]
+# Group imports: stdlib, third-party, first-party
+known-first-party = ["app", "rag_system", "s3_bucket", "document_service", "notification_service"]
+force-sort-within-sections = true
+
+[format]
+# Use double quotes (consistent with Black)
+quote-style = "double"
+
+# Indent with spaces
+indent-style = "space"
+
+# Trailing commas in multi-line structures
+skip-magic-trailing-comma = false
+
+# Line ending
+line-ending = "auto"

@@ -3,6 +3,7 @@ Test različitih Mistral modela dostupnih preko GitHub Models
 """
 
 import os
+
 from dotenv import load_dotenv
 from mistralai import Mistral, UserMessage
 
@@ -19,7 +20,7 @@ possible_models = [
     "Mistral-7B",
     "mistral-7b-instruct",
     "Mistral-Nemo",
-    "mistral-nemo"
+    "mistral-nemo",
 ]
 
 token = os.getenv("OPEN_API_KEY_MISTRAL")
@@ -34,20 +35,18 @@ working_models = []
 for model_name in possible_models:
     try:
         print(f"⏳ Testiram: {model_name}...", end=" ")
-        
+
         response = client.chat.complete(
-            model=model_name,
-            messages=[UserMessage(content="Hi")],
-            max_tokens=10
+            model=model_name, messages=[UserMessage(content="Hi")], max_tokens=10
         )
-        
-        print(f"✅ RADI!")
+
+        print("✅ RADI!")
         working_models.append(model_name)
-        
+
     except Exception as e:
         error_msg = str(e)
         if "unknown_model" in error_msg:
-            print(f"❌ Ne postoji")
+            print("❌ Ne postoji")
         else:
             print(f"❌ Greška: {error_msg[:50]}")
 

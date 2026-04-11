@@ -1,6 +1,6 @@
 import io
 import os
-from typing import Optional, Any
+from typing import Any
 
 # Delay heavy imports (PyPDF2, reportlab) until functions are called so this module
 # can be imported by the Flask app (via adapter) without requiring those packages
@@ -25,7 +25,9 @@ def create_default_template(path: str) -> None:
     c.setFont("Times-Roman", 16)
     c.drawString(72, 720, "Placeholder template - PraviTekst.pdf")
     c.setFont("Times-Roman", 10)
-    c.drawString(72, 700, "This file was auto-created as a placeholder. Replace with your real template.")
+    c.drawString(
+        72, 700, "This file was auto-created as a placeholder. Replace with your real template."
+    )
     c.save()
 
 
@@ -37,7 +39,7 @@ def _add_text_overlay_on_matching_pages(
     date_of_birth: str,
     years_of_study: str,
     academic_year: str,
-    search_text: str = "Potvrduje se da je "
+    search_text: str = "Potvrduje se da je ",
 ) -> Any:
     """
     Zadržava tvoju logiku: ako stranica sadrži `search_text`, crta overlay na toj stranici.
@@ -59,7 +61,6 @@ def _add_text_overlay_on_matching_pages(
             packet = io.BytesIO()
             can = canvas.Canvas(packet, pagesize=letter)
 
-            
             # Draw the text at specified positions
             can.setFont("Times-Roman", 12)
             can.drawString(125, 675, "IPI Akademija Tuzla")
@@ -80,6 +81,7 @@ def _add_text_overlay_on_matching_pages(
             packet.seek(0)
             # overlay reader can reuse PdfReader from PyPDF2
             from PyPDF2 import PdfReader as _PdfReader
+
             overlay_pdf = _PdfReader(packet)
             page.merge_page(overlay_pdf.pages[0])
 
@@ -97,7 +99,7 @@ def generate_health_pdf(
     date_of_birth: str,
     years_of_study: str,
     academic_year: str,
-    search_text: str = "Potvrduje se da je "
+    search_text: str = "Potvrduje se da je ",
 ) -> io.BytesIO:
     """
     Glavna funkcija: koristi tvoj overlay pristup i vraća PDF kao BytesIO (nema snimanja na disk).
@@ -120,7 +122,7 @@ def generate_health_pdf(
         date_of_birth=date_of_birth,
         years_of_study=str(years_of_study),
         academic_year=str(academic_year),
-        search_text=search_text
+        search_text=search_text,
     )
 
     out_buf = io.BytesIO()

@@ -6,11 +6,12 @@ This avoids changing package layout or sys.path: it dynamically loads the
 If you later refactor to a proper package, you can replace this with a
 regular import.
 """
+
 from __future__ import annotations
 
+from collections.abc import Callable
 import importlib.util
 import os
-from typing import Callable
 
 
 def _load_generate_health_pdf() -> Callable:
@@ -29,7 +30,7 @@ def _load_generate_health_pdf() -> Callable:
     if not hasattr(module, "generate_health_pdf"):
         raise AttributeError("document-service.main does not define generate_health_pdf")
 
-    return getattr(module, "generate_health_pdf")
+    return module.generate_health_pdf
 
 
 # Load once at import time
