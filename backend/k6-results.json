@@ -1,0 +1,510 @@
+{
+  "state": {
+    "isStdErrTTY": true,
+    "testRunDurationMs": 43363.798,
+    "isStdOutTTY": true
+  },
+  "metrics": {
+    "http_req_duration{expected_response:true}": {
+      "contains": "time",
+      "values": {
+        "med": 83.0647,
+        "max": 278.1655,
+        "p(90)": 153.83094,
+        "p(95)": 167.17333,
+        "avg": 87.17522875817005,
+        "min": 0
+      },
+      "type": "trend"
+    },
+    "checks": {
+      "contains": "default",
+      "values": {
+        "rate": 0.9583333333333334,
+        "passes": 1242,
+        "fails": 54
+      },
+      "type": "rate"
+    },
+    "admin_login_ms": {
+      "contains": "time",
+      "values": {
+        "min": 0,
+        "med": 0.6103000000000001,
+        "max": 2.1878,
+        "p(90)": 0.8911900000000001,
+        "p(95)": 1.014345,
+        "avg": 0.5818166666666668
+      },
+      "thresholds": {
+        "p(95)<100": {
+          "ok": true
+        }
+      },
+      "type": "trend"
+    },
+    "http_reqs": {
+      "values": {
+        "count": 972,
+        "rate": 22.41501078849228
+      },
+      "type": "counter",
+      "contains": "default"
+    },
+    "data_sent": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 100116,
+        "rate": 2308.746111214705
+      }
+    },
+    "group_duration": {
+      "values": {
+        "avg": 184.55144465020587,
+        "min": 0,
+        "med": 157.29399999999998,
+        "max": 1442.6087,
+        "p(90)": 429.09405,
+        "p(95)": 465.0507
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "vus_max": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "value": 10,
+        "min": 10,
+        "max": 10
+      }
+    },
+    "http_req_receiving": {
+      "values": {
+        "p(90)": 0.83111,
+        "p(95)": 0.9318749999999999,
+        "avg": 0.298885596707819,
+        "min": 0,
+        "med": 0,
+        "max": 1.5029
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "http_req_failed": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0.05555555555555555,
+        "passes": 54,
+        "fails": 918
+      }
+    },
+    "http_req_waiting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 91.84508055555557,
+        "min": 0,
+        "med": 83.5206,
+        "max": 1442.6087,
+        "p(90)": 156.13129,
+        "p(95)": 167.74834
+      }
+    },
+    "iteration_duration": {
+      "values": {
+        "avg": 4563.566053703704,
+        "min": 4340.4879,
+        "med": 4521.0774,
+        "max": 5921.97,
+        "p(90)": 4703.63072,
+        "p(95)": 4817.142885
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "db_read_ms": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "max": 216.2831,
+        "p(90)": 117.61396,
+        "p(95)": 138.63851499999998,
+        "avg": 93.63825740740741,
+        "min": 70.4034,
+        "med": 87.22745
+      },
+      "thresholds": {
+        "p(95)<500": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_connecting": {
+      "contains": "time",
+      "values": {
+        "avg": 0.0020789094650205757,
+        "min": 0,
+        "med": 0,
+        "max": 0.5132,
+        "p(90)": 0,
+        "p(95)": 0
+      },
+      "type": "trend"
+    },
+    "data_received": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 3690900,
+        "rate": 85114.77707741375
+      }
+    },
+    "http_req_blocked": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(95)": 0,
+        "avg": 0.010317695473251027,
+        "min": 0,
+        "med": 0,
+        "max": 4.9692,
+        "p(90)": 0
+      }
+    },
+    "failed_checks": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0.05555555555555555,
+        "passes": 54,
+        "fails": 918
+      },
+      "thresholds": {
+        "rate<0.10": {
+          "ok": true
+        }
+      }
+    },
+    "vus": {
+      "contains": "default",
+      "values": {
+        "value": 1,
+        "min": 1,
+        "max": 10
+      },
+      "type": "gauge"
+    },
+    "http_req_duration": {
+      "values": {
+        "avg": 92.15025843621413,
+        "min": 0,
+        "med": 83.9232,
+        "max": 1442.6087,
+        "p(90)": 156.34306999999998,
+        "p(95)": 168.06909999999993
+      },
+      "thresholds": {
+        "p(95)<500": {
+          "ok": true
+        }
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "http_req_tls_handshaking": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(95)": 0,
+        "avg": 0,
+        "min": 0,
+        "med": 0,
+        "max": 0,
+        "p(90)": 0
+      }
+    },
+    "http_req_sending": {
+      "contains": "time",
+      "values": {
+        "p(90)": 0,
+        "p(95)": 0,
+        "avg": 0.006292283950617284,
+        "min": 0,
+        "med": 0,
+        "max": 1.0018
+      },
+      "type": "trend"
+    },
+    "iterations": {
+      "values": {
+        "count": 54,
+        "rate": 1.24527837713846
+      },
+      "type": "counter",
+      "contains": "default"
+    }
+  },
+  "root_group": {
+    "name": "",
+    "path": "",
+    "id": "d41d8cd98f00b204e9800998ecf8427e",
+    "groups": [
+      {
+        "name": "Health Check",
+        "path": "::Health Check",
+        "id": "167c726a79efe9afd2c220eb9d49c1a2",
+        "groups": [],
+        "checks": [
+            {
+              "name": "health: status 200",
+              "path": "::Health Check::health: status 200",
+              "id": "88628fdfb2ce9c26bc777f4a8347d719",
+              "passes": 54,
+              "fails": 0
+            },
+            {
+              "name": "health: body status OK",
+              "path": "::Health Check::health: body status OK",
+              "id": "e23467bf9c9695dd93fc39dd4e98a505",
+              "passes": 54,
+              "fails": 0
+            }
+          ]
+      },
+      {
+        "name": "Auth — Admin Login",
+        "path": "::Auth — Admin Login",
+        "id": "b2086dd8794bc5d4db61b08bd1e4a7ba",
+        "groups": [],
+        "checks": [
+            {
+              "path": "::Auth — Admin Login::admin login: status 200",
+              "id": "d09a2ec46815f1ae301e7ddf71d2e9b5",
+              "passes": 54,
+              "fails": 0,
+              "name": "admin login: status 200"
+            },
+            {
+              "name": "admin login: userType ADMIN",
+              "path": "::Auth — Admin Login::admin login: userType ADMIN",
+              "id": "8fa8ee44184847d57a9aa882f0621c8e",
+              "passes": 0,
+              "fails": 54
+            }
+          ]
+      },
+      {
+        "name": "Auth — Reject Invalid Login",
+        "path": "::Auth — Reject Invalid Login",
+        "id": "d3625cb0cd6304ad535590a7e8e0409d",
+        "groups": [],
+        "checks": [
+            {
+              "fails": 0,
+              "name": "invalid login correctly rejected",
+              "path": "::Auth — Reject Invalid Login::invalid login correctly rejected",
+              "id": "b7611aad23c496f2298b1c7e023c1697",
+              "passes": 54
+            }
+          ]
+      },
+      {
+        "name": "Students API",
+        "path": "::Students API",
+        "id": "b728f55893efad5274d1c4c6d11a142f",
+        "groups": [],
+        "checks": [
+            {
+              "fails": 0,
+              "name": "GET /students: status 200",
+              "path": "::Students API::GET /students: status 200",
+              "id": "853d245d392f16b885ad0a0e9e937840",
+              "passes": 54
+            },
+            {
+              "id": "dce16c900bc5a19f0ef08c6e97de1461",
+              "passes": 54,
+              "fails": 0,
+              "name": "GET /students: returns array",
+              "path": "::Students API::GET /students: returns array"
+            },
+            {
+              "passes": 54,
+              "fails": 0,
+              "name": "GET /students/1: 200 or 404",
+              "path": "::Students API::GET /students/1: 200 or 404",
+              "id": "75355296e8f2073691178154ab8ba29b"
+            },
+            {
+              "name": "GET /students/progress: 200 or 404",
+              "path": "::Students API::GET /students/progress: 200 or 404",
+              "id": "fef5b3a75dd376dc9e7f61dc989d11a8",
+              "passes": 54,
+              "fails": 0
+            },
+            {
+              "name": "GET /students/grades: 200 or 404",
+              "path": "::Students API::GET /students/grades: 200 or 404",
+              "id": "17ae38332febf0e2dda94c8468900965",
+              "passes": 54,
+              "fails": 0
+            }
+          ]
+      },
+      {
+        "path": "::Professors API",
+        "id": "9d02dd0f065f0edef650025a02f30718",
+        "groups": [],
+        "checks": [
+            {
+              "name": "GET /professors: status 200",
+              "path": "::Professors API::GET /professors: status 200",
+              "id": "4d074f9b4dd31a8da8e972aef7f08008",
+              "passes": 54,
+              "fails": 0
+            },
+            {
+              "id": "3abd348b9d787fa04b7cb62ecd8b775f",
+              "passes": 54,
+              "fails": 0,
+              "name": "GET /professors: returns array",
+              "path": "::Professors API::GET /professors: returns array"
+            },
+            {
+              "passes": 54,
+              "fails": 0,
+              "name": "GET /professors/1: 200 or 404",
+              "path": "::Professors API::GET /professors/1: 200 or 404",
+              "id": "e2d378ce65442d45c7c3b592db9bb7dd"
+            }
+          ],
+        "name": "Professors API"
+      },
+      {
+        "name": "Exams API",
+        "path": "::Exams API",
+        "id": "ebbc68f3924c567c7bcf438e470ffde5",
+        "groups": [],
+        "checks": [
+            {
+              "name": "GET /exams/calendar/all: 200",
+              "path": "::Exams API::GET /exams/calendar/all: 200",
+              "id": "fea8e159b2ac8f285bb606a36709e02d",
+              "passes": 54,
+              "fails": 0
+            },
+            {
+              "name": "GET /exams/calendar/all: array body",
+              "path": "::Exams API::GET /exams/calendar/all: array body",
+              "id": "feeafe8a49853faa53c93356a85d644a",
+              "passes": 54,
+              "fails": 0
+            },
+            {
+              "name": "GET /exams/professor/:id: 200 or 404",
+              "path": "::Exams API::GET /exams/professor/:id: 200 or 404",
+              "id": "e06caa342e5ff6b8cc3c6ef94c6ce1f9",
+              "passes": 54,
+              "fails": 0
+            },
+            {
+              "name": "GET /exams/available: 200 or 404",
+              "path": "::Exams API::GET /exams/available: 200 or 404",
+              "id": "1d56a19058a053e4a9ab72d8c7c2f0e6",
+              "passes": 54,
+              "fails": 0
+            },
+            {
+              "name": "GET /exams/registered: 200 or 404",
+              "path": "::Exams API::GET /exams/registered: 200 or 404",
+              "id": "a5f08521eff2f64d237e80bd1ecb1c22",
+              "passes": 54,
+              "fails": 0
+            }
+          ]
+      },
+      {
+        "path": "::Enrollment API",
+        "id": "589a554a47e1417eb551da5fae990ab6",
+        "groups": [],
+        "checks": [
+            {
+              "passes": 54,
+              "fails": 0,
+              "name": "GET /enrollment/majors: 200",
+              "path": "::Enrollment API::GET /enrollment/majors: 200",
+              "id": "3330e90ca564de5f867b53c025e64702"
+            },
+            {
+              "id": "0679ba3add733c433f7726e17f4aa8bb",
+              "passes": 54,
+              "fails": 0,
+              "name": "GET /enrollment/majors: array body",
+              "path": "::Enrollment API::GET /enrollment/majors: array body"
+            },
+            {
+              "name": "GET /enrollment/student: 200 or 404",
+              "path": "::Enrollment API::GET /enrollment/student: 200 or 404",
+              "id": "7124e46d164020572d5172eeed568ad8",
+              "passes": 54,
+              "fails": 0
+            }
+          ],
+        "name": "Enrollment API"
+      },
+      {
+        "name": "Grades API",
+        "path": "::Grades API",
+        "id": "cdac9c2cd08891bd519a21ffe1448d57",
+        "groups": [],
+        "checks": [
+            {
+              "path": "::Grades API::GET /grades/student/1: 200 or 404",
+              "id": "04eb18a919f35adb08a9752b210bac9e",
+              "passes": 54,
+              "fails": 0,
+              "name": "GET /grades/student/1: 200 or 404"
+            },
+            {
+              "fails": 0,
+              "name": "GET /grades/subject/1: 200 or 404",
+              "path": "::Grades API::GET /grades/subject/1: 200 or 404",
+              "id": "935b47e52b2d409177b5dbbd8ec3ef9f",
+              "passes": 54
+            }
+          ]
+      },
+      {
+        "name": "News API",
+        "path": "::News API",
+        "id": "d7310089fa977ad349c1bc9a8cf2d9b3",
+        "groups": [],
+        "checks": [
+            {
+              "name": "GET /news: status 200",
+              "path": "::News API::GET /news: status 200",
+              "id": "6d05c7bde5c649d8343acad5c553762b",
+              "passes": 54,
+              "fails": 0
+            }
+          ]
+      }
+    ],
+    "checks": []
+  },
+  "options": {
+    "summaryTimeUnit": "",
+    "noColor": false,
+    "summaryTrendStats": [
+      "avg",
+      "min",
+      "med",
+      "max",
+      "p(90)",
+      "p(95)"
+    ]
+  }
+}
