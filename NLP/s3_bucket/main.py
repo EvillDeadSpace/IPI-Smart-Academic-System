@@ -1,10 +1,10 @@
-from threading import local
+import json
+import os
+from typing import Any
 
 from flask import jsonify
-from .client import s3_client, endpoint_url
-import json
-from typing import Any
-import os
+
+from .client import endpoint_url, s3_client
 
 
 def upload_file(professor_subject: str, assignment: str, file_to_save: Any) -> None:
@@ -16,9 +16,7 @@ def upload_file(professor_subject: str, assignment: str, file_to_save: Any) -> N
 
     # Get original filename and extract extension
     original_filename = file_to_save.filename
-    file_extension = os.path.splitext(original_filename)[
-        1
-    ]  # Includes the dot, e.g., '.pdf'
+    file_extension = os.path.splitext(original_filename)[1]  # Includes the dot, e.g., '.pdf'
 
     s3_client.put_object(
         Bucket=endpoint_url,
@@ -32,11 +30,7 @@ def get_all_files_s3(professor_subject: str):
     if endpoint_url is None:
         raise ValueError("Bucket name is not configured")
 
-    prefix = (
-        f"{professor_subject}/"
-        if not professor_subject.endswith("/")
-        else professor_subject
-    )
+    prefix = f"{professor_subject}/" if not professor_subject.endswith("/") else professor_subject
 
     response = s3_client.list_objects_v2(Bucket=endpoint_url, Prefix=prefix)
 

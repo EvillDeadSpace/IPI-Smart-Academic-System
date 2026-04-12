@@ -47,7 +47,6 @@
   },
   "discord.enabled": true,
   "cSpell.words": ["autoincrement", "filebase", "učitavanju", "vijesti"],
-  "cSpell.words": ["autoincrement", "učitavanju", "vijesti"],
   "cSpell.allowCompoundWords": true,
   "cSpell.dictionaryDefinitions": [
     {
@@ -58,17 +57,18 @@
   ],
   "cSpell.dictionaries": ["bosnian-domain"],
   "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
-  "python.formatting.provider": "black",
-  "python.linting.enabled": true,
-  "python.linting.flake8Enabled": true,
-  "python.linting.flake8Args": ["--max-line-length=100"],
-  "python.analysis.typeCheckingMode": "basic",
   "python.testing.pytestEnabled": true,
   "python.testing.unittestEnabled": false,
   "python.testing.pytestArgs": ["NLP"],
   "[python]": {
-    "editor.defaultFormatter": "ms-python.black-formatter"
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit"
+    }
   },
+  "ruff.lineLength": 100,
+  "ruff.enableExperimentalFormatter": true,
   "python.analysis.typeCheckingMode": "basic",
   "python.analysis.autoImportCompletions": true,
   "python.analysis.completeFunctionParens": true,
@@ -101,7 +101,7 @@
     "comments": true,
     "other": true
   },
-  "workbench.colorTheme": "Default Dark Modern",
+  "workbench.colorTheme": "Dark Modern",
   "workbench.iconTheme": "material-icon-theme",
   "workbench.tree.indent": 20,
   "workbench.startupEditor": "none",

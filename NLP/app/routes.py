@@ -1,22 +1,19 @@
-from flask import Blueprint, request, jsonify, send_file, Response
-from typing import Tuple, Optional
+import io
+import json
+import mimetypes
+import os
+
+from flask import Blueprint, Response, jsonify, request, send_file
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
-from app.services import generate_response_with_rag
 from app.nlp_utils import load_text_file, search_in_text
-
+from app.services import generate_response_with_rag
 from document_service.extract_file import extract_text
-from notification_service.main import function_send_notification
 from document_service.main import generate_health_pdf
-import json
-from s3_bucket.main import delete_file_from_s3, upload_file, get_all_files_s3
-
-from s3_bucket.main import get_file_stream
-import io
-import mimetypes
-
 from document_service.similarity_checker import compare_two_text
+from notification_service.main import function_send_notification
+from s3_bucket.main import delete_file_from_s3, get_all_files_s3, get_file_stream, upload_file
 
 # Create Flask Blueprint for main routes
 main_bp: Blueprint = Blueprint("main", __name__)
@@ -34,8 +31,6 @@ except Exception as e:
     raw_text = ""
 
 # Initialize RAG (Retrieval-Augmented Generation) system
-import os
-
 rag_system = None
 use_rag = os.getenv("USE_RAG", "true").lower() == "true"
 
@@ -55,7 +50,7 @@ else:
 
 @main_bp.route("/search", methods=["POST"])
 @limiter.limit("10 per 2 minutes")
-def search() -> Tuple[Response, int]:
+def search() -> tuple[Response, int]:
     """
     Search endpoint for generating AI responses to user queries.
     Uses RAG system with vector search if available, otherwise falls back to keyword search.
@@ -160,7 +155,7 @@ def home() -> Response:
 
 
 @main_bp.route("/health-certificate", methods=["POST"])
-def healthCertificate() -> Tuple[Response, int]:
+def healthCertificate() -> tuple[Response, int]:
     """
     Generate health certificate PDF for students.
     Required fields: fullName, jmbg, city, dateOfBirth, yearsOfStudy, academicYear
@@ -214,15 +209,15 @@ def healthCertificate() -> Tuple[Response, int]:
 
 
 @main_bp.route("/notification-services", methods=["POST"])
-def notificationServices() -> Tuple[Response, int]:
+def notificationServices() -> tuple[Response, int]:
     """
     Handle notification service subscription requests.
     Expects JSON with 'email' field.
     """
     print("Notification service get new request!")
 
-    data: Optional[dict] = request.json
-    print(f"Received data:")
+    data: dict | None = request.json
+    print("Received data:")
     print(json.dumps(data, indent=2, ensure_ascii=False))
 
     if not data:
@@ -247,7 +242,7 @@ def notificationServices() -> Tuple[Response, int]:
 
 
 @main_bp.route("/save_s3", methods=["POST"])
-def save_s3() -> Tuple[Response, int]:
+def save_s3() -> tuple[Response, int]:
     print("Health certificate requested")
 
     # Read all files and metadata from the request
@@ -256,9 +251,7 @@ def save_s3() -> Tuple[Response, int]:
     assignment = request.form.get("assignment")
 
     print(
-        f"Received file: {file}"
-        f", professor_subject: {professor_subject}"
-        f", assignment: {assignment}"
+        f"Received file: {file}, professor_subject: {professor_subject}, assignment: {assignment}"
     )
     # Validate inputs
     if not file:
@@ -274,7 +267,7 @@ def save_s3() -> Tuple[Response, int]:
 
 
 @main_bp.route("/get_all_file_s3", methods=["POST"])
-def get_file_s3() -> Tuple[Response, int]:
+def get_file_s3() -> tuple[Response, int]:
     data = request.get_json()
 
     if not data or "subject" not in data:
@@ -290,7 +283,7 @@ def get_file_s3() -> Tuple[Response, int]:
 
 
 @main_bp.route("/get_file_from_s3", methods=["GET"])
-def get_file() -> Tuple[Response, int]:
+def get_file() -> tuple[Response, int]:
     """Download a file from S3 and stream it directly to the user's browser."""
     folder_name = request.args.get("folder_name")
     file_name = request.args.get("file_name")
@@ -299,7 +292,6 @@ def get_file() -> Tuple[Response, int]:
         return jsonify({"error": "Missing folder_name or file_name parameter"}), 400
 
     try:
-
         # Get file data from S3
         file_data = get_file_stream(folder_name, file_name)
 

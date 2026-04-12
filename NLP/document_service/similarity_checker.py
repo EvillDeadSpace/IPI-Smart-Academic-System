@@ -1,6 +1,7 @@
-from .normalize_text import normalize_text, STOP_WORDS
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+
+from .normalize_text import STOP_WORDS, normalize_text
 
 
 def preprocess_text_for_comparison(text: str) -> str:

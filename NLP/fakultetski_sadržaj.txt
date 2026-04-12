@@ -1,200 +1,213 @@
-# IPI Akademija Tuzla - Fakultetski sadržaj
-
+# IPI Akademija Tuzla — Baza znanja
 
 ## Opšte informacije
 
-- IPI Akademija (Internacionalna poslovno-informaciona akademija) u Tuzli je visokoškolska ustanova koja se ističe kvalitetnim obrazovanjem, inovativnim pristupom učenju i fokusom na savremene tehnologije i poslovne vještine
+IPI Akademija (Internacionalna poslovno-informaciona akademija) u Tuzli je privatna visokoškolska ustanova. Puni zvanični naziv je: Privatna visokoškolska ustanova Visoka škola za savremeno poslovanje, informacione tehnologije i tržišne komunikacije "Internacionalna poslovno-informaciona akademija" Tuzla.
 
-- Akademija pruža obrazovanje koje kombinuje teorijska znanja i praktične vještine, omogućavajući studentima da se pripreme za izazove modernog tržišta rada
+IPI Akademija je prva privatna visokoškolska ustanova u Tuzli i prva privatna akreditovana visokoškolska ustanova u Tuzlanskom kantonu.
 
-- IPI Akademija nudi različite studijske programe prilagođene potrebama savremenog društva i ekonomije
+Akademija je osnovana 22. jula 2014. godine.
 
-- Akademija njeguje visok standard obrazovanja, uz poseban naglasak na praktičnu nastavu i saradnju sa privrednim sektorom
+IPI Akademija nudi obrazovanje koje kombinuje teorijska znanja i praktične vještine, s naglaskom na savremene tehnologije, poslovne vještine i tržišne komunikacije.
 
-- Vizija je osposobiti mlade ljude da postanu lideri u svojim poljima, sposobni da se nose s globalnim izazovima
+Vizija IPI Akademije je postati prvi izbor za profesionalno visoko obrazovanje iz oblasti poslovanja, informacionih tehnologija i tržišnih komunikacija u Bosni i Hercegovini i regiji.
 
-- IPI Akademija ima blisku saradnju s lokalnim i međunarodnim kompanijama
+Misija akademije je razvijati kompetentne stručnjake u savremenom poslovanju, informacionim tehnologijama i tržišnim komunikacijama koji su spremni za aktivno uključivanje na tržište rada.
 
-- IPI Akademija je opremljena modernim učionicama, laboratorijama za informatiku i naprednim softverskim alatima
+## Lokacija i kontakt
 
-- ## Studenti i aktivnosti Studenti IPI Akademije su aktivno uključeni u razne vannastavne aktivnosti, kao što su: Također, Akademija pruža podršku studentima kroz razne stipendije, savjetovanja i mentorstvo, osiguravajući im prilike za profesionalni razvoj
+IPI Akademija se nalazi na adresi: Kulina bana br. 2 (Skver), 75000 Tuzla, Bosna i Hercegovina.
 
-- Praktično znanje: Akademija stavlja fokus na praktične vještine koje su ključne za zapošljavanje
+Telefon: +387 35 258 454
 
-- IPI Akademija se nalazi u Tuzli, u srcu Bosne i Hercegovine
+Email adrese:
+- Opšte informacije: info@ipi-akademija.ba
+- Studentska služba: studentska@ipi-akademija.ba
+- Direktor: direktor@ipi-akademija.ba
 
-- Lokacija fakulteta je u mjestu kulina Bana 8, Tuzla 
+Radno vrijeme: 08:00 – 21:00 h
+
+Web stranica: https://ipi-akademija.ba
+
+Online nastava (Moodle): https://ipi-nastava.ba/moodle/
+
+Društvene mreže: Facebook (ipiakademija), Instagram (ipi_akademija), LinkedIn (ipiakademija), YouTube kanal.
+
+## Rukovodstvo i osoblje
+
+Direktorica: Dr. sc. Anida Zahirović Suhonjić
+
+Šef studentske službe: Emina Šarić, dipl.oec.
+
+Bibliotekarka: Indira Hadžić
+
+## Akreditacija
+
+IPI Akademija je akreditovana od strane Agencije za razvoj visokog obrazovanja i osiguranje kvaliteta Bosne i Hercegovine (HEA BiH).
+
+Akreditacija je dodijeljena 7. augusta 2020. godine na period od 5 godina.
+
+Svi studijski programi prvog ciklusa (dodiplomski) su akreditovani.
 
 ## Studijski programi
 
-IPI Akademija nudi sledeće studijske smjerove:
+IPI Akademija nudi četiri studijska programa:
 
-### Računarstvo i informatika
-- Fokus na programiranje i razvoj softvera
-- Osnove programiranja u različitim jezicima
-- Razvoj web i mobilnih aplikacija
-- Mrežne tehnologije i administracija sistema
-- Cyber sigurnost i zaštita podataka
-- Baze podataka i analiza podataka
-- Veštačka inteligencija i mašinsko učenje
+### Program 1: Informacione tehnologije
 
-### Menadžment i poslovne tehnologije
-- Spoj ekonomije i savremenih tehnologija
-- Upravljanje projektima i timovima
-- Digitalni marketing i e-commerce
-- Poslovna analitika i business intelligence
-- Upravljanje organizacijama u digitalnom okruženju
-- Preduzetništvo i inovacije
+Trajanje: 3 godine (6 semestara) — 180 ECTS bodova
+Stečena diploma: Bachelor-inženjer informacionih tehnologija
+Cijena studija: 2.500 KM godišnje (10% popust za jednokratnu uplatu)
 
-### Ostale karakteristike studijskih programa:
-- Fokusirani su na razvoj stručnjaka u oblasti informatike, menadžmenta, i poslovnih tehnologija
-- Cilj IPI Akademije je da postane lider u obrazovanju u oblasti informacionih tehnologija i menadžmenta u regiji
-- Rad na projektima: Tokom studija, studenti rade na projektima koji im omogućavaju da povežu teoriju i praksu
-- Mogućnost zapošljavanja nakon završetka studija
-- Studenti imaju pristup: Biblioteci sa stručnom literaturom iz oblasti IT-a i menadžmenta
-- Visoka zapošljivost: Veliki procenat diplomanata uspješno pronalazi posao odmah nakon završetka studija
-- Podrška tokom studija: Studentima je osigurana podrška kroz individualni rad s profesorima i mentorima
-- Pristupačne cijene: Cijene studija su konkurentne, uz mogućnosti stipendiranja
+Predmeti: Matematika, Uvod u računarstvo i IT, Osnove programiranja, Uvod u informacione sisteme, Strukture podataka i algoritmi, Operativni sistemi, Poslovni engleski, Programski jezici i programiranje, Računarske mreže, Razvoj i implementacija informacionih sistema, Baze podataka, E-poslovanje, Objektno orijentisano programiranje, E-commerce, E-bankarstvo i platni sistemi, Web programiranje, Tehnologije i sistemi korisničke podrške.
 
+Ishodi učenja: projektovanje i razvoj softvera, administracija baza podataka, mrežna administracija, programiranje u C++ i Java, web razvoj, implementacija e-poslovnih modela.
+
+Mogućnosti zapošljavanja: IT dizajner sistema, IT konsultant, web developer, administrator baza podataka, mrežni administrator, e-commerce menadžer.
+
+### Program 2: Informatika i računarstvo
+
+Trajanje: 4 godine (8 semestara) — 240 ECTS bodova
+Stečena diploma: Bachelor informatike i računarstva
+Cijena studija: 2.500 KM godišnje (10% popust za jednokratnu uplatu)
+
+Program pokriva: teorijsko i praktično znanje iz razvoja softvera, C++ i Java programiranje, projektovanje baza podataka, mrežnu administraciju, web dizajn i razvoj, implementaciju e-poslovnih modela (e-commerce, e-bankarstvo, m-commerce), kreiranje multimedijalnih sadržaja.
+
+Mogućnosti zapošljavanja: IT dizajner i konsultant sistema, mrežni i database administrator, web programer i dizajner, e-business menadžer, specijalista IT odjela, startup poduzetnik.
+
+### Program 3: Tržišne komunikacije
+
+Trajanje: 3 godine (6 semestara) — 180 ECTS bodova
+Stečena diploma: Bachelor tržišnih komunikacija
+Cijena studija: 2.000 KM godišnje (10% popust za jednokratnu uplatu)
+
+Predmeti: Osnove komunikologije, Poslovna informatika, Poslovna komunikacija, Menadžment prodaje i pregovaranje, Multimedijske tehnologije, Dizajn vizualnih komunikacija, Poslovni engleski, Kompjuterska grafika i animacija, Odnosi s javnošću, Osnove marketinga i internet marketing, Oglašavanje, Multimedijalno izdavaštvo, Digitalna fotografija, Publicitet i sponzorstvo, Direktni marketing, Web dizajn, Video produkcija.
+
+Mogućnosti zapošljavanja: online menadžer, ekonomski novinar, web dizajner, PR stručnjak, brand menadžer, marketing stručnjak, videoproducent.
+
+### Program 4: Savremeno poslovanje i informatički menadžment
+
+Trajanje: 3 godine (6 semestara) — 180 ECTS bodova
+Stečena diploma: Bachelor ekonomije (u jednom od tri smjera)
+Cijena studija: 2.000 KM godišnje (10% popust za jednokratnu uplatu)
+
+Nakon prve godine studenti biraju jedan od tri smjera:
+- IT menadžment — diploma: Bachelor ekonomije u IT menadžmentu
+- Računovodstvo — diploma: Bachelor ekonomije u računovodstvu
+- Bankarstvo, osiguranje i finansije — diploma: Bachelor ekonomije u bankarstvu, osiguranju i finansijama
+
+Zajednički predmeti prve godine: Osnove ekonomije, Poslovna informatika, Ekonomika i organizacija poslovanja, Uvod u informacione sisteme, Menadžment, Osnove računovodstva, Poslovni engleski.
+
+Mogućnosti zapošljavanja: IT odjeli preduzeća, projektni menadžment, bankarstvo i osiguranje, računovodstveni poslovi, finansije i upravljanje rizicima, poduzetništvo.
+
+## Cijena studija
+
+Cijene studija po programima:
+- Informacione tehnologije: 2.500 KM godišnje
+- Informatika i računarstvo: 2.500 KM godišnje
+- Tržišne komunikacije: 2.000 KM godišnje
+- Savremeno poslovanje i informatički menadžment: 2.000 KM godišnje
+
+Popust: 10% na ukupnu godišnju školarinu za jednokratnu uplatu.
+
+Za informacije o stipendijama kontaktirati akademiju na info@ipi-akademija.ba ili +387 35 258 454.
+
+## Upis i prijem
+
+Uvjeti za upis: završena četverogodišnja srednja škola.
+
+Strani državljani mogu upisati studij uz nostrificiranu diplomu.
+
+Proces odabira — maksimalno 75 bodova:
+- Uspjeh u srednjoj školi: do 40 bodova
+- Rezultat prijemnog ispita: do 30 bodova (minimalno 16 bodova za prolaz)
+- Ocjena na eksternoj maturi: do 5 bodova
+
+Potrebna dokumentacija: diploma srednje škole (original ili ovjerena kopija), svjedočanstva sva četiri razreda, izvod iz matične knjige rođenih, lična karta ili pasoš, popunjen prijavni obrazac, potvrda o eksternoj maturi.
+
+Upisne kvote za 2024/25. godinu:
+- Informacione tehnologije: 50 redovnih + 30 vanrednih
+- Tržišne komunikacije: 10 redovnih + 15 vanrednih
+- Savremeno poslovanje i informatički menadžment: 14 redovnih + 14 vanrednih
+- Informatika i računarstvo: 30 redovnih + 15 vanrednih
+
+Prijave i upis odvijaju se prema akademskom kalendaru u dva upisna roka (ljetni i jesenski). Za tačne datume kontaktirati studentsku službu.
+
+Studij je moguć u tri načina studiranja: redovno (dnevno), vanredno i na daljinu (online).
 
 ## Nastava i obrazovanje
 
-- ## Savremeni pristup obrazovanju Na IPI Akademiji se primjenjuju savremeni modeli obrazovanja koji uključuju: Interaktivna nastava: Profesori i asistenti koriste multimedijalne alate i tehnologije kako bi studenti imali bolji uvid u teorijske i praktične aspekte predmeta
+Na IPI Akademiji se primjenjuju savremeni modeli obrazovanja:
+- Interaktivna nastava uz upotrebu multimedijalnih alata i tehnologije
+- Praktične radionice i rješavanje stvarnih problema iz industrije
+- Obavezna stručna praksa tokom studija
+- Pristup online platformi Moodle za praćenje nastave, polaganje ispita i online konsultacije
+- Google Suite for Education za online konsultacije
 
-- Njihov cilj je da studentima pruže visokokvalitetno obrazovanje i motivaciju za stalno učenje i usavršavanje
+Svi studijski programi su usklađeni s Bolonjskim procesom i Evropskim prostorom visokog obrazovanja (EHEA). Koristi se ECTS kreditni sistem.
 
-- Grad je poznat po bogatom kulturnom životu, razvijenoj IT zajednici i povoljnom okruženju za mlade ljude koji traže kvalitetno obrazovanje i karijeru
+Studenti imaju pristup naučnim bazama podataka EBSCO i CEEOL.
 
-- Dobitnik je stipendije za pohađanje kurseva na EU Business School i Harvardu
+Akademska biblioteka raspolaže stručnom literaturom iz oblasti IT-a, menadžmenta i tržišnih komunikacija.
 
-- Osnovno obrazovanje završio je u Banovićima, dok je srednju školu pohađao u Općoj gimnaziji u Živinicama
+## Nastavno osoblje
 
-- Također, predavač je na Fakultetu za informacijske študije u Novom Mestu, gdje drži predavanja na predmetima Baze podataka i Analize podataka
+Profesori visoke škole i docenti:
+Dr. sc. Damir Bećirović, Dr. sc. Anida Zahirović Suhonjić, Dr. sc. Nedret Kikanović, Dr. sc. Edin Zahirović, Dr. sc. Haris Hamidović, Dr. sc. Damir Šarić, Dr. sc. Ankica Čanić, Dr. sc. Azira Osmanović, Dr. sc. Zlatan Begić, Dr. sc. Mirnes Avdić, Dr. sc. Dino Arnaut.
 
-- Daljnje obrazovanje sigurno je dio mojih budućih planova
+Predavači visoke škole: Amela Bešlagić (MA ekonomija), Selena Kurtić (MA inženjerska informatika), Adnana Beganlić (MA inženjerska informatika), Jasenko Topić (MA elektrotehnički inženjering), Amer Bošnjić (MA elektrotehnički inženjering), i drugi.
 
-- Osnovno i srednje obrazovanje završio je u Banovićima s izvandrednim uspjehom, ponosno noseći titulu jednog od najboljih učenika generacije
+Asistenti visoke škole: Dženan Beširović, Mirza Hadžić, Amina Hadžić, Mahir Pirić, Iner Jamaković, Ahmet Bulić, Adin Bešlagić, Eldar Hidanović.
 
-- Nastavio je obrazovanje na Internacionalnom Burch Univerzitetu, gdje je stekao zvanje magistra nauka iz oblasti informacionih tehnologija, uspješno odbranivši magistarski rad i tezu pod nazivom "Kreiranje ljudskih navika korištenjem tehnologija mašinskog učenja i mobilnih tehnologija
+Mnogi predavači su istovremeno praktičari iz kompanija poput BH Telecom, Elektroprivreda BiH, bankarskog sektora i IT kompanija.
 
-- Naši studenti dobitnici stipendije za pohađanje kursa Harvard Univerziteta Muhamed Isabegović i Haris Arnautović pohađat će kurseve u trajanju od pet radnih sedmica 09
+## Student HUB
 
+IPI Akademija ima Student HUB @ipia — prvi student hub na visokoškolskoj ustanovi u Tuzlanskom kantonu. To je savremeno opremljen prostor dizajniran za poticanje inovativnosti i kreativnosti.
 
-## Profesori i osoblje
+Student HUB je otvoren za studente, alumni i partnere IPI Akademije. Studenti mogu besplatno razvijati i implementirati ideje i poslovne planove uz najsavremeniju opremu i mentorsku podršku.
 
-- Praktične radionice: Studenti aktivno sudjeluju u radionicama, projektima i rješavanju stvarnih problema iz industrije
+## Studentske aktivnosti i organizacije
 
-- Partnerstva omogućavaju studentima: Pristup stručnim praksama i stažiranju
+Studentski klub IPI Akademije je neprofitna studentska organizacija čiji je cilj kreirati platformu kroz koju se studenti mogu slobodno udruživati i raditi na zajedničkim ciljevima koji osnažuju zajednicu.
 
-- ## Profesori i nastavno osoblje Profesori na IPI Akademiji su stručnjaci s bogatim akademskim i praktičnim iskustvom
+Dostupne sekcije i aktivnosti: košarkaška sekcija, fudbalska sekcija, muzička sekcija, IT projekti, dizajn projekti, ekonomski projekti.
 
-- Savremena oprema: Moderne laboratorije omogućavaju studentima da rade na stvarnim projektima koristeći napredne alate
+Studenti učestvuju na seminarima i konferencijama u regiji te organizuju vlastite događaje.
 
-- Uz praktičnu nastavu, obaveznu stručnu praksu, visok nivo znanja i stručnosti akademskog kadra obrazujemo i pružamo podršku mladima u razvoju njihovih ideja, te ih adekvatno pripremamo za tržište rada
+IPI Akademija podržava učešće na startup takmičenjima, uključujući SBF Start-Up Challenge u Sarajevu.
 
-- Uz praktičnu nastavu, obaveznu stručnu praksu, visok nivo znanja i stručnosti akademskog kadra obrazuje i pruža podršku mladima u razvoju njihovih ideja, te ih adekvatno priprema za tržište rada
+## Stipendije i međunarodna saradnja
 
-- Kao visokoškolska ustanova podstičemo poduzetništvo, a dokaz tome je i novootvoreni Student HUB @ipia, dizajnerski uređen prostor, namijenjen studentima, gdje uz najsavremeniju opremu i mentorsku podršku mogu besplatno razvijati i implementirati svoje ideje i poslovne planove
+IPI Akademija surađuje s međunarodnim visokoškolskim institucijama: Steinbeis University Berlin (School of International Business and Entrepreneurship), Fakultetom za informacijske studije u Novom Mestu (Slovenija), Univerzitetom Nova Gorica (Slovenija).
 
-- „Prateći globalne trendove, svakodnevno širimo mrežu poznanstva sa drugim visokoškolskim ustanovama i ostvarujemo saradnju sa međunarodnim visokim školama i univerzitetima, u cilju poboljšanja kvaliteta našeg rada, ali i što boljih prilika za naše studente i profesore
+Akademija učestvuje u Erasmus+ programu.
 
-- Adi ima izuzetno izražene komunikacijske i organizacijske vještine koje su rezultirale brojnim nastupima, radijskim i tv gostovanjima
+Studenti IPI Akademije su dobitnici stipendija za pohađanje kurseva na Harvard Univerzitetu. Haris Arnautović i Muhamed Isabegović pohađali su petosedmične kurseve na Harvardu. Akademija sarađuje i s EU Business School.
 
-- Predstavljao je ekipu Studentskog kluba na TEDxYouth Ilidža konferenciji i bio dio organizacionog tima u realizaciji projekta "Studentski informator"
+## Sport i rekreacija
 
+Košarkaška ekipa IPI Akademije osvajač je prvog mjesta na Međuuniverzitetskim sportskim susretima Balkanijada 2019 (održanim od 7. do 9. juna 2019. u Tuzli), u kojima je učestvovalo 15 univerziteta i fakulteta s područja BiH.
 
-## Student aktivnosti
+## Istraživanje i naučni rad
 
-- Rezultati izbora u Skupštinu studentskog predstavničkog organa IPI Akademije Rezultati izbora u Skupštinu studentskog predstavničkog organa IPI Akademije, održanih dana 10
+IPI Akademija organizuje i učestvuje na međunarodnim naučnim konferencijama, uključujući Međunarodnu naučnu konferenciju o digitalnoj ekonomiji (DIEC).
 
-- Bio je aktivan član studentske organizacije, gdje je učestvovao na velikom broju projekata
+Akademija izdaje naučni časopis Acta Catallactics.
 
-- 9, bila je jedna od najaktivnijih studenata/ica na našoj ustanovi, što pokazuje i to da je jedan od osnivača/ica studentskog udruženja "Studentski klub IPI Akademije"
+## Upravljanje kvalitetom
 
-- Glavni cilj organizacije je kreirati i održavati platformu kroz koju se studenti mogu slobodno udruživati u potrazi za zajedničkim ciljem koji osnažuje zajednicu na IPI Akademiji
+Cilj upravljanja kvalitetom na IPI Akademiji je uspostavljanje, kontrola, unapređenje i osiguranje kvaliteta, kao i dostizanje kulture kvaliteta. Akademija redovno ažurira studijske programe u skladu s globalnim trendovima i potrebama tržišta rada.
 
-- Student HUB @ipia je savremeno opremljen i pristupačan prostor, dizajnerski uređen na način da podstiče inovativnost i kreativnost
+## Upisi i generacije diplomaca
 
-- Ubrzo nakon ideje, krenuli su u realizaciju i danas su registrovano Udruženje građana „Studentski klub IPI Akademije“ koje djeluje i radi za dobrobit studenata i društvene zajednice
+IPI Akademija je od osnivanja odškolovala više generacija studenata. Na 6. svečanosti dodjele diploma (17. februara 2023.) diplomirala su 54 studenta.
 
-- Također, zajedno posjećuju mnogobrojne seminare i konferencije u regionu te organizuju svoje događaje
+Najuspješniji diplomci dobijaju nagradu "Plaketa dr. Hamza Šarić".
 
-- ba Služba za studentska pitanjaEmina Šarić, dipl
+Mnogi diplomci su zaposleni u IT sektoru u BiH i inostranstvu, osnivači su startupa, te nastavili master studije u Sloveniji, na Univerzitetu u Mostaru i drugdje.
+#
 
-- IPI Academy has an active student association - Student Club of the IPI Academy, and students have, by their work and efforts, achieved numerous results by which they became recognizable
 
-- “ istakla je Adna Braković, predsjednica Studentskog kluba IPI Akademije
-
-
-## Istraživanje i projekti
-
-- U nastavku navodimo rezime zaključaka konferencije: Treća međunarodna naučna konferencija o digitalnoj ekonomiji DIEC 2020 će se održati u aprilu 2020
-
-- Projekat je bio podijeljen je u dvije faze
-
-- POPULIZAM izabrane teme POPULIZAM izabrane teme POPULIZAM izabrane teme POPULIZAM izabrane teme Časopis Acta Catallactics, br
-
-- Njegov cilj je kontinuirano unapređivati karijeru kroz istraživanje, razvoj i implementaciju tehnoloških inovacija koje donose pozitivne promjene u društvu
-
-- Međunarodna naučna konferencija o digitalnoj ekonomiji DIEC 2019 26
-
-- Konferencija o ljubavi i uspjehu "LJUSP" 18
-
-- 2019 09:24 Konferencija o ljubavi i uspjehu "LJUSP" koju je organizovala dr
-
-- 2019 09:24 Konferencija o ljubavi i uspjehu "LJUSP" Konferencija o ljubavi i uspjehu "LJUSP" koju je organizovala dr
-
-- Konferencija o ljubavi i uspjehu "LJUSP" koju je organizovala dr
-
-
-## Praktične informacije
-
-- Mejra Klapić upisala je IPI Akademiju 2015
-
-- Podnošenje prijava vršit će se od 24
-
-- Upis primljenih kandidata obavit će se od 11
-
-- " Mejra Klapić upisala je IPI Akademiju 2015
-
-- Važni datumi: Rok za prijavu teme: 15
-
-- juni 2025 Rok za dostavu pune aplikacije: 15
-
-- Rok za prijavu teme: 15
-
-- Kontakt Saradnja Putanja Početna / Kontakt Putanja Početna / Kontakt Putanja Početna / Kontakt Putanja Početna / Kontakt Kontakt Kulina bana br
-
-- Podnošenje prijava vršit će se od 26
-
-- Upis primljenih kandidata obavit će se od 15
-
-
-## Ostalo
-
-- Također, obavljena stručna praksa mi je znatno pomogla da se brzo prilagodim poslovnom okruženju
-
-- godine uspješno je odbranio svoj Završni rad o temi "Uticaj oglašavanja na ponašanje potrošača u procesu kupovine", ocjenom 10, te stekao zvanje Bachelor tržišnih komunikacija
-
-- Zašto studirati na IPI Akademiji najbolje je pitati naše diplomce, koji već sada na tržištu rada primjenjuju stečena znanja i vještine
-
-- tržištu rada, te koliko je važna praksa i konkretna iskustva onih koji Vas podučavaju
-
-- Cilj upravljanja kvalitetom na IPI Akademiji je uspostavljanje kvaliteta, kontrola kvaliteta, unapređenje kvaliteta, osiguranje kvaliteta i dostizanje kulture kvaliteta
-
-- Međuuniverzitetski sportski susreti Balkanijada 2019 održani su od 07
-
-- Učešće je uzelo 15 Univerziteta i fakulteta sa područja BiH
-
-- Unazad dvije godine, košarkaška ekipa IPI Akademije ostvarila je zavidne rezultate na Balkanijadi, a ove godine sa ponosom su osvojili 1
-
-- ## Cijena fakulteta 2500KM „Ovo je prostor koji smo mi tehnički i dizajnerski kreirali za razvoj poduzetničkih ideja studenata
-
-- Cilj im je pružiti rješenja visoke tehnologije po mjeri krajnjih korisnika, a glavna djelatnost je razvoj softvera po narudžbi
-
-- Nasa lokacija je Zmaja od Bosne 7
-
-
-
-Osnivac ove stranica i tvorac i jedan od studenata ipia akademija sam ja Amar Tubic
-
+# Amar
+Amar je jedan od osnivaca ove stranice i uskoro diplomirani inzinjer.

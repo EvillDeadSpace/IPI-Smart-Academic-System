@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:ipi-akademija.ba)",
+      "WebFetch(domain:forum.klix.ba)",
+      "Bash(python -m ruff check . --fix)",
+      "Bash(python -m ruff format .)",
+      "Bash(python -m ruff check .)",
+      "Bash(python -m ruff check . --unsafe-fixes --fix)"
+    ]
+  }
+}

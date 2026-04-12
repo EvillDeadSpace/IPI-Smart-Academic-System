@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p C:/Users/amart/desktop/Diplomski/IPI-Smart-Academic-System/mobile/src/theme)",
+      "Bash(mkdir -p C:/Users/amart/desktop/Diplomski/IPI-Smart-Academic-System/mobile/src/screens/auth)",
+      "Bash(mkdir -p C:/Users/amart/desktop/Diplomski/IPI-Smart-Academic-System/mobile/src/screens/student)",
+      "Bash(mkdir -p C:/Users/amart/desktop/Diplomski/IPI-Smart-Academic-System/mobile/src/screens/professor)",
+      "Bash(mkdir -p C:/Users/amart/desktop/Diplomski/IPI-Smart-Academic-System/mobile/src/screens/admin)",
+      "mcp__figma-remote-mcp__use_figma",
+      "mcp__figma-remote-mcp__get_screenshot"
+    ]
+  }
+}

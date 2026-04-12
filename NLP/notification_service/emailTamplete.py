@@ -1,9 +1,8 @@
 from datetime import datetime
 import re
-from typing import Optional
 
 
-def format_message_text(text: Optional[str]) -> Optional[str]:
+def format_message_text(text: str | None) -> str | None:
     """
     Format the exam notification message with emojis and bold formatting.
     Also formats ISO datetime strings into a more human-readable format.
@@ -41,7 +40,7 @@ def format_message_text(text: Optional[str]) -> Optional[str]:
             }
             exam_info["date"] = f"{dt.day}. {months_sr[dt.month]} {dt.year}."
             exam_info["time"] = f"{dt.hour:02d}:{dt.minute:02d}h"
-        except:
+        except Exception:
             pass
 
     # Parse subject
@@ -75,12 +74,14 @@ def format_message_text(text: Optional[str]) -> Optional[str]:
             else (
                 "💻"
                 if "Programiranje" in exam_info["subject"]
-                else "🔬" if "Fizika" in exam_info["subject"] else "📚"
+                else "🔬"
+                if "Fizika" in exam_info["subject"]
+                else "📚"
             )
         )
         formatted_html += f"""
         <div style="background-color: #f0f4ff; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #667eea;">
-            <p style="margin: 5px 0;"><strong>Predmet:</strong> {subject_emoji} <span style="color: #764ba2; font-size: 18px;">{exam_info['subject']}</span></p>
+            <p style="margin: 5px 0;"><strong>Predmet:</strong> {subject_emoji} <span style="color: #764ba2; font-size: 18px;">{exam_info["subject"]}</span></p>
         </div>
         """
 
@@ -93,21 +94,19 @@ def format_message_text(text: Optional[str]) -> Optional[str]:
             <p style="margin: 5px 0;">📅 <strong>Datum:</strong> <span style="font-size: 17px;">{}</span></p>
             <p style="margin: 5px 0;">🕐 <strong>Vrijeme:</strong> <span style="font-size: 17px;">{}</span></p>
         </div>
-        """.format(
-            exam_info["date"] or "N/A", exam_info["time"] or "N/A"
-        )
+        """.format(exam_info["date"] or "N/A", exam_info["time"] or "N/A")
 
     if exam_info["classroom"]:
         formatted_html += f"""
         <div style="background-color: #e8f5e9; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #4caf50;">
-            <p style="margin: 5px 0;">🚪 <strong>Učionica:</strong> <span style="font-size: 17px; color: #2e7d32;">{exam_info['classroom']}</span></p>
+            <p style="margin: 5px 0;">🚪 <strong>Učionica:</strong> <span style="font-size: 17px; color: #2e7d32;">{exam_info["classroom"]}</span></p>
         </div>
         """
 
     if exam_info["max_points"]:
         formatted_html += f"""
         <div style="background-color: #fce4ec; padding: 12px; border-radius: 8px; border-left: 4px solid #e91e63;">
-            <p style="margin: 5px 0;">🎯 <strong>Maksimalan broj bodova:</strong> <span style="font-size: 18px; color: #c2185b;">{exam_info['max_points']} bodova</span></p>
+            <p style="margin: 5px 0;">🎯 <strong>Maksimalan broj bodova:</strong> <span style="font-size: 18px; color: #c2185b;">{exam_info["max_points"]} bodova</span></p>
         </div>
         """
 
@@ -228,19 +227,17 @@ def format_assignment_notification(message_text: str, subject: str) -> str:
     """
 
     # Instructions section
-    instructions_html = """
+    instructions_html = f"""
     <div style="background-color: #f0f4ff; padding: 18px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea;">
         <p style="margin: 5px 0; font-size: 16px;"><strong>📋 Šta dalje?</strong></p>
         <ul style="margin: 12px 0; padding-left: 20px; font-size: 15px; line-height: 1.8; color: #555;">
             <li>Prijavite se na <strong>IPI Smart sistem</strong></li>
             <li>Idite na stranicu <strong>"Zadaće"</strong></li>
-            <li>Pronađite zadaću za predmet <strong>{subject_name}</strong></li>
+            <li>Pronađite zadaću za predmet <strong>{subject}</strong></li>
             <li>Preuzmite materijale i započnite sa radom</li>
         </ul>
     </div>
-    """.format(
-        subject_name=subject
-    )
+    """
     formatted_html += instructions_html
 
     # Important note
@@ -281,14 +278,14 @@ def create_professional_email_html(subject, message_text):
                 padding: 0;
                 box-sizing: border-box;
             }}
-            
+
             body {{
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 background-color: #f4f7fa;
                 padding: 20px;
                 line-height: 1.6;
             }}
-            
+
             .email-container {{
                 max-width: 600px;
                 margin: 0 auto;
@@ -297,32 +294,32 @@ def create_professional_email_html(subject, message_text):
                 overflow: hidden;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             }}
-            
+
             .header {{
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 padding: 40px 30px;
                 text-align: center;
                 color: white;
             }}
-            
+
             .header h1 {{
                 font-size: 28px;
                 font-weight: 700;
                 margin: 0;
                 letter-spacing: 1px;
             }}
-            
+
             .header p {{
                 font-size: 14px;
                 margin-top: 8px;
                 opacity: 0.95;
             }}
-            
+
             .content {{
                 padding: 40px 30px;
                 color: #333333;
             }}
-            
+
             .content h2 {{
                 color: #667eea;
                 font-size: 22px;
@@ -330,18 +327,18 @@ def create_professional_email_html(subject, message_text):
                 border-bottom: 3px solid #667eea;
                 padding-bottom: 10px;
             }}
-            
+
             .content p {{
                 font-size: 16px;
                 margin-bottom: 15px;
                 color: #555555;
             }}
-            
+
             .content strong {{
                 color: #764ba2;
                 font-weight: 600;
             }}
-            
+
             .highlight-box {{
                 background-color: #f8f9ff;
                 border-left: 4px solid #667eea;
@@ -351,12 +348,12 @@ def create_professional_email_html(subject, message_text):
                 font-size: 16px;
                 line-height: 1.8;
             }}
-            
+
             .highlight-box strong {{
                 color: #764ba2;
                 font-size: 17px;
             }}
-            
+
             .button {{
                 display: inline-block;
                 padding: 14px 32px;
@@ -368,39 +365,39 @@ def create_professional_email_html(subject, message_text):
                 margin: 20px 0;
                 transition: transform 0.2s;
             }}
-            
+
             .button:hover {{
                 transform: translateY(-2px);
             }}
-            
+
             .footer {{
                 background-color: #2d3748;
                 color: #ffffff;
                 padding: 35px 30px;
                 text-align: center;
             }}
-            
+
             .footer-logo {{
                 font-size: 24px;
                 font-weight: 700;
                 margin-bottom: 15px;
                 color: #667eea;
             }}
-            
+
             .footer-info {{
                 font-size: 14px;
                 margin-bottom: 20px;
                 opacity: 0.9;
             }}
-            
+
             .footer-info p {{
                 margin: 8px 0;
             }}
-            
+
             .social-links {{
                 margin: 25px 0;
             }}
-            
+
             .social-links a {{
                 display: inline-block;
                 width: 40px;
@@ -414,11 +411,11 @@ def create_professional_email_html(subject, message_text):
                 font-weight: bold;
                 transition: background-color 0.3s;
             }}
-            
+
             .social-links a:hover {{
                 background-color: #764ba2;
             }}
-            
+
             .footer-bottom {{
                 margin-top: 25px;
                 padding-top: 20px;
@@ -426,26 +423,26 @@ def create_professional_email_html(subject, message_text):
                 font-size: 12px;
                 opacity: 0.7;
             }}
-            
+
             .divider {{
                 height: 2px;
                 background: linear-gradient(90deg, transparent, #667eea, transparent);
                 margin: 30px 0;
             }}
-            
+
             @media only screen and (max-width: 600px) {{
                 .email-container {{
                     border-radius: 0;
                 }}
-                
+
                 .header, .content, .footer {{
                     padding: 25px 20px;
                 }}
-                
+
                 .header h1 {{
                     font-size: 24px;
                 }}
-                
+
                 .content h2 {{
                     font-size: 20px;
                 }}
@@ -459,39 +456,39 @@ def create_professional_email_html(subject, message_text):
                 <h1>🎓 IPI Smart Akademija</h1>
                 <p>Vaš partner u digitalnom obrazovanju</p>
             </div>
-            
+
             <!-- Content Section -->
             <div class="content">
                 <h2>{subject}</h2>
-                
+
                 <div class="highlight-box">
                     {message_text}
                 </div>
-                
+
                 <div class="divider"></div>
-                
+
                 <p><strong>Napomena:</strong> Ovo je automatska poruka iz IPI Smart Academic System-a.</p>
                 <p>Molimo vas da redovno proveravate svoju email adresu za važna obaveštenja.</p>
             </div>
-            
+
             <!-- Footer Section -->
             <div class="footer">
                 <div class="footer-logo">IPI Smart Akademija</div>
-                
+
                 <div class="footer-info">
                     <p>📍 <strong>Adresa:</strong> Kulina bana br. 2 (Skver) Tuzla, 75000 Tuzla</p>
                     <p>📞 <strong>Telefon:</strong> +387 35 258 454</p>
                     <p>✉️ <strong>Email:</strong> info@ipi-akademija.ba</p>
                     <p>🌐 <strong>Web:</strong> https://ipi-akademija.ba/</p>
                 </div>
-                
+
                 <!-- Social Media Links -->
                 <div class="social-links">
                     <a href="https://www.facebook.com/ipiakademija/?locale=hr_HR" title="Facebook" target="_blank">f</a>
                     <a href="https://www.instagram.com/ipi_akademija/?hl=en" title="Instagram" target="_blank">📷</a>
                     <a href="https://www.linkedin.com/school/ipiakademija/?originalSubdomain=ba" title="LinkedIn" target="_blank">in</a>
                 </div>
-                
+
                 <div class="footer-bottom">
                     <p>&copy; 2026 IPI Smart Academic System. Sva prava zadržana.</p>
                     <p>Ova poruka je poslata automatski. Molimo ne odgovarajte direktno na ovaj email.</p>

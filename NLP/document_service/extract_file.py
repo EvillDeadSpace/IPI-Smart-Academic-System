@@ -1,5 +1,5 @@
-import pdfplumber
 from docx import Document
+import pdfplumber
 
 
 def extract_text(file_from_user):
