@@ -41,10 +41,6 @@ def _add_text_overlay_on_matching_pages(
     academic_year: str,
     search_text: str = "Potvrduje se da je ",
 ) -> Any:
-    """
-    Zadržava tvoju logiku: ako stranica sadrži `search_text`, crta overlay na toj stranici.
-    Vraća PdfWriter spreman za zapis u BytesIO.
-    """
     # import PdfWriter and reportlab canvas locally
     from PyPDF2 import PdfWriter
     from reportlab.lib.pagesizes import letter

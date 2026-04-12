@@ -1,32 +1,23 @@
-__pycache__/
+**/__pycache__/
 *.pyc
 *.pyo
-__pycache__/
-__pycache__/*
-*.pyc
-*.pyo
-/__pycache/*
-/pycache/
 
 .env
-
-.env/
-**/__pycache__/
-
-NLP/APP/__pycache__/
-
-/APP/__pycache__/
-
-app/__pycache__
 
 # Virtual environment
 venv/
 env/
 ENV/
 
-# FAISS index fajlovi (mogu se regenerisati)
-# faiss_index.bin
-# text_chunks.pkl
+# FAISS index fajlovi (regenerišu se automatski pri pokretanju)
+faiss_index.bin
+text_chunks.pkl
+
+# Linter cache
+.ruff_cache/
+
+# Logs
+*.log
 
 # IDE
 .vscode/
