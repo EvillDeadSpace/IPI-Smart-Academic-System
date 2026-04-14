@@ -242,7 +242,7 @@ const AdminProfessorManagement: React.FC = () => {
                         variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.07 } } }}
                         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
                     >
-                        {professors.map((professor, index) => (
+                        {professors.map((professor) => (
                             <motion.div
                                 key={professor.id}
                                 variants={{
