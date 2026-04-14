@@ -4,7 +4,7 @@ import { SidebarDemo } from './Sidebar/Sidebar'
 
 const MainBoard: FC = () => {
     return (
-        <div className="h-screen w-screen bg-gray-50">
+        <div className="h-screen w-screen bg-slate-50">
             <SidebarDemo>
                 <Outlet />
             </SidebarDemo>

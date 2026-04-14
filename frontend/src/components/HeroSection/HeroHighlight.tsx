@@ -17,7 +17,7 @@ export function HeroHighlightComponent() {
                     duration: 0.5,
                     ease: [0.4, 0.0, 0.2, 1],
                 }}
-                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white max-w-5xl text-center mx-auto px-4 sm:px-6 leading-tight"
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white max-w-5xl text-center mx-auto px-4 sm:px-6 leading-normal pb-4"
             >
                 <span className="block ">Sve na jednom mjestu</span>
                 <span className="block">

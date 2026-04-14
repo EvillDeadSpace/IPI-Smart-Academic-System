@@ -1,6 +1,6 @@
 'use client'
-import React, { useEffect, useRef, useState, useMemo } from 'react'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { cn } from '../../lib/utils'
 
 const StickyScroll = ({
@@ -11,118 +11,112 @@ const StickyScroll = ({
         title: string
         description: string
         content?: React.ReactNode
+        bg?: string
     }[]
     contentClassName?: string
 }) => {
     const [activeCard, setActiveCard] = useState(0)
     const containerRef = useRef<HTMLDivElement>(null)
 
-    // Background gradients and colors - matching content themes
-    const linearGradients = useMemo(
+    // Subtle blue shade variation per section — keeps brand but adds depth/rhythm
+    const sectionBgs = useMemo(
         () => [
-            'linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)', // blue
-            'linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)', // blue
-            'linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)', // blue
-            'linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)', // blue
-            'linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)', // blue
+            { from: '#1d4ed8', to: '#2563eb' }, // blue-700 → blue-600
+            { from: '#2563eb', to: '#3b82f6' }, // blue-600 → blue-500
+            { from: '#1e40af', to: '#2563eb' }, // blue-800 → blue-600
+            { from: '#1d4ed8', to: '#1e40af' }, // blue-700 → blue-800
+            { from: '#3b82f6', to: '#2563eb' }, // blue-500 → blue-600
         ],
         []
     )
 
-    const backgroundColors = useMemo(
-        () => [
-            'rgb(37, 99, 235)', // blue-600
-            'rgb(37, 99, 235)', // blue-600
-            'rgb(37, 99, 235)', // blue-600
-            'rgb(37, 99, 235)', // blue-600
-            'rgb(37, 99, 235)', // blue-600
-        ],
-        []
-    )
-
-    useEffect(() => {
-        // Background gradient changes with activeCard
-        // (removed unused backgroundGradient state)
-    }, [activeCard, linearGradients])
-
-    // Intersection Observer for scroll detection
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
-                        const sectionIndex = parseInt(
+                        const idx = parseInt(
                             entry.target.getAttribute('data-section') || '0'
                         )
-                        setActiveCard(sectionIndex)
+                        setActiveCard(idx)
                     }
                 })
             },
             {
-                threshold: 0.2, // Još brži odgovor
-                rootMargin: '0% 0px -50% 0px', // Aktivira se kada sekcija tek uđe u viewport
+                threshold: 0.25,
+                rootMargin: '0% 0px -45% 0px',
             }
         )
 
         if (containerRef.current) {
-            const sections =
-                containerRef.current.querySelectorAll('[data-section]')
-            sections.forEach((section) => observer.observe(section))
-
-            return () => {
-                sections.forEach((section) => observer.unobserve(section))
-            }
+            const sections = containerRef.current.querySelectorAll('[data-section]')
+            sections.forEach((s) => observer.observe(s))
+            return () => sections.forEach((s) => observer.unobserve(s))
         }
     }, [content])
 
-    return (
-        <div ref={containerRef} className="relative min-h-screen">
-            {/* Background pattern similar to HeroSection */}
-            <div className="absolute inset-0 bg-dot-thick-neutral-100 opacity-20" />
+    const currentBg = sectionBgs[activeCard % sectionBgs.length]
 
+    return (
+        <div ref={containerRef} className="relative">
             <motion.div
-                animate={{
-                    backgroundColor:
-                        backgroundColors[activeCard % backgroundColors.length],
-                }}
-                className="flex min-h-screen w-full relative z-10"
+                className="flex min-h-screen w-full relative"
+                animate={{ backgroundColor: currentBg.from }}
+                transition={{ duration: 0.8, ease: 'easeInOut' }}
                 style={{
-                    background: `linear-gradient(135deg, ${backgroundColors[activeCard % backgroundColors.length]} 0%, ${backgroundColors[(activeCard + 1) % backgroundColors.length]} 100%)`,
+                    background: `linear-gradient(145deg, ${currentBg.from} 0%, ${currentBg.to} 100%)`,
                 }}
             >
-                {/* Text Content - Left Side */}
+                {/* ── Left: text content ──────────────────────────────── */}
                 <div className="flex-1 flex flex-col justify-start px-6 lg:px-20 py-16 md:py-24">
-                    <div className="container mx-auto max-w-4xl">
+                    <div className="container mx-auto max-w-2xl">
                         {content.map((item, index) => (
                             <motion.div
                                 key={item.title + index}
                                 data-section={index}
-                                className="min-h-screen flex flex-col justify-center py-24"
-                                initial={{ opacity: 0.3 }}
+                                className="min-h-screen flex flex-col justify-center py-20"
+                                initial={{ opacity: 0.25 }}
                                 animate={{
-                                    opacity: activeCard === index ? 1 : 0.3,
-                                    scale: activeCard === index ? 1 : 0.96,
-                                    y: activeCard === index ? 0 : 30,
+                                    opacity: activeCard === index ? 1 : 0.25,
+                                    y: activeCard === index ? 0 : 20,
                                 }}
-                                transition={{ duration: 0.6, ease: 'easeOut' }}
+                                transition={{ duration: 0.5, ease: 'easeOut' }}
                             >
-                                <motion.h1
-                                    className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight tracking-tight"
+                                {/* Section counter */}
+                                <motion.span
+                                    className="text-xs font-syne font-bold tracking-widest text-blue-400 uppercase mb-6 block"
+                                    animate={{ opacity: activeCard === index ? 1 : 0.4 }}
+                                >
+                                    {String(index + 1).padStart(2, '0')} / {String(content.length).padStart(2, '0')}
+                                </motion.span>
+
+                                <motion.div
+                                    className="w-10 h-0.5 bg-blue-400 rounded-full mb-6"
                                     animate={{
+                                        width: activeCard === index ? '2.5rem' : '1.25rem',
                                         opacity: activeCard === index ? 1 : 0.4,
-                                        x: activeCard === index ? 0 : -30,
                                     }}
-                                    transition={{ duration: 0.5, delay: 0.1 }}
+                                    transition={{ duration: 0.4 }}
+                                />
+
+                                <motion.h2
+                                    className="text-4xl md:text-5xl lg:text-6xl font-syne font-bold text-white mb-8 leading-[1.15]"
+                                    animate={{
+                                        opacity: activeCard === index ? 1 : 0.3,
+                                        x: activeCard === index ? 0 : -20,
+                                    }}
+                                    transition={{ duration: 0.5, delay: 0.05 }}
                                 >
                                     {item.title}
-                                </motion.h1>
+                                </motion.h2>
+
                                 <motion.p
-                                    className="text-xl md:text-2xl text-blue-100 leading-relaxed max-w-3xl font-light"
+                                    className="text-lg md:text-xl text-blue-100/80 leading-relaxed font-light"
                                     animate={{
-                                        opacity: activeCard === index ? 1 : 0.4,
-                                        x: activeCard === index ? 0 : -30,
+                                        opacity: activeCard === index ? 1 : 0.3,
+                                        x: activeCard === index ? 0 : -20,
                                     }}
-                                    transition={{ duration: 0.5, delay: 0.2 }}
+                                    transition={{ duration: 0.5, delay: 0.1 }}
                                 >
                                     {item.description}
                                 </motion.p>
@@ -131,49 +125,62 @@ const StickyScroll = ({
                     </div>
                 </div>
 
-                {/* Sticky Visual Content - Right Side */}
-                <div className="hidden lg:flex flex-1 relative">
-                    <div className="sticky top-1/2 transform -translate-y-1/2 h-fit w-full flex items-center justify-center p-12">
-                        <motion.div
-                            className={cn(
-                                'w-full max-w-lg h-[420px] rounded-3xl shadow-2xl overflow-hidden border border-white/20 backdrop-blur-xl bg-white/5',
-                                contentClassName
-                            )}
-                            animate={{
-                                scale: 1.02,
-                                opacity: 1,
-                                rotateY: 0,
-                            }}
-                            transition={{
-                                duration: 0.7,
-                                ease: 'easeOut',
-                            }}
-                            key={`card-${activeCard}`}
-                            style={{
-                                background:
-                                    'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-                                boxShadow:
-                                    '0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)',
-                            }}
-                        >
+                {/* ── Right: sticky visual card ────────────────────────── */}
+                <div className="hidden lg:flex w-[45%] relative flex-shrink-0">
+                    <div className="sticky top-0 h-screen w-full flex items-center justify-center p-12">
+                        <AnimatePresence mode="wait">
                             <motion.div
-                                initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                                key={`card-${activeCard}`}
+                                className={cn(
+                                    'w-full max-w-md h-[440px] rounded-3xl overflow-hidden border border-white/10',
+                                    contentClassName
+                                )}
+                                initial={{ opacity: 0, y: 24, scale: 0.97 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                                transition={{
-                                    duration: 0.6,
-                                    delay: 0.2,
-                                    ease: 'easeOut',
+                                exit={{ opacity: 0, y: -20, scale: 0.97 }}
+                                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                                style={{
+                                    boxShadow:
+                                        '0 30px 60px -15px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)',
                                 }}
-                                className="h-full w-full"
                             >
                                 {content[activeCard].content ?? (
-                                    <div className="flex items-center justify-center h-full text-white text-2xl font-bold">
+                                    <div className="flex items-center justify-center h-full bg-blue-900/50 text-white text-2xl font-syne font-bold">
                                         {content[activeCard].title}
                                     </div>
                                 )}
                             </motion.div>
-                        </motion.div>
+                        </AnimatePresence>
                     </div>
+                </div>
+
+                {/* ── Navigation dots ──────────────────────────────────── */}
+                <div className="hidden lg:flex flex-col items-center justify-center gap-3 fixed right-6 top-1/2 -translate-y-1/2 z-30">
+                    {content.map((_, idx) => (
+                        <button
+                            key={idx}
+                            onClick={() => {
+                                const section = containerRef.current?.querySelector(
+                                    `[data-section="${idx}"]`
+                                )
+                                section?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                            }}
+                            className="group flex items-center justify-center"
+                            aria-label={`Sekcija ${idx + 1}`}
+                        >
+                            <motion.div
+                                animate={{
+                                    width: activeCard === idx ? '1.75rem' : '0.4rem',
+                                    backgroundColor:
+                                        activeCard === idx
+                                            ? 'rgba(147,197,253,1)'
+                                            : 'rgba(147,197,253,0.35)',
+                                }}
+                                transition={{ duration: 0.3 }}
+                                className="h-1.5 rounded-full"
+                            />
+                        </button>
+                    ))}
                 </div>
             </motion.div>
         </div>

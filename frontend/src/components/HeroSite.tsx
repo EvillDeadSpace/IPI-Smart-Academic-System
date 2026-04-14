@@ -30,20 +30,11 @@ function HeroSite() {
 
             {/* Main Content */}
             <main className="relative z-10">
-                {/* About Section with parallax effect */}
-                <section className="relative overflow-hidden">
-                    <motion.div
-                        initial={{ y: 100, opacity: 0 }}
-                        whileInView={{ y: 0, opacity: 1 }}
-                        transition={{ duration: 0.8 }}
-                        viewport={{ once: true }}
-                    >
-                        <HeroSection />
-                    </motion.div>
-                </section>
+                {/* Hero Section */}
+                <HeroSection />
 
                 {/* Description with gradient overlay */}
-                <section className="relative bg-gradient-to-b from-blue-50 to-white py-20">
+                <section className="relative bg-gradient-to-b from-blue-50 to-white py-10 md:py-14">
                     <motion.div
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
@@ -59,7 +50,7 @@ function HeroSite() {
                 </section>
 
                 {/* Testimonials with background pattern */}
-                <section className="relative bg-gray-50 py-20">
+                <section className="relative bg-gray-50 py-10 md:py-14">
                     <div className="absolute inset-0 bg-dot-thick-neutral-100 opacity-50" />
                     <div className="relative z-10">
                         <TestimonialComponent />

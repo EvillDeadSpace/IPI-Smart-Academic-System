@@ -160,8 +160,8 @@ const AdminProfessorManagement: React.FC = () => {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
             </div>
         )
     }
@@ -170,91 +170,110 @@ const AdminProfessorManagement: React.FC = () => {
         subject.name.toLowerCase().includes(searchTerm)
     )
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-slate-50">
             {/* Top Navigation Bar */}
-            <div className="bg-white border-b border-gray-200 shadow-sm">
+            <nav className="bg-blue-600 shadow-md">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3">
                             <button
                                 onClick={() => navigate('/admin')}
-                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                className="p-2 hover:bg-white/15 rounded-lg transition-colors"
                                 title="Nazad na Admin Panel"
                             >
-                                <IconArrowLeft className="w-5 h-5 text-gray-600" />
+                                <IconArrowLeft className="w-5 h-5 text-white" />
                             </button>
-                            <IconSchool className="w-8 h-8 text-green-600" />
+                            <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
+                                <IconSchool className="w-5 h-5 text-white" />
+                            </div>
                             <div>
-                                <h1 className="text-xl font-bold text-gray-900">
+                                <h1 className="text-sm font-syne font-bold text-white leading-tight">
                                     Upravljanje Profesorima
                                 </h1>
-                                <p className="text-sm text-gray-500">
-                                    Dodajte profesore i dodijelite im predmete
+                                <p className="text-xs text-blue-100">
+                                    {studentName || 'System Administrator'}
                                 </p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <span className="text-sm text-gray-600">
-                                Admin:{' '}
-                                <span className="font-semibold">
-                                    {studentName || 'Administrator'}
-                                </span>
-                            </span>
-                        </div>
                     </div>
                 </div>
-            </div>
+            </nav>
 
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Add Professor Button Card */}
+                {/* Welcome Banner */}
                 <motion.div
-                    initial={{ opacity: 0, y: -20 }}
+                    initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mb-8"
+                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                    className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 p-6 text-white mb-8"
                 >
-                    <button
-                        onClick={openCreateModal}
-                        className="w-full bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all transform hover:-translate-y-0.5"
-                    >
-                        <div className="flex items-center justify-center gap-3">
-                            <IconUserPlus className="w-6 h-6" />
-                            <span className="text-lg font-semibold">
-                                Dodaj Novog Profesora
-                            </span>
+                    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:32px_32px]" />
+                    <div className="absolute -right-8 -top-8 w-52 h-52 rounded-full bg-white/10 blur-2xl pointer-events-none" />
+                    <div className="relative z-10 flex items-center justify-between">
+                        <div>
+                            <p className="text-xs font-syne font-semibold tracking-widest uppercase text-blue-200 mb-2">
+                                IPI Akademija · Profesori
+                            </p>
+                            <h1 className="text-2xl font-syne font-bold mb-1">
+                                Upravljanje Profesorima
+                            </h1>
+                            <p className="text-blue-100 text-sm opacity-90">
+                                Dodajte profesore i dodijelite im predmete
+                            </p>
                         </div>
-                    </button>
+                        <motion.button
+                            onClick={openCreateModal}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-white text-blue-700 rounded-xl font-semibold text-sm shadow-md hover:bg-blue-50 transition-colors duration-200 flex-shrink-0"
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.97 }}
+                        >
+                            <IconUserPlus className="w-4 h-4" />
+                            Dodaj Profesora
+                        </motion.button>
+                    </div>
                 </motion.div>
 
                 {/* Professors Grid */}
                 {professors.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <motion.div
+                        initial="hidden"
+                        animate="visible"
+                        variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.07 } } }}
+                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+                    >
                         {professors.map((professor, index) => (
                             <motion.div
                                 key={professor.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.05 }}
-                                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all border border-gray-200 overflow-hidden"
+                                variants={{
+                                    hidden: { opacity: 0, y: 20 },
+                                    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
+                                }}
+                                className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col"
                             >
-                                {/* Card Header with Gradient */}
-                                <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 border-b border-green-200">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <div className="flex-1">
-                                            <h3 className="text-lg font-bold text-gray-900">
+                                {/* Card top accent */}
+                                <div className="h-1 w-full bg-gradient-to-r from-blue-500 to-cyan-400" />
+
+                                {/* Card Header */}
+                                <div className="p-5 border-b border-slate-100 bg-blue-50/40">
+                                    <div className="flex items-start gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-blue-100 border border-blue-200 flex items-center justify-center flex-shrink-0">
+                                            <IconSchool className="w-5 h-5 text-blue-600" />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <h3 className="text-sm font-syne font-bold text-slate-800 leading-tight">
                                                 {professor.title}{' '}
                                                 {professor.firstName}{' '}
                                                 {professor.lastName}
                                             </h3>
-                                            <p className="text-sm text-gray-600 mt-1">
+                                            <p className="text-xs text-slate-500 mt-0.5 truncate">
                                                 {professor.email}
                                             </p>
                                             {professor.office && (
-                                                <div className="flex items-center gap-1 mt-2">
-                                                    <IconBook className="w-4 h-4 text-green-600" />
-                                                    <p className="text-sm text-green-700 font-medium">
-                                                        Kabinet:{' '}
-                                                        {professor.office}
+                                                <div className="flex items-center gap-1 mt-1.5">
+                                                    <IconBook className="w-3.5 h-3.5 text-blue-500" />
+                                                    <p className="text-xs text-blue-600 font-medium">
+                                                        Kabinet: {professor.office}
                                                     </p>
                                                 </div>
                                             )}
@@ -263,66 +282,58 @@ const AdminProfessorManagement: React.FC = () => {
                                 </div>
 
                                 {/* Card Body */}
-                                <div className="p-6">
-                                    <div className="mb-4">
-                                        <p className="text-sm font-semibold text-gray-700 mb-3">
-                                            Predmeti (
-                                            {professor.subjects.length}):
+                                <div className="p-5 flex-1">
+                                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2.5">
+                                        Predmeti ({professor.subjects.length})
+                                    </p>
+                                    {professor.subjects.length > 0 ? (
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {professor.subjects.map((subject) => (
+                                                <span
+                                                    key={subject.id}
+                                                    className="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full text-xs font-medium border border-blue-100"
+                                                >
+                                                    {subject.name}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-xs text-slate-400 italic">
+                                            Nema dodijeljenih predmeta
                                         </p>
-                                        {professor.subjects.length > 0 ? (
-                                            <div className="flex flex-wrap gap-2">
-                                                {professor.subjects.map(
-                                                    (subject) => (
-                                                        <span
-                                                            key={subject.id}
-                                                            className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium border border-green-200"
-                                                        >
-                                                            {subject.name}
-                                                        </span>
-                                                    )
-                                                )}
-                                            </div>
-                                        ) : (
-                                            <p className="text-sm text-gray-400 italic">
-                                                Nema dodijeljenih predmeta
-                                            </p>
-                                        )}
-                                    </div>
+                                    )}
+                                </div>
 
-                                    {/* Action Buttons */}
-                                    <div className="flex gap-2 pt-4 border-t border-gray-100">
-                                        <button
-                                            onClick={() =>
-                                                openEditModal(professor)
-                                            }
-                                            className="flex-1 flex items-center justify-center gap-2 bg-orange-50 text-orange-600 hover:bg-orange-100 px-4 py-2 rounded-lg transition-all font-medium border border-orange-200"
-                                        >
-                                            <IconEdit className="w-4 h-4" />
-                                            Uredi
-                                        </button>
-                                        <button
-                                            onClick={() =>
-                                                handleDelete(professor.id)
-                                            }
-                                            className="flex-1 flex items-center justify-center gap-2 bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg transition-all font-medium border border-red-200"
-                                        >
-                                            <IconTrash className="w-4 h-4" />
-                                            Obriši
-                                        </button>
-                                    </div>
+                                {/* Footer Actions */}
+                                <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex gap-2">
+                                    <button
+                                        onClick={() => openEditModal(professor)}
+                                        className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-2 rounded-lg transition-colors duration-200"
+                                    >
+                                        <IconEdit className="w-3.5 h-3.5" />
+                                        Uredi
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(professor.id)}
+                                        className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-2 rounded-lg transition-colors duration-200"
+                                    >
+                                        <IconTrash className="w-3.5 h-3.5" />
+                                        Obriši
+                                    </button>
                                 </div>
                             </motion.div>
                         ))}
-                    </div>
+                    </motion.div>
                 ) : (
-                    <div className="text-center py-16 bg-white rounded-xl border-2 border-dashed border-gray-300">
-                        <IconUserPlus className="w-20 h-20 text-gray-300 mx-auto mb-4" />
-                        <h3 className="text-2xl font-bold text-gray-600 mb-2">
+                    <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                        <div className="w-16 h-16 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center mx-auto mb-4">
+                            <IconUserPlus className="w-8 h-8 text-blue-400" />
+                        </div>
+                        <h3 className="text-lg font-syne font-bold text-slate-600 mb-1">
                             Nema profesora
                         </h3>
-                        <p className="text-gray-500 mb-6">
-                            Dodajte prvog profesora klikom na zeleno dugme
-                            iznad.
+                        <p className="text-sm text-slate-400 mb-6">
+                            Dodajte prvog profesora klikom na dugme iznad.
                         </p>
                     </div>
                 )}
@@ -373,7 +384,7 @@ const AdminProfessorManagement: React.FC = () => {
                                                 firstName: e.target.value,
                                             })
                                         }
-                                        className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
+                                        className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all"
                                         required
                                         disabled={isEditMode}
                                     />
@@ -392,7 +403,7 @@ const AdminProfessorManagement: React.FC = () => {
                                                 lastName: e.target.value,
                                             })
                                         }
-                                        className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
+                                        className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all"
                                         required
                                         disabled={isEditMode}
                                     />
@@ -411,7 +422,7 @@ const AdminProfessorManagement: React.FC = () => {
                                                 email: e.target.value,
                                             })
                                         }
-                                        className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
+                                        className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all"
                                         required
                                         disabled={isEditMode}
                                     />
@@ -431,7 +442,7 @@ const AdminProfessorManagement: React.FC = () => {
                                                     password: e.target.value,
                                                 })
                                             }
-                                            className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
+                                            className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all"
                                             required
                                         />
                                     </div>
@@ -449,7 +460,7 @@ const AdminProfessorManagement: React.FC = () => {
                                                 title: e.target.value,
                                             })
                                         }
-                                        className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
+                                        className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all"
                                         disabled={isEditMode}
                                     >
                                         <option value="Prof">Prof</option>
@@ -474,7 +485,7 @@ const AdminProfessorManagement: React.FC = () => {
                                                 office: e.target.value,
                                             })
                                         }
-                                        className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all"
+                                        className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all"
                                         placeholder="npr. A301"
                                         disabled={isEditMode}
                                     />
@@ -495,7 +506,7 @@ const AdminProfessorManagement: React.FC = () => {
                                                 e.target.value.toLowerCase()
                                             )
                                         }
-                                        className="ml-4 bg-gray-100 text-gray-900 border border-gray-300 rounded-lg p-2 w-64 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none transition-all text-sm"
+                                        className="ml-4 bg-gray-100 text-gray-900 border border-gray-300 rounded-lg p-2 w-64 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all text-sm"
                                     />
                                 </label>
 
@@ -504,7 +515,7 @@ const AdminProfessorManagement: React.FC = () => {
                                         {filteredSubjects.map((subject) => (
                                             <label
                                                 key={subject.id}
-                                                className="flex items-center gap-2 p-3 hover:bg-white rounded-lg cursor-pointer border border-transparent hover:border-green-200 transition-all"
+                                                className="flex items-center gap-2 p-3 hover:bg-white rounded-lg cursor-pointer border border-transparent hover:border-blue-200 transition-all"
                                             >
                                                 <input
                                                     type="checkbox"
@@ -516,7 +527,7 @@ const AdminProfessorManagement: React.FC = () => {
                                                             subject.id
                                                         )
                                                     }
-                                                    className="form-checkbox text-green-600 w-5 h-5 rounded border-gray-300 focus:ring-green-500"
+                                                    className="form-checkbox text-blue-600 w-5 h-5 rounded border-gray-300 focus:ring-blue-500"
                                                 />
                                                 <div className="flex-1">
                                                     <p className="text-gray-900 text-sm font-medium">
@@ -531,8 +542,8 @@ const AdminProfessorManagement: React.FC = () => {
                                         ))}
                                     </div>
                                 </div>
-                                <div className="mt-3 bg-green-50 border border-green-200 rounded-lg p-3">
-                                    <p className="text-sm text-green-700 font-medium">
+                                <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                    <p className="text-sm text-blue-700 font-medium">
                                         Odabrano predmeta:{' '}
                                         <span className="font-bold">
                                             {formData.subjectIds.length}
@@ -552,7 +563,7 @@ const AdminProfessorManagement: React.FC = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="flex items-center gap-2 bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
+                                    className="flex items-center gap-2 bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
                                 >
                                     <IconCheck className="w-5 h-5" />
                                     {isEditMode ? 'Ažuriraj' : 'Kreiraj'}

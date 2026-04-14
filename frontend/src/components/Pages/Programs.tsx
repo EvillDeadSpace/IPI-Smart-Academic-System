@@ -1,18 +1,18 @@
-import { FC, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
 import {
     IconBook,
-    IconCertificate,
+    IconBrandReact,
     IconBriefcase,
-    IconUsers,
-    IconClock,
-    IconTrophy,
+    IconCertificate,
     IconChevronRight,
+    IconClock,
     IconCode,
     IconDatabase,
-    IconBrandReact,
+    IconTrophy,
+    IconUsers,
 } from '@tabler/icons-react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { FC, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Chat from '../Chat'
 
 interface Program {
@@ -343,7 +343,7 @@ const Programs: FC = () => {
                             Studijski programi 2024/2025
                         </motion.div>
 
-                        <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+                        <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-snug">
                             Pronađite svoj put do{' '}
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
                                 uspješne karijere

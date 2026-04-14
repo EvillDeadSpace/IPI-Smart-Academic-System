@@ -160,9 +160,9 @@ export function AppleCardsCarousel() {
     ))
 
     return (
-        <div className="w-full h-full py-20 bg-gradient-to-b from-blue-50 to-white ">
+        <div className="w-full py-20 bg-gradient-to-b from-blue-50 to-white overflow-visible">
             <div className="max-w-7xl mx-auto px-4">
-                <h2 className="text-3xl md:text-5xl font-bold text-center mb-6 text-blue-600 ">
+                <h2 className="text-3xl md:text-5xl font-syne font-bold text-center mb-6 text-blue-600 leading-normal pb-2">
                     Studijski programi
                 </h2>
                 <p className="text-center text-neutral-600 text-lg md:text-xl max-w-2xl mx-auto mb-16">

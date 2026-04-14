@@ -1,16 +1,16 @@
+import { motion } from 'framer-motion'
 import { FC, useState } from 'react'
+import {
+    AiOutlineArrowRight,
+    AiOutlineEye,
+    AiOutlineEyeInvisible,
+    AiOutlineLock,
+    AiOutlineMail,
+} from 'react-icons/ai'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../Context'
 import { BACKEND_URL } from '../../constants/storage'
-import { motion } from 'framer-motion'
-import {
-    AiOutlineEye,
-    AiOutlineEyeInvisible,
-    AiOutlineMail,
-    AiOutlineLock,
-    AiOutlineArrowRight,
-} from 'react-icons/ai'
-import { toastError, toastSuccess, toastInfo } from '../../lib/toast'
+import { toastError, toastInfo, toastSuccess } from '../../lib/toast'
 
 const Login: FC = () => {
     const [password, setPassword] = useState<string>('')
@@ -163,94 +163,79 @@ const Login: FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center px-4 pt-24 pb-12 relative overflow-hidden">
-            {/* Background decorative elements */}
-            <div className="absolute top-0 left-0 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-pulse" />
-            <div className="absolute bottom-0 right-0 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-pulse" />
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-indigo-400 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-pulse" />
+        <div className="min-h-screen bg-gradient-to-br from-blue-800 via-blue-700 to-blue-600 flex items-center justify-center px-4 pt-20 pb-12 relative overflow-hidden">
+            {/* Subtle grid pattern on background */}
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
+            {/* Radial glow */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(255,255,255,0.1),transparent)]" />
 
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                 className="relative z-10 w-full max-w-sm"
             >
-                {/* Login Card */}
-                <div className="bg-blue-900/90 backdrop-blur-lg rounded-2xl shadow-xl border border-blue-700/50 p-6">
+                {/* Login Card — clean white */}
+                <div className="bg-white rounded-2xl shadow-2xl shadow-blue-900/40 p-7">
                     {/* Header */}
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2, duration: 0.6 }}
-                        className="text-center mb-6"
-                    >
-                        <div className="mx-auto flex justify-center mb-4">
-                            <img
-                                className="h-40 w-40 object-contain"
-                                src="/image-17.png"
-                                alt="IPI Akademija"
+                    <div className="w-full text-center mb-6">
+                        <img
+                            src="/image-17.png"
+                            alt="IPI Akademija"
+                            className="h-36 w-36 object-contain inline-block"
+                            style={{ transform: 'translateX(35%)' }}
+                        />
+                        <p className="text-gray-500 text-sm mt-3">
+                            Prijavite se na svoj nalog
+                        </p>
+                    </div>
+
+                    {/* Form */}
+                    <form className="space-y-4" onSubmit={handleSubmit}>
+                        {/* Email Field */}
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-semibold text-gray-600 flex items-center gap-1.5">
+                                <AiOutlineMail className="h-3.5 w-3.5 text-blue-500" />
+                                Email adresa
+                            </label>
+                            <input
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                name="email"
+                                id="email"
+                                autoComplete="email"
+                                required
+                                className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl
+                                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                                    transition-all duration-200 text-sm text-gray-900 placeholder-gray-400"
+                                placeholder="vaš@email.com"
                             />
                         </div>
 
-                        <p className="text-gray-300 mt-1 text-sm">
-                            Prijavite se na svoj nalog
-                        </p>
-                    </motion.div>
-
-                    {/* Form */}
-                    <motion.form
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.4, duration: 0.6 }}
-                        className="space-y-4"
-                        onSubmit={handleSubmit}
-                    >
-                        {/* Email Field */}
-                        <div className="space-y-1">
-                            <label className="text-xs font-semibold text-blue-100 flex items-center gap-2">
-                                <AiOutlineMail className="h-3 w-3 text-blue-300" />
-                                Email adresa
-                            </label>
-                            <div className="relative">
-                                <input
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    name="email"
-                                    id="email"
-                                    autoComplete="email"
-                                    required
-                                    className="w-full px-3 py-3 bg-blue-800/30 border border-blue-600/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 placeholder-blue-200 backdrop-blur-sm text-sm text-white"
-                                    placeholder="vaš@email.com"
-                                />
-                            </div>
-                        </div>
-
                         {/* Password Field */}
-                        <div className="space-y-1">
-                            <label className="text-xs font-semibold text-blue-100 flex items-center gap-2">
-                                <AiOutlineLock className="h-3 w-3 text-blue-300" />
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-semibold text-gray-600 flex items-center gap-1.5">
+                                <AiOutlineLock className="h-3.5 w-3.5 text-blue-500" />
                                 Šifra
                             </label>
                             <div className="relative">
                                 <input
                                     value={password}
-                                    onChange={(e) =>
-                                        setPassword(e.target.value)
-                                    }
+                                    onChange={(e) => setPassword(e.target.value)}
                                     type={showPassword ? 'text' : 'password'}
                                     name="password"
                                     id="password"
                                     autoComplete="current-password"
                                     required
-                                    className="w-full px-3 py-3 pr-10 bg-blue-800/30 border border-blue-600/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 placeholder-blue-200 backdrop-blur-sm text-sm text-white"
+                                    className="w-full px-3.5 py-2.5 pr-10 bg-gray-50 border border-gray-200 rounded-xl
+                                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                                        transition-all duration-200 text-sm text-gray-900 placeholder-gray-400"
                                     placeholder="Unesite vašu šifru"
                                 />
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        setShowPassword(!showPassword)
-                                    }
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-300 hover:text-blue-100 transition-colors duration-200"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
                                 >
                                     {showPassword ? (
                                         <AiOutlineEyeInvisible className="h-4 w-4" />
@@ -266,7 +251,7 @@ const Login: FC = () => {
                             <a
                                 href="#"
                                 onClick={handleForgotPassword}
-                                className="text-xs text-blue-300 hover:text-blue-100 font-medium transition-colors duration-200 cursor-pointer"
+                                className="text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200"
                             >
                                 Zaboravili ste šifru?
                             </a>
@@ -278,11 +263,14 @@ const Login: FC = () => {
                             disabled={loading}
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group"
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl
+                                font-semibold text-sm shadow-md shadow-blue-200 hover:shadow-lg hover:shadow-blue-300
+                                transition-all duration-300 flex items-center justify-center gap-2
+                                disabled:opacity-50 disabled:cursor-not-allowed group"
                         >
                             {loading ? (
                                 <>
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white" />
                                     Prijavljivanje...
                                 </>
                             ) : (
@@ -292,35 +280,29 @@ const Login: FC = () => {
                                 </>
                             )}
                         </motion.button>
-                    </motion.form>
+                    </form>
 
                     {/* Footer */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.6, duration: 0.6 }}
-                        className="mt-6 text-center"
-                    >
-                        <p className="text-blue-100 text-xs">
+                    <div className="mt-5 text-center">
+                        <p className="text-gray-500 text-xs">
                             Nemate nalog?{' '}
                             <a
                                 href="#"
                                 onClick={handleContactService}
-                                className="text-blue-300 hover:text-blue-100 font-semibold transition-colors duration-200 cursor-pointer"
+                                className="text-blue-600 hover:text-blue-700 font-semibold transition-colors duration-200"
                             >
                                 Kontaktirajte studentsku službu
                             </a>
                         </p>
-                    </motion.div>
+                    </div>
 
                     {/* Message */}
                     {message && (
                         <motion.div
-                            initial={{ opacity: 0, y: 10 }}
+                            initial={{ opacity: 0, y: 8 }}
                             animate={{ opacity: 1, y: 0 }}
                             className={`mt-4 p-3 rounded-xl text-center text-xs font-medium ${
-                                message.includes('failed') ||
-                                message.includes('Login failed')
+                                message.includes('failed') || message.includes('Login failed')
                                     ? 'bg-red-50 text-red-600 border border-red-200'
                                     : 'bg-green-50 text-green-600 border border-green-200'
                             }`}

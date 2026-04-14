@@ -1,4 +1,5 @@
 import { IconLogout, IconSchool } from '@tabler/icons-react'
+import { motion } from 'framer-motion'
 import React, { useState } from 'react'
 import { useAuth } from '../../Context'
 import { BACKEND_URL, NLP_URL } from '../../constants/storage'
@@ -234,10 +235,8 @@ const AdminPanel: React.FC = () => {
         const { newsId } = deleteModalState
         if (!newsId) return
         try {
-            const response = await fetch(`${BACKEND_URL}/api/news`, {
+            const response = await fetch(`${BACKEND_URL}/api/news/${newsId}`, {
                 method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ newsId: newsId }),
             })
 
             if (!response.ok) {
@@ -341,25 +340,27 @@ const AdminPanel: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-slate-50">
             {/* Top Navigation Bar */}
-            <nav className="bg-white shadow-sm border-b border-gray-200">
+            <nav className="bg-blue-600 shadow-md">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
-                        <div className="flex items-center space-x-4">
-                            <IconSchool className="w-8 h-8 text-blue-600" />
+                        <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
+                                <IconSchool className="w-5 h-5 text-white" />
+                            </div>
                             <div>
-                                <h1 className="text-xl font-bold text-gray-900">
+                                <h1 className="text-sm font-syne font-bold text-white leading-tight">
                                     Admin Panel
                                 </h1>
-                                <p className="text-sm text-gray-500">
+                                <p className="text-xs text-blue-100">
                                     {studentName || 'System Administrator'}
                                 </p>
                             </div>
                         </div>
                         <button
                             onClick={() => logout()}
-                            className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-100 hover:text-white hover:bg-white/15 rounded-lg transition-all duration-200"
                         >
                             <IconLogout className="w-4 h-4" />
                             <span>Logout</span>
@@ -370,42 +371,75 @@ const AdminPanel: React.FC = () => {
 
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* Card 1: Add Student */}
-                    <StudentCard onSubmit={handleAddStudent} />
+                {/* Welcome Banner */}
+                <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                    className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 p-6 text-white mb-8"
+                >
+                    {/* Grid overlay */}
+                    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:32px_32px]" />
+                    <div className="absolute -right-8 -top-8 w-52 h-52 rounded-full bg-white/10 blur-2xl pointer-events-none" />
 
-                    {/* Card 2: Manage Professors */}
-                    <ProfessorCard />
+                    <div className="relative z-10">
+                        <p className="text-xs font-syne font-semibold tracking-widest uppercase text-blue-200 mb-2">
+                            IPI Akademija · Admin
+                        </p>
+                        <h1 className="text-2xl font-syne font-bold mb-1">
+                            Dobrodošli, {studentName || 'Administrator'}
+                        </h1>
+                        <p className="text-blue-100 text-sm opacity-90">
+                            Upravljajte studentima, profesorima, zahtjevima i vijestima
+                        </p>
+                    </div>
+                </motion.div>
 
-                    {/* Card 3: Request Modal */}
-                    <RequestCard
-                        requests={requests}
-                        loadingRequests={loadingRequests}
-                        onFetchRequests={fetchDocumentRequests}
-                        onApprove={handleApproveRequest}
-                        onReject={handleRejectRequest}
-                    />
-
-                    {/* Card 4 : News update*/}
-                    <NewsCard
-                        news={news}
-                        loadingRequests={loadingRequests}
-                        newsFormData={newsFormData}
-                        deleteModalState={deleteModalState}
-                        onFetchNews={fetchNewsRequests}
-                        onNewsInputChange={handleNewsInputChange}
-                        onNewsSubmit={handleNewsSubmit}
-                        onDeleteNews={handleDeleteNews}
-                        onConfirmDelete={confirmDeleteNews}
-                        onCancelDelete={() =>
-                            setDeleteModalState({
-                                isOpen: false,
-                                newsId: null,
-                                newsTitle: '',
-                            })
-                        }
-                    />
-                </div>
+                {/* Cards grid */}
+                <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.09, delayChildren: 0.2 } } }}
+                    className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5"
+                >
+                    {[
+                        <StudentCard key="student" onSubmit={handleAddStudent} />,
+                        <ProfessorCard key="professor" />,
+                        <RequestCard
+                            key="request"
+                            requests={requests}
+                            loadingRequests={loadingRequests}
+                            onFetchRequests={fetchDocumentRequests}
+                            onApprove={handleApproveRequest}
+                            onReject={handleRejectRequest}
+                        />,
+                        <NewsCard
+                            key="news"
+                            news={news}
+                            loadingRequests={loadingRequests}
+                            newsFormData={newsFormData}
+                            deleteModalState={deleteModalState}
+                            onFetchNews={fetchNewsRequests}
+                            onNewsInputChange={handleNewsInputChange}
+                            onNewsSubmit={handleNewsSubmit}
+                            onDeleteNews={handleDeleteNews}
+                            onConfirmDelete={confirmDeleteNews}
+                            onCancelDelete={() =>
+                                setDeleteModalState({ isOpen: false, newsId: null, newsTitle: '' })
+                            }
+                        />,
+                    ].map((card, i) => (
+                        <motion.div
+                            key={i}
+                            variants={{
+                                hidden: { opacity: 0, y: 20 },
+                                visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
+                            }}
+                        >
+                            {card}
+                        </motion.div>
+                    ))}
+                </motion.div>
             </div>
         </div>
     )

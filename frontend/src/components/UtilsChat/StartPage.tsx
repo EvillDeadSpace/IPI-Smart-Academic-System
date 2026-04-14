@@ -10,86 +10,102 @@ interface StartPageProps {
 function StartPage({ onContinue }: StartPageProps) {
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="h-full flex flex-col justify-between p-6"
+            transition={{ duration: 0.4 }}
+            className="h-full flex flex-col justify-between px-6 pt-6 pb-5"
         >
-            <div className="space-y-8">
+            <div className="space-y-4">
+                {/* Title */}
                 <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.2, duration: 0.5 }}
-                    className="text-center space-y-2"
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15, duration: 0.4 }}
+                    className="text-center"
                 >
-                    <h1 className="text-3xl font-extrabold text-center bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent drop-shadow-sm">
+                    <div
+                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-3"
+                        style={{ background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(59,130,246,0.18)' }}
+                    >
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" style={{ boxShadow: '0 0 5px rgba(37,99,235,0.6)' }} />
+                        <span className="text-xs text-blue-600 font-medium tracking-wide">AI Asistent</span>
+                    </div>
+                    <h1 className="text-2xl font-syne font-bold text-blue-900 leading-tight">
                         Tvoj IPI asistent
                     </h1>
-                    <div className="h-1 w-24 mx-auto bg-gradient-to-r from-blue-500/40 to-blue-600/40 rounded-full" />
+                    <div
+                        className="h-px w-20 mx-auto mt-3"
+                        style={{ background: 'linear-gradient(90deg, transparent, rgba(59,130,246,0.4), transparent)' }}
+                    />
                 </motion.div>
 
+                {/* Description card */}
                 <motion.div
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.4, duration: 0.5 }}
-                    className="bg-white/50 backdrop-blur-sm rounded-3xl p-6 shadow-lg shadow-blue-500/5 border border-blue-100/50"
+                    initial={{ opacity: 0, scale: 0.97 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3, duration: 0.4 }}
+                    className="rounded-2xl px-5 py-4"
+                    style={{ background: 'rgba(239,246,255,0.8)', border: '1px solid rgba(59,130,246,0.12)' }}
                 >
-                    <p className="text-center text-gray-700 leading-relaxed font-medium">
-                        Koristeći ovaj chat, možeš pitati bilo koje pitanje koje
-                        želiš, i ja ću ti brzo naći odgovor.
+                    <p className="text-center text-blue-800/75 leading-relaxed text-sm">
+                        Postavi mi bilo koje pitanje o IPI Akademiji — od cijena i smjerova
+                        do lokacije i upisa. Tu sam da pomognem.
                     </p>
                 </motion.div>
 
+                {/* Lottie robot */}
                 <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
+                    initial={{ scale: 0.85, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.6, duration: 0.5 }}
-                    className="relative flex justify-center items-center p-6"
+                    transition={{ delay: 0.45, duration: 0.5 }}
+                    className="relative flex justify-center items-center py-2"
                 >
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div
+                            className="w-28 h-28 rounded-full"
+                            style={{ background: 'radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%)' }}
+                        />
+                    </div>
                     <Suspense
                         fallback={
-                            <div className="flex justify-center items-center h-40">
-                                <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-200 border-t-blue-500" />
+                            <div className="flex justify-center items-center h-36">
+                                <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-200 border-t-blue-500" />
                             </div>
                         }
                     >
-                        <Lottie
-                            animationData={animationRobot}
-                            className="w-2/3 drop-shadow-xl"
-                        />
+                        <Lottie animationData={animationRobot} className="w-[55%] relative z-10" />
                     </Suspense>
                 </motion.div>
             </div>
 
+            {/* CTA Button */}
             <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.8, duration: 0.5 }}
-                className="mt-8 mb-4"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.4 }}
             >
                 <motion.button
                     onClick={onContinue}
-                    className="   group w-full relative overflow-hidden   bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700   text-white text-lg font-semibold   py-3  rounded-2xl   shadow-lg shadow-blue-500/30   transition-all duration-300 ease-out   hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5   active:shadow-md active:translate-y-0.5"
-                    whileHover={{ scale: 1.02 }}
+                    className="group w-full relative overflow-hidden text-white text-sm font-semibold py-3.5 rounded-2xl transition-all duration-300"
+                    style={{
+                        background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                        boxShadow: '0 8px 24px -6px rgba(37,99,235,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
+                    }}
+                    whileHover={{ scale: 1.02, y: -1 }}
                     whileTap={{ scale: 0.98 }}
                 >
-                    <span className="relative z-10 flex items-center justify-center gap-2">
-                        Nastavi
+                    <span className="relative z-10 flex items-center justify-center gap-2 font-syne">
+                        Započni razgovor
                         <svg
-                            className="w-5 h-5 transform transition-transform group-hover:translate-x-1"
+                            className="w-4 h-4 transform transition-transform group-hover:translate-x-1"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
                         >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2.5}
-                                d="M13 7l5 5m0 0l-5 5m5-5H6"
-                            />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                         </svg>
                     </span>
-                    <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                    <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
                 </motion.button>
             </motion.div>
         </motion.div>

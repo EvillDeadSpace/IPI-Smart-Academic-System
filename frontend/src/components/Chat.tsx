@@ -99,7 +99,7 @@ const Chat: FC = () => {
                                     onClose={handleChat}
                                 />
                                 <motion.div
-                                    className="chat-content max-h-[400px] overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-200"
+                                    className="chat-content max-h-[400px] overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-transparent"
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                 >
@@ -115,11 +115,15 @@ const Chat: FC = () => {
                                             className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} mb-4`}
                                         >
                                             <div
-                                                className={`max-w-[80%] p-3 rounded-2xl shadow-md ${
+                                                className={`max-w-[80%] p-3 rounded-2xl text-sm leading-relaxed ${
                                                     message.isUser
-                                                        ? 'bg-blue-500 text-white rounded-tr-none'
-                                                        : 'bg-gray-100 text-gray-800 rounded-tl-none'
+                                                        ? 'bg-blue-600 text-white rounded-tr-none shadow-md shadow-blue-200'
+                                                        : 'text-blue-900 rounded-tl-none'
                                                 }`}
+                                                style={!message.isUser ? {
+                                                    background: 'rgba(239,246,255,0.9)',
+                                                    border: '1px solid rgba(59,130,246,0.12)',
+                                                } : undefined}
                                             >
                                                 <MessageText
                                                     text={message.text}
@@ -135,7 +139,7 @@ const Chat: FC = () => {
                                             animate={{ opacity: 1 }}
                                             className="flex justify-start mb-4"
                                         >
-                                            <div className="bg-gray-100 p-4 rounded-2xl rounded-tl-none">
+                                            <div className="p-4 rounded-2xl rounded-tl-none" style={{ background: 'rgba(239,246,255,0.9)', border: '1px solid rgba(59,130,246,0.12)' }}>
                                                 <LoadingDots />
                                             </div>
                                         </motion.div>
@@ -146,7 +150,7 @@ const Chat: FC = () => {
                                 <AnimatePresence>
                                     {showFastResponses && (
                                         <motion.div
-                                            className="flex gap-2 px-4 py-2 overflow-x-auto scrollbar-hide whitespace-nowrap"
+                                            className="flex flex-wrap gap-2 px-4 py-2"
                                             initial={{ opacity: 1, y: 0 }}
                                             exit={{
                                                 opacity: 0,
@@ -161,12 +165,7 @@ const Chat: FC = () => {
                                             {fastResponse.map((text, index) => (
                                                 <motion.button
                                                     key={index}
-                                                    className="flex-shrink-0 px-4 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 
-                                                            rounded-full text-xs font-medium text-gray-700 
-                                                            hover:from-blue-100 hover:to-indigo-100 
-                                                            border border-blue-200 hover:border-blue-300
-                                                            shadow-sm hover:shadow-md
-                                                            transition-all duration-200"
+                                                    className="flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-all duration-200"
                                                     onClick={() =>
                                                         handleFastResponse(text)
                                                     }
@@ -202,14 +201,13 @@ const Chat: FC = () => {
                                 </AnimatePresence>
 
                                 <motion.div
-                                    className="p-4 border-t border-gray-200"
+                                    className="p-4 border-t border-blue-100"
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                 >
                                     {rateLimitError && (
-                                        <div className="mb-3 p-2 bg-yellow-100 border border-yellow-400 rounded-lg text-yellow-800 text-xs text-center">
-                                            ⚠️ Limit dostignut. Pokušajte za 2
-                                            minute.
+                                        <div className="mb-3 p-2 rounded-xl text-xs text-center text-amber-700 bg-amber-50 border border-amber-200">
+                                            ⚠️ Limit dostignut. Pokušajte za 2 minute.
                                         </div>
                                     )}
                                     <form
@@ -217,24 +215,21 @@ const Chat: FC = () => {
                                         className="relative"
                                     >
                                         <input
-                                            className={`w-full px-4 py-3 rounded-full border-2 border-gray-200 
-                                                focus:border-blue-500 focus:outline-none pr-12 transition-all duration-200
-                                                ${isLoading ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}`}
+                                            className={`w-full px-4 py-3 rounded-full text-sm text-gray-800 placeholder-blue-300 focus:outline-none focus:border-blue-400 pr-12 transition-all duration-200 bg-white border border-blue-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                                             type="text"
                                             value={word}
                                             onChange={handleInputChange}
                                             placeholder={
                                                 isLoading
                                                     ? 'Čekam odgovor...'
-                                                    : 'Type your message...'
+                                                    : 'Postavi pitanje...'
                                             }
                                             disabled={isLoading}
                                         />
                                         <div className="absolute right-3 top-1/2 -translate-y-1/2">
                                             <motion.button
                                                 type="submit"
-                                                className={`p-2 rounded-full text-white transition-colors duration-200 flex items-center justify-center
-                                                    ${isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`}
+                                                className={`p-2 rounded-full text-white transition-all duration-200 flex items-center justify-center ${isLoading ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 hover:scale-105 shadow-md shadow-blue-200'}`}
                                                 whileHover={
                                                     isLoading
                                                         ? {}

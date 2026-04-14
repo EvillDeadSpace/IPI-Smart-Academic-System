@@ -10,6 +10,7 @@ export default {
         extend: {
             fontFamily: {
                 nuni: ['Nunito', 'sans-serif'],
+                syne: ['Syne', 'sans-serif'],
             },
             backgroundImage: {
                 'custom-image': "url('/ipizgrada.jpg')",

@@ -25,7 +25,7 @@ const HeroSection: FC = () => {
             scale={1.1}
             threshold={0.2}
         >
-            <section className="relative min-h-screen w-full from-blue-50 to-white overflow-hidden">
+            <section className="relative w-full from-blue-50 to-white overflow-hidden">
                 {/* Background Pattern */}
                 <div className="absolute inset-0 bg-dot-thick-neutral-100 opacity-30" />
 
