@@ -41,8 +41,7 @@ export class GradeService {
     }
 
     const academicYear =
-      data.academicYear ||
-      `${new Date().getFullYear()}/${new Date().getFullYear() + 1}`;
+      data.academicYear || `${new Date().getFullYear()}/${new Date().getFullYear() + 1}`;
 
     const grade = await prisma.grade.create({
       data: {
@@ -114,7 +113,7 @@ export class GradeService {
       grade?: number;
       points?: number;
       examType?: string;
-    }
+    },
   ) {
     const grade = await prisma.grade.findUnique({
       where: { id },

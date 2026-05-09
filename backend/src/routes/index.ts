@@ -1,19 +1,19 @@
 import { Router } from "express";
-import authRoutes from "./auth.routes";
-import studentRoutes from "./student.routes";
-import professorRoutes from "./professor.routes";
-import examRoutes from "./exam.routes";
-import enrollmentRoutes from "./enrollment.routes";
-import gradeRoutes from "./grade.routes";
-import documentRequestRoutes from "./document-request.routes";
-import newsRoutes from "./news.route";
-import scheduleRoutes from "./schedule.routes";
-import userRoutes from "./user.routes";
 import { AuthController } from "../controllers/auth.controller";
-import { StudentController } from "../controllers/student.controller";
 import { EnrollmentController } from "../controllers/enrollment.controller";
 import { GradeController } from "../controllers/grade.controller";
-import { NewsController } from "../controllers/news.controller";
+import { StudentController } from "../controllers/student.controller";
+import authRoutes from "./auth.routes";
+import documentRequestRoutes from "./document-request.routes";
+import enrollmentRoutes from "./enrollment.routes";
+import examRoutes from "./exam.routes";
+import gradeRoutes from "./grade.routes";
+import lectureRoutes from "./lecture.routes";
+import newsRoutes from "./news.route";
+import professorRoutes from "./professor.routes";
+import scheduleRoutes from "./schedule.routes";
+import studentRoutes from "./student.routes";
+import userRoutes from "./user.routes";
 
 const router = Router();
 
@@ -66,5 +66,6 @@ router.use("/document-requests", documentRequestRoutes);
 router.use("/news", newsRoutes);
 router.use("/schedule", scheduleRoutes);
 router.use("/user", userRoutes);
+router.use("/lecture", lectureRoutes);
 
 export default router;
