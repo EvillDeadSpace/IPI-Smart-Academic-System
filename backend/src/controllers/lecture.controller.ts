@@ -80,4 +80,16 @@ export class LectureController {
       return res.status(500).json({ error: error.message || "Failed to fetch student lectures" });
     }
   }
+
+  static async deleteLecture(req: Request, res: Response) {
+    try {
+      const id = Number(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid lecture ID" });
+
+      const result = await LectureService.deleteLecture(id);
+      return res.json(result);
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message || "Failed to delete lecture" });
+    }
+  }
 }

@@ -125,6 +125,14 @@ export class LectureService {
     return buildNextLectureResponse(firstNext, now, currentDay, currentTime);
   }
 
+  static async deleteLecture(id: number) {
+    const lecture = await prisma.lecture.findUnique({ where: { id } });
+    if (!lecture) throw new Error("Lecture not found");
+
+    await prisma.lecture.delete({ where: { id } });
+    return { message: "Lecture deleted successfully" };
+  }
+
   // ─── STUDENT: GET ALL LECTURE ────────────────────
   static async getLecturesByStudent(email: string) {
     const student = await prisma.student.findUnique({

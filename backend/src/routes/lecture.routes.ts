@@ -35,5 +35,11 @@ router.get("/next/:email", LectureController.getNextLecture);
  */
 router.get("/student/:email", LectureController.getLecturesByStudent);
 
-// need implemnet for professor and admin to get lectures by professor and all lectures
+/**
+ * @route   DELETE /api/lecture/:id
+ * @desc    Delete a lecture (Admin)
+ * @access  Private (Admin)
+ */
+router.delete("/:id", LectureController.deleteLecture);
+
 export default router;
