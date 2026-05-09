@@ -86,7 +86,7 @@ export class LectureService {
     const now = new Date();
 
     const jsDay = now.getDay();
-    const currentDay = jsDay === 0 ? -1 : jsDay - 1; // -1 = nedjelja (nema predavanja)
+    const currentDay = jsDay === 0 ? 6 : jsDay - 1; // 0=pon ... 5=sub, 6=ned
     const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
 
     // Get all lecture for student
@@ -103,17 +103,15 @@ export class LectureService {
 
     // Find next lecture for studnet
     // Find today's lecture that has not started yet
-    if (currentDay >= 0) {
-      const todayUpcoming = allLectures.find(
-        (l) => l.dayOfWeek === currentDay && l.startTime > currentTime,
-      );
-      if (todayUpcoming) {
-        return buildNextLectureResponse(todayUpcoming, now, currentDay, currentTime);
-      }
+    const todayUpcoming = allLectures.find(
+      (l) => l.dayOfWeek === currentDay && l.startTime > currentTime,
+    );
+    if (todayUpcoming) {
+      return buildNextLectureResponse(todayUpcoming, now, currentDay, currentTime);
     }
 
     // If not have to day find next lecture in the week
-    for (let d = currentDay + 1; d <= 4; d++) {
+    for (let d = currentDay + 1; d <= 6; d++) {
       const next = allLectures.find((l) => l.dayOfWeek === d);
       if (next) {
         return buildNextLectureResponse(next, now, currentDay, currentTime);

@@ -22,8 +22,8 @@ export class LectureController {
         });
       }
 
-      if (dayOfWeek < 0 || dayOfWeek > 4) {
-        return res.status(400).json({ error: "dayOfWeek must be 0 (Monday) to 4 (Friday)" });
+      if (dayOfWeek < 0 || dayOfWeek > 6) {
+        return res.status(400).json({ error: "dayOfWeek must be 0 (Monday) to 6 (Sunday)" });
       }
 
       const lecture = await LectureService.createLecture({
