@@ -82,8 +82,8 @@ export class LectureService {
     const subjectIds = yearPlans.flatMap((plan) => plan.subjects.map((s) => s.id));
     if (subjectIds.length === 0) return null;
 
-    // Setup time and data
-    const now = new Date();
+    // Setup time and data — sve u Europe/Sarajevo da izbjegnemo UTC offset
+    const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Sarajevo" }));
 
     const jsDay = now.getDay();
     const currentDay = jsDay === 0 ? 6 : jsDay - 1; // 0=pon ... 5=sub, 6=ned
