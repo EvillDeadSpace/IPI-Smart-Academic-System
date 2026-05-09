@@ -6,7 +6,7 @@ export function formatLecture(l: any) {
     dayOfWeek: l.dayOfWeek,
     dayName: DAY_NAMES[l.dayOfWeek] ?? "Nepoznat dan",
     startTime: l.startTime,
-    endTime: l.endTime,
+    endTime: l.endOfTime,
     room: l.room,
     subject: l.subject,
     professor: {
