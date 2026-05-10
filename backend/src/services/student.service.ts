@@ -1,4 +1,5 @@
 import prisma from "../config/database";
+import { ExamService } from "./exam.service";
 
 export class StudentService {
   /**
@@ -49,14 +50,8 @@ export class StudentService {
     if (!student) return null;
 
     const passedSubjects = student.grades.filter((g) => g.grade >= 6);
-    const totalECTSEarned = passedSubjects.reduce(
-      (sum, g) => sum + g.subject.ects,
-      0
-    );
-    const enrolledECTS = student.subjectEnrollments.reduce(
-      (sum, e) => sum + e.subject.ects,
-      0
-    );
+    const totalECTSEarned = passedSubjects.reduce((sum, g) => sum + g.subject.ects, 0);
+    const enrolledECTS = student.subjectEnrollments.reduce((sum, e) => sum + e.subject.ects, 0);
 
     const currentYear = student.currentYear;
     const requiredECTSForNextYear = currentYear * 48;
@@ -85,12 +80,8 @@ export class StudentService {
         passedSubjects: passedSubjects.length,
         totalSubjects: student.subjectEnrollments.length,
         canProgressToNextYear,
-        nextYear:
-          currentYear + 1 <= student.major.duration ? currentYear + 1 : null,
-        ectsNeededForNextYear: Math.max(
-          0,
-          requiredECTSForNextYear - totalECTSEarned
-        ),
+        nextYear: currentYear + 1 <= student.major.duration ? currentYear + 1 : null,
+        ectsNeededForNextYear: Math.max(0, requiredECTSForNextYear - totalECTSEarned),
       },
       yearEnrollments: student.yearEnrollments,
       subjectEnrollments: student.subjectEnrollments.map((e) => ({
@@ -133,5 +124,34 @@ export class StudentService {
    */
   static async deleteStudent(id: number) {
     return await prisma.student.delete({ where: { id } });
+  }
+
+  /**
+   * Returns avg grade, earned ECTS, and upcoming registered exams count for a student
+   */
+
+  static async getStudentStats(email: string) {
+    const student = await this.getStudentByEmail(email);
+    if (!student) return null;
+
+    // For avg grade and ects function
+    const passedSubjects = student.grades.filter((g) => g.grade >= 6);
+
+    const totalECTSEarned = passedSubjects.reduce((sum, g) => sum + g.subject.ects, 0);
+
+    const totalGrades = passedSubjects.reduce((sum, g) => {
+      return sum + g.grade;
+    }, 0);
+
+    const stats = totalGrades / passedSubjects.length;
+
+    // For how much exam left to complite year
+    const registeredExams = await ExamService.getRegisteredExams(email);
+
+    return {
+      avgGrade: stats,
+      ects: totalECTSEarned,
+      examsLeft: registeredExams?.length,
+    };
   }
 }

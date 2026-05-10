@@ -46,6 +46,13 @@ router.get("/grades/:email", StudentController.getStudentGrades);
 router.put("/:id", StudentController.updateStudent);
 
 /**
+ * @route   GET /api/students/progress
+ * @desc    Get student academic progress
+ * @access  Private
+ */
+router.get("/stats/:email", StudentController.getStudentStats);
+
+/**
  * @route   DELETE /api/students/:id
  * @desc    Delete student
  * @access  Private (Admin only)

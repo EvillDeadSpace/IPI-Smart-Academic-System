@@ -131,4 +131,24 @@ export class StudentController {
       return ResponseUtil.error(res, "Failed to delete student");
     }
   }
+
+  /**
+   * GET /api/students/stats/:email
+   * Get student stats: avg grade, ECTS, registered exams
+   */
+  static async getStudentStats(req: Request, res: Response) {
+    try {
+      const { email } = req.params;
+      const stats = await StudentService.getStudentStats(email);
+
+      if (!stats) {
+        return ResponseUtil.notFound(res, "Student");
+      }
+
+      return ResponseUtil.success(res, stats, "Student stats fetched successfully");
+    } catch (error) {
+      console.error("Get student stats error:", error);
+      return ResponseUtil.error(res, "Failed to fetch student stats");
+    }
+  }
 }

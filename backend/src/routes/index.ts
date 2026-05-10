@@ -67,5 +67,6 @@ router.use("/news", newsRoutes);
 router.use("/schedule", scheduleRoutes);
 router.use("/user", userRoutes);
 router.use("/lecture", lectureRoutes);
+router.use("/progress", studentRoutes);
 
 export default router;
