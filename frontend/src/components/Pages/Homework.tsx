@@ -1,4 +1,9 @@
-import { IconBook, IconClipboardList, IconFileText } from '@tabler/icons-react'
+import {
+    IconBook,
+    IconCalendarTime,
+    IconClipboardList,
+    IconFileText,
+} from '@tabler/icons-react'
 import { FC } from 'react'
 import { NLP_URL } from '../../config'
 import { useAuth } from '../../Context'
@@ -14,7 +19,25 @@ const Homework: FC = () => {
         setSelectedSubjectId,
         files,
         filesLoading,
+        homeworkMeta,
     } = useHomeWork(studentMail)
+
+    const getDueDateForFile = (filePath: string) => {
+        const match = homeworkMeta.find((h) => h.s3Path === filePath)
+        return match?.dueDate ?? null
+    }
+
+    const formatDueDate = (dueDate: string) => {
+        const date = new Date(dueDate)
+        const now = new Date()
+        const isOverdue = date < now
+        const months = [
+            'januara', 'februara', 'marta', 'aprila', 'maja', 'juna',
+            'jula', 'augusta', 'septembra', 'oktobra', 'novembra', 'decembra',
+        ]
+        const formatted = `do ${months[date.getMonth()]} ${date.getDate()}`
+        return { formatted, isOverdue }
+    }
 
     // Download file handler
     const handleDownload = async (filePath: string) => {
@@ -196,7 +219,41 @@ const Homework: FC = () => {
                                                                 <h4 className="text-neutral-900 dark:text-white font-semibold text-sm line-clamp-2 mb-1">
                                                                     {fileName}
                                                                 </h4>
-                                                                <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">
+                                                                {(() => {
+                                                                    const due =
+                                                                        getDueDateForFile(
+                                                                            filePath
+                                                                        )
+                                                                    if (!due)
+                                                                        return null
+                                                                    const {
+                                                                        formatted,
+                                                                        isOverdue,
+                                                                    } =
+                                                                        formatDueDate(
+                                                                            due
+                                                                        )
+                                                                    return (
+                                                                        <div
+                                                                            className={`flex items-center gap-1 text-xs font-medium mt-1 ${
+                                                                                isOverdue
+                                                                                    ? 'text-red-500'
+                                                                                    : 'text-emerald-600 dark:text-emerald-400'
+                                                                            }`}
+                                                                        >
+                                                                            <IconCalendarTime className="h-3.5 w-3.5" />
+                                                                            <span>
+                                                                                {isOverdue
+                                                                                    ? 'Isteklo: '
+                                                                                    : 'Rok: '}
+                                                                                {
+                                                                                    formatted
+                                                                                }
+                                                                            </span>
+                                                                        </div>
+                                                                    )
+                                                                })()}
+                                                                <p className="text-xs text-purple-600 dark:text-purple-400 font-medium mt-1">
                                                                     Klikni za
                                                                     preuzimanje
                                                                     →

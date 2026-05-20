@@ -7,6 +7,15 @@ import {
     SubjectEnrollment,
 } from '../../types/HomeWorkTypes/homework'
 
+export interface HomeworkMeta {
+    id: number
+    title: string
+    description: string | null
+    s3Path: string
+    dueDate: string
+    subjectId: number
+}
+
 export default function useHomeWork(studentMail: string) {
     const [loading, setLoading] = useState(true)
     const [subjects, setSubjects] = useState<Subject[]>([])
@@ -15,8 +24,8 @@ export default function useHomeWork(studentMail: string) {
     )
     const [files, setFiles] = useState<S3File[]>([])
     const [filesLoading, setFilesLoading] = useState(false)
+    const [homeworkMeta, setHomeworkMeta] = useState<HomeworkMeta[]>([])
 
-    // Fetch subjects when studentMail changes
     const fetchSubjects = useCallback(async () => {
         if (!studentMail) {
             setLoading(false)
@@ -65,7 +74,28 @@ export default function useHomeWork(studentMail: string) {
         fetchSubjects()
     }, [fetchSubjects])
 
-    // Fetch files when selectedSubjectId changes
+    // Fetch backend homework metadata once
+    useEffect(() => {
+        if (!studentMail) return
+
+        async function fetchMeta() {
+            try {
+                const res = await fetch(
+                    `${BACKEND_URL}/api/homeworks/student/${studentMail}`
+                )
+                if (res.ok) {
+                    const data = await res.json()
+                    setHomeworkMeta(data)
+                }
+            } catch (err) {
+                console.error('Error fetching homework meta:', err)
+            }
+        }
+
+        fetchMeta()
+    }, [studentMail])
+
+    // Fetch S3 files when selectedSubjectId changes
     useEffect(() => {
         if (!selectedSubjectId) {
             setFiles([])
@@ -90,13 +120,10 @@ export default function useHomeWork(studentMail: string) {
                     body: JSON.stringify({ subject: selectedSubject.name }),
                 })
 
-                if (!response.ok) {
-                    throw new Error('Fetch failed')
-                }
+                if (!response.ok) throw new Error('Fetch failed')
 
                 const data = await response.json()
-                const fileList = data.professor_subject || []
-                setFiles(fileList)
+                setFiles(data.professor_subject || [])
             } catch (err) {
                 console.error('❌ Error fetching homeworks:', err)
                 setFiles([])
@@ -115,6 +142,7 @@ export default function useHomeWork(studentMail: string) {
         setSelectedSubjectId,
         files,
         filesLoading,
+        homeworkMeta,
         refetchSubjects: fetchSubjects,
     }
 }
