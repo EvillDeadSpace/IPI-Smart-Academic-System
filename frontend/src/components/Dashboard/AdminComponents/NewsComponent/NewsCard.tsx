@@ -1,8 +1,8 @@
 import { IconNews } from '@tabler/icons-react'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import NewsModal from './NewsModal'
 import { NewsCardProps } from '../../../../types/NewsTypes/NewsTypes'
+import NewsModal from './NewsModal'
 
 export default function NewsCard({
     news,
@@ -45,7 +45,7 @@ export default function NewsCard({
                         <span className="text-3xl font-syne font-bold text-slate-100 select-none leading-none">04</span>
                     </div>
 
-                    <h3 className="text-base font-syne font-bold text-slate-800 mb-1.5">
+                    <h3 className="text-base font-nuni font-bold text-slate-800 mb-1.5">
                         Upravljanje novostima
                     </h3>
                     <p className="text-sm text-slate-500 leading-relaxed">

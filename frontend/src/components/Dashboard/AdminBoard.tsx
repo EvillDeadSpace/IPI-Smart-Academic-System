@@ -11,6 +11,7 @@ import {
 } from '../../types/AdminTypes/admin'
 import { BackendNews } from '../../types/NewsTypes/NewsTypes'
 import StudentCard from './AdminComponents/AdminComponent/StudentCard'
+import LectureCard from './AdminComponents/LectureComponent/LectureCard'
 import NewsCard from './AdminComponents/NewsComponent/NewsCard'
 import ProfessorCard from './AdminComponents/ProfessorComponent/ProfessorCard'
 import RequestCard from './AdminComponents/RequestComponent/RequestCard'
@@ -405,6 +406,7 @@ const AdminPanel: React.FC = () => {
                     {[
                         <StudentCard key="student" onSubmit={handleAddStudent} />,
                         <ProfessorCard key="professor" />,
+                        <LectureCard key="lecture" />,
                         <RequestCard
                             key="request"
                             requests={requests}

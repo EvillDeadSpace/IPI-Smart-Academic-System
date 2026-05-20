@@ -58,7 +58,7 @@ export default function StudentModal({
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Personal info */}
                         <div className="space-y-4">
-                            <h3 className="text-sm font-syne font-bold text-slate-700 flex items-center gap-2 pb-2 border-b border-slate-100">
+                            <h3 className="text-sm font-nuni font-bold text-slate-700 flex items-center gap-2 pb-2 border-b border-slate-100">
                                 <IconUser className="w-4 h-4 text-blue-600" />
                                 Lični podaci
                             </h3>
@@ -127,7 +127,7 @@ export default function StudentModal({
 
                         {/* Academic info */}
                         <div className="space-y-4">
-                            <h3 className="text-sm font-syne font-bold text-slate-700 flex items-center gap-2 pb-2 border-b border-slate-100">
+                            <h3 className="text-sm font-nuni font-bold text-slate-700 flex items-center gap-2 pb-2 border-b border-slate-100">
                                 <IconSchool className="w-4 h-4 text-blue-600" />
                                 Akademski podaci
                             </h3>
@@ -160,7 +160,7 @@ export default function StudentModal({
 
                         {/* Security */}
                         <div className="space-y-4">
-                            <h3 className="text-sm font-syne font-bold text-slate-700 flex items-center gap-2 pb-2 border-b border-slate-100">
+                            <h3 className="text-sm font-nuni font-bold text-slate-700 flex items-center gap-2 pb-2 border-b border-slate-100">
                                 <IconLock className="w-4 h-4 text-blue-600" />
                                 Sigurnost
                             </h3>

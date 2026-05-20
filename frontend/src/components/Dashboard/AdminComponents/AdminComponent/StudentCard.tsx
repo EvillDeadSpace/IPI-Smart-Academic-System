@@ -74,7 +74,7 @@ export default function StudentCard({ onSubmit }: StudentCardProps) {
                         <span className="text-3xl font-syne font-bold text-slate-100 select-none leading-none">01</span>
                     </div>
 
-                    <h3 className="text-base font-syne font-bold text-slate-800 mb-1.5">
+                    <h3 className="text-base font-nuni font-bold text-slate-800 mb-1.5">
                         Dodaj Studenta
                     </h3>
                     <p className="text-sm text-slate-500 leading-relaxed">

@@ -225,7 +225,7 @@ export default function NewsModal({
                                                     Obriši
                                                 </button>
                                             </div>
-                                            <h3 className="text-sm font-syne font-bold text-slate-800 mb-1">{item.titles}</h3>
+                                            <h3 className="text-sm font-nuni font-bold text-slate-800 mb-1">{item.titles}</h3>
                                             <p className="text-xs text-slate-500 line-clamp-2">{item.content}</p>
                                             {item.linksParent && (
                                                 <p className="text-xs text-blue-600 mt-2">🔗 {item.linksParent}</p>

@@ -24,7 +24,7 @@ function ProfessorCard() {
                     <span className="text-3xl font-syne font-bold text-slate-100 select-none leading-none">02</span>
                 </div>
 
-                <h3 className="text-base font-syne font-bold text-slate-800 mb-1.5">
+                <h3 className="text-base font-nuni font-bold text-slate-800 mb-1.5">
                     Upravljanje Profesorima
                 </h3>
                 <p className="text-sm text-slate-500 leading-relaxed">
