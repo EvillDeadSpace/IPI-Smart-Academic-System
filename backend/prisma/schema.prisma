@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -14,287 +8,208 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// =====================
-// CORE ENTITIES
-// =====================
-
-// Student
 model Student {
-  id          Int           @id @default(autoincrement())
-  indexNumber String        @unique
-  firstName   String
-  lastName    String
-  email       String        @unique
-  password    String
-  dateOfBirth DateTime
-  currentYear Int           @default(1)
-  status      StudentStatus @default(ACTIVE)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  // Relations
+  id                 Int                       @id @default(autoincrement())
+  email              String                    @unique
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+  currentYear        Int                       @default(1)
+  dateOfBirth        DateTime
+  firstName          String
+  indexNumber        String                    @unique
+  lastName           String
   majorId            Int
-  major              Major                     @relation(fields: [majorId], references: [id])
-  yearEnrollments    YearEnrollment[]
-  subjectEnrollments SubjectEnrollment[]
-  grades             Grade[]
-  examRegistrations  StudentExamRegistration[]
+  password           String
+  status             StudentStatus             @default(ACTIVE)
+  comments           Comment[]
   documentRequests   DocumentRequest[]
-
-  comments Comment[] // Relation to comments made by the student
+  grades             Grade[]
+  major              Major                     @relation(fields: [majorId], references: [id])
+  examRegistrations  StudentExamRegistration[]
+  subjectEnrollments SubjectEnrollment[]
+  yearEnrollments    YearEnrollment[]
 
   @@index([majorId])
 }
 
-// Major/Program
 model Major {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique // "Računarstvo", "Elektrotehnika"
-  code        String   @unique // "COMP", "ELEC"
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  code        String     @unique
   description String?
-  duration    Int // 3 or 4 years
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  students  Student[]
-  subjects  Subject[]
-  yearPlans YearPlan[]
+  duration    Int
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  students    Student[]
+  subjects    Subject[]
+  yearPlans   YearPlan[]
 
   @@index([code])
 }
 
-// Year plan (which subjects are in which year and semester for a major)
 model YearPlan {
-  id       Int @id @default(autoincrement())
-  year     Int // Study year (1, 2, 3, 4)
-  semester Int // Semester (1 or 2)
-
+  id       Int       @id @default(autoincrement())
+  year     Int
+  semester Int
   majorId  Int
-  major    Major     @relation(fields: [majorId], references: [id])
   subjects Subject[]
+  major    Major     @relation(fields: [majorId], references: [id])
 
   @@unique([majorId, year, semester])
   @@index([majorId])
 }
 
-// Subject/Course
 model Subject {
-  id          Int      @id @default(autoincrement())
-  name        String
-  code        String   @unique
-  ects        Int
-  isElective  Boolean  @default(false)
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  yearPlanId Int
-  yearPlan   YearPlan @relation(fields: [yearPlanId], references: [id])
-  majorId    Int
-  major      Major    @relation(fields: [majorId], references: [id])
-
-  subjectEnrollments SubjectEnrollment[]
-  grades             Grade[]
-  professors         ProfessorSubject[]
+  id                 Int                 @id @default(autoincrement())
+  name               String
+  code               String              @unique
+  ects               Int
+  isElective         Boolean             @default(false)
+  description        String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  yearPlanId         Int
+  majorId            Int
   exams              Exam[]
+  grades             Grade[]
   lectures           Lecture[]
+  professors         ProfessorSubject[]
+  homeworks          Homework[]
+  major              Major               @relation(fields: [majorId], references: [id])
+  yearPlan           YearPlan            @relation(fields: [yearPlanId], references: [id])
+  subjectEnrollments SubjectEnrollment[]
 
   @@index([majorId])
   @@index([yearPlanId])
 }
 
-// =====================
-// ENROLLMENT SYSTEM
-// =====================
-
-// Enrollment in academic year
 model YearEnrollment {
   id           Int      @id @default(autoincrement())
-  academicYear String // "2024/2025"
-  year         Int // Godina na koju se upisuje (1, 2, 3, 4)
+  academicYear String
+  year         Int
   enrolledAt   DateTime @default(now())
-
-  studentId Int
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId    Int
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, academicYear])
   @@index([studentId])
 }
 
-// Enrollment in subjects
 model SubjectEnrollment {
   id           Int      @id @default(autoincrement())
   academicYear String
-  semester     Int // 1 or 2
+  semester     Int
   enrolledAt   DateTime @default(now())
-
-  studentId Int
-  subjectId Int
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  studentId    Int
+  subjectId    Int
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subject      Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, subjectId, academicYear])
   @@index([studentId])
   @@index([subjectId])
 }
 
-// =====================
-// GRADING SYSTEM
-// =====================
-
-// Grade
 model Grade {
-  id           Int      @id @default(autoincrement())
-  grade        Int // 6-10
+  id           Int        @id @default(autoincrement())
+  grade        Int
   examDate     DateTime
   examType     ExamType
   academicYear String
-  points       Int? // Number of points scored
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  studentId   Int
-  subjectId   Int
-  professorId Int?
-
-  student   Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  subject   Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  professor Professor? @relation(fields: [professorId], references: [id])
+  points       Int?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  studentId    Int
+  subjectId    Int
+  professorId  Int?
+  professor    Professor? @relation(fields: [professorId], references: [id])
+  student      Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subject      Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
   @@index([studentId])
   @@index([subjectId])
   @@index([professorId])
 }
 
-// Exam schedule created by professors
 model Exam {
-  id          Int      @id @default(autoincrement())
-  subjectId   Int
-  professorId Int
-  examTime    DateTime
-  location    String?
-  maxPoints   Int      @default(100)
-  createdAt   DateTime @default(now())
-
-  subject       Subject                   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  id            Int                       @id @default(autoincrement())
+  subjectId     Int
+  professorId   Int
+  examTime      DateTime
+  location      String?
+  maxPoints     Int                       @default(100)
+  createdAt     DateTime                  @default(now())
   professor     Professor                 @relation(fields: [professorId], references: [id], onDelete: Cascade)
+  subject       Subject                   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   registrations StudentExamRegistration[]
 
   @@index([subjectId])
   @@index([professorId])
 }
 
-// Student exam registration (exam registration made by students)
 model StudentExamRegistration {
   id           Int      @id @default(autoincrement())
   studentId    Int
   examId       Int
   registeredAt DateTime @default(now())
-
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  exam    Exam    @relation(fields: [examId], references: [id], onDelete: Cascade)
+  exam         Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, examId])
   @@index([studentId])
   @@index([examId])
 }
 
-// Professor
 model Professor {
-  id        Int      @id @default(autoincrement())
+  id        Int                @id @default(autoincrement())
   firstName String
   lastName  String
-  email     String   @unique
-  password  String // Za login profesora
-  title     String // "Dr", "Prof", "Docent"
-  office    String? // Kabinet/kancelarija
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  grades   Grade[]
-  subjects ProfessorSubject[]
-  exams    Exam[]
-  lectures Lecture[]
+  email     String             @unique
+  title     String
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  office    String?
+  password  String
+  exams     Exam[]
+  grades    Grade[]
+  lectures  Lecture[]
+  subjects  ProfessorSubject[]
+  homeworks Homework[]
 
   @@index([email])
 }
 
-// Many-to-Many link between Professors and Subjects
 model ProfessorSubject {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   professorId Int
   subjectId   Int
-  assignedAt  DateTime @default(now())
-
-  professor Professor @relation(fields: [professorId], references: [id], onDelete: Cascade)
-  subject   Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  assignedAt  DateTime  @default(now())
+  professor   Professor @relation(fields: [professorId], references: [id], onDelete: Cascade)
+  subject     Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
   @@unique([professorId, subjectId])
   @@index([professorId])
   @@index([subjectId])
 }
 
-// =====================
-// ENUMS
-// =====================
-
-enum ExamType {
-  REGULAR // Redovni
-  FIRST_RETRY // Prvi popravni
-  SECOND_RETRY // Drugi popravni
-}
-
-enum StudentStatus {
-  ACTIVE // Aktivan
-  INACTIVE // Neaktivan
-  GRADUATED // Diplomirao
-  EXPELLED // Ispisao se
-}
-
-enum DocumentType {
-  HEALTH_CERTIFICATE // Uvjerenje o zdravstvenom osiguranju
-  STATUS_CONFIRMATION // Potvrda o statusu studenta
-  TRANSCRIPT // Prijepis ocjena
-  ENROLLMENT_CONFIRMATION // Potvrda o upisu
-}
-
-enum DocumentRequestStatus {
-  PENDING // Na čekanju
-  APPROVED // Odobreno
-  REJECTED // Odbijeno
-}
-
-// =====================
-// DOCUMENT REQUEST SYSTEM
-// =====================
-
-// Doument request made by students
 model DocumentRequest {
   id              Int                   @id @default(autoincrement())
   documentType    DocumentType
   status          DocumentRequestStatus @default(PENDING)
-  pdfUrl          String? // Path to the PDF after generation
+  pdfUrl          String?
   requestDate     DateTime              @default(now())
   processedDate   DateTime?
-  processedBy     String? // Email of the admin who approved/rejected
-  rejectionReason String? // Reason for rejection (optional)
-
-  // Student data (snapshot at request time for PDF generation)
-  studentData Json?
-
-  studentId Int
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  processedBy     String?
+  rejectionReason String?
+  studentData     Json?
+  studentId       Int
+  student         Student               @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId])
   @@index([status])
   @@index([requestDate])
 }
 
-// =====================
-// NEWS SYSTEM
-// =====================
 model NewsInformation {
   id           Int       @id @default(autoincrement())
   tagName      String
@@ -302,52 +217,86 @@ model NewsInformation {
   likes        Int       @default(0)
   content      String
   linksParent  String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
   calendarNews Boolean   @default(false)
   eventDate    DateTime?
   online       Boolean   @default(true)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-
-  comments Comment[]
+  comments     Comment[]
 }
 
 model Comment {
-  id        String   @id @default(cuid())
-  content   String   @db.Text // This is for longer text content
+  id        String          @id @default(cuid())
+  content   String
   userId    Int
   newsId    Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  student Student         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  news    NewsInformation @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  news      NewsInformation @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  student   Student         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([newsId])
   @@index([createdAt])
 }
 
-// =====================
-// Lecture materials for professors and studnets
-// Feature when admin create class professor and studnet can see time and place where is lecture
-// =====================
-
 model Lecture {
-  id        Int      @id @default(autoincrement())
-  dayOfWeek Int
-  startTime String
-  endOfTime String
-  room      String
-  createAt  DateTime @default(now())
-  updateAt  DateTime @updatedAt
-
+  id          Int       @id @default(autoincrement())
+  dayOfWeek   Int
+  startTime   String
+  endOfTime   String
+  room        String
+  createAt    DateTime  @default(now())
+  updateAt    DateTime  @updatedAt
   subjectId   Int
   professorId Int
-  subject     Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-
-  professor Professor @relation(fields: [professorId], references: [id], onDelete: Cascade)
+  professor   Professor @relation(fields: [professorId], references: [id], onDelete: Cascade)
+  subject     Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
   @@index([subjectId])
   @@index([professorId])
   @@index([dayOfWeek])
+}
+
+enum ExamType {
+  REGULAR
+  FIRST_RETRY
+  SECOND_RETRY
+}
+
+enum StudentStatus {
+  ACTIVE
+  INACTIVE
+  GRADUATED
+  EXPELLED
+}
+
+enum DocumentType {
+  HEALTH_CERTIFICATE
+  STATUS_CONFIRMATION
+  TRANSCRIPT
+  ENROLLMENT_CONFIRMATION
+}
+
+enum DocumentRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Homework {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  s3Path      String
+  dueDate     DateTime
+  createdAt   DateTime  @default(now())
+  subjectId   Int
+  professorId Int
+  professor   Professor @relation(fields: [professorId], references: [id], onDelete: Cascade)
+  subject     Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@index([subjectId])
+  @@index([professorId])
+  @@index([dueDate])
 }

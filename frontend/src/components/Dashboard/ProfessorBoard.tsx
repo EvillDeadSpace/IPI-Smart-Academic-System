@@ -109,6 +109,11 @@ const ProfessorBoard: React.FC = () => {
             return
         }
 
+        if (!assignmentForm.dueDate) {
+            toastError('Morate odabrati rok predaje!')
+            return
+        }
+
         setIsUploading(true)
 
         try {
@@ -136,6 +141,28 @@ const ProfessorBoard: React.FC = () => {
             })
 
             if (response.ok) {
+                // Save homework metadata to backend
+                if (professorId) {
+                    try {
+                        const ext =
+                            assignmentForm.file.name.split('.').pop() || 'pdf'
+                        await fetch(`${BACKEND_URL}/api/homeworks`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                title: assignmentForm.title,
+                                description: assignmentForm.description || null,
+                                s3Path: `${subjectName}/${assignmentForm.title}.${ext}`,
+                                dueDate: assignmentForm.dueDate,
+                                subjectId: assignmentForm.subjectId,
+                                professorId,
+                            }),
+                        })
+                    } catch (err) {
+                        console.error('❌ Backend homework save error:', err)
+                    }
+                }
+
                 // Get enrolled students for this subject
                 const enrolledStudentEmails =
                     subjectsWithStudents
@@ -178,7 +205,7 @@ const ProfessorBoard: React.FC = () => {
                     }
                 }
 
-                toastSuccess('Zadaća uspješno postavljena! 🎉')
+                toastSuccess('Zadaća uspješno postavljena!')
                 setShowAssignmentModal(false)
                 setAssignmentForm({
                     subjectId: 0,
@@ -1624,6 +1651,25 @@ const ProfessorBoard: React.FC = () => {
                                         }
                                         className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
                                         placeholder="npr. Domaća zadaća 1"
+                                        required
+                                        disabled={isUploading}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-200 mb-2 font-semibold">
+                                        Rok predaje *
+                                    </label>
+                                    <input
+                                        type="datetime-local"
+                                        value={assignmentForm.dueDate}
+                                        onChange={(e) =>
+                                            setAssignmentForm({
+                                                ...assignmentForm,
+                                                dueDate: e.target.value,
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
                                         required
                                         disabled={isUploading}
                                     />

@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { BACKEND_URL } from '../../config'
 import { toastError } from '../../lib/toast'
 import { Major } from '../../types/SubjectTypes/ProfileSettings'
-import { useEffect } from 'react'
 
 export function useFetchMajors() {
     const {
@@ -13,7 +13,7 @@ export function useFetchMajors() {
         queryKey: ['majorsWithSubjects'],
         queryFn: async () => {
             const response = await fetch(
-                `${BACKEND_URL}/api/majors/with-subjects`
+                `${BACKEND_URL}/api/enrollment/majors/with-subjects`
             )
             if (!response.ok) throw new Error('Neuspjelo dohvaćanje smjerova')
             return (await response.json()) as Major[]
