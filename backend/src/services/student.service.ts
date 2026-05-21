@@ -1,5 +1,6 @@
 import prisma from "../config/database";
 import { ExamService } from "./exam.service";
+import { getSubjectColor } from "../utils/subjectColor";
 
 export class StudentService {
   /**
@@ -90,6 +91,7 @@ export class StudentService {
         ects: e.subject.ects,
         semester: e.semester,
         academicYear: e.academicYear,
+        color: getSubjectColor(e.subject.id),
       })),
     };
   }

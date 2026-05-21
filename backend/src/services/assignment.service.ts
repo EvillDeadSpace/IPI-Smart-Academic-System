@@ -1,4 +1,5 @@
 import { getPrismaClient } from "../config/database";
+import { getSubjectColor } from "../utils/subjectColor";
 
 const prisma = getPrismaClient();
 
@@ -100,7 +101,10 @@ export class AssignmentService {
       maxPoints: a.maxPoints,
       professorS3Path: a.professorS3Path,
       createdAt: a.createdAt,
-      subject: a.subject,
+      subject: {
+        ...a.subject,
+        color: getSubjectColor(a.subject.id),
+      },
       submission: a.submissions[0] || null,
     }));
   }
@@ -234,6 +238,7 @@ export class AssignmentService {
         subjectId: enrollment.subjectId,
         subjectName: enrollment.subject.name,
         subjectCode: enrollment.subject.code,
+        subjectColor: getSubjectColor(enrollment.subjectId),
         assignmentPoints: {
           earned: earnedPoints,
           max: maxPoints,
