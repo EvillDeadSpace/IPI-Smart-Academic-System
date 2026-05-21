@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { BACKEND_URL, NLP_URL } from '../../config'
 import { toastError } from '../../lib/toast'
 import {
+    AssignmentData,
     EnrolledStudent,
     ExamData,
     SubjectInfo,
@@ -25,6 +26,11 @@ export default function useFetchAboutProfessorData(studentMail: string) {
         [subjectName: string]: string[]
     }>({})
     const [assignmentsLoading, setAssignmentsLoading] = useState(false)
+    const [backendAssignments, setBackendAssignments] = useState<
+        AssignmentData[]
+    >([])
+    const [backendAssignmentsLoading, setBackendAssignmentsLoading] =
+        useState(false)
 
     const fetchProfessorExams = useCallback(async (profId: number) => {
         try {
@@ -254,6 +260,7 @@ export default function useFetchAboutProfessorData(studentMail: string) {
 
                 await fetchProfessorExams(profData.id)
                 await fetchAllData(subjectIds)
+                await fetchBackendAssignments(profData.id)
             } else {
                 await fetchAllData([])
             }
@@ -267,6 +274,53 @@ export default function useFetchAboutProfessorData(studentMail: string) {
     const refetch = useCallback(async () => {
         await fetchProfessorData()
     }, [fetchProfessorData])
+
+    const fetchBackendAssignments = useCallback(async (profId: number) => {
+        setBackendAssignmentsLoading(true)
+        try {
+            const response = await fetch(
+                `${BACKEND_URL}/api/assignments/professor/${profId}`
+            )
+            if (response.ok) {
+                const data = await response.json()
+                setBackendAssignments(data)
+            }
+        } catch {
+            toastError('Greška pri dohvaćanju zadaća')
+        } finally {
+            setBackendAssignmentsLoading(false)
+        }
+    }, [])
+
+    const gradeAssignment = useCallback(
+        async (
+            assignmentId: number,
+            studentEmail: string,
+            pointsEarned: number,
+            feedback: string,
+            gradedById: number
+        ) => {
+            const response = await fetch(
+                `${BACKEND_URL}/api/assignments/${assignmentId}/grade`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        studentEmail,
+                        pointsEarned,
+                        feedback,
+                        gradedById,
+                    }),
+                }
+            )
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({}))
+                throw new Error(err.error || 'Greška pri ocjenjivanju')
+            }
+            return response.json()
+        },
+        []
+    )
 
     const fetchAllAssignments = useCallback(async () => {
         setAssignmentsLoading(true)
@@ -317,8 +371,12 @@ export default function useFetchAboutProfessorData(studentMail: string) {
         professorId,
         professorAssignments,
         assignmentsLoading,
+        backendAssignments,
+        backendAssignmentsLoading,
         refetch,
         refetchExams: fetchProfessorExams,
         refetchAssignments: fetchAllAssignments,
+        refetchBackendAssignments: fetchBackendAssignments,
+        gradeAssignment,
     }
 }

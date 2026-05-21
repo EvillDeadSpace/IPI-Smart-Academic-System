@@ -33,7 +33,9 @@ const StudentSchedule = lazy(
 )
 const Papirologija = lazy(() => import('../components/Faculty/Papirologija'))
 const Calendar = lazy(() => import('../components/Pages/Calendar'))
-const Homework = lazy(() => import('../components/Pages/Homework'))
+const StudentAssignments = lazy(
+    () => import('../components/Pages/StudentAssignments')
+)
 
 export default function AppRoutes() {
     return (
@@ -74,7 +76,10 @@ export default function AppRoutes() {
                     />
                     <Route path="papirologija" element={<Papirologija />} />
                     <Route path="calendar" element={<Calendar />} />
-                    <Route path="homework" element={<Homework />} />
+                    <Route
+                        path="assignments"
+                        element={<StudentAssignments />}
+                    />
                 </Route>
 
                 <Route

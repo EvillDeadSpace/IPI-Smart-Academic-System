@@ -2,6 +2,7 @@ import {
     IconBook,
     IconCalendarEvent,
     IconClipboardList,
+    IconDownload,
     IconFileText,
     IconGitCompare,
     IconPlus,
@@ -22,6 +23,7 @@ import {
     AssignmentFormData,
     EnrolledStudent,
     ExamFormData,
+    GradeAssignmentFormData,
     GradeFormData,
     SimilarityResult,
     SubjectInfo,
@@ -43,9 +45,13 @@ const ProfessorBoard: React.FC = () => {
         stats,
         professorAssignments,
         assignmentsLoading,
+        backendAssignments,
+        backendAssignmentsLoading,
         refetch,
         refetchExams,
         refetchAssignments,
+        refetchBackendAssignments,
+        gradeAssignment,
     } = useFetchAboutProfessorData(studentMail)
 
     // For compairing file similarity states
@@ -56,6 +62,19 @@ const ProfessorBoard: React.FC = () => {
     const [isComparing, setIsComparing] = useState(false)
 
     const [showGradeModal, setShowGradeModal] = useState(false)
+    const [showGradeAssignmentModal, setShowGradeAssignmentModal] =
+        useState(false)
+    const [gradeAssignmentForm, setGradeAssignmentForm] =
+        useState<GradeAssignmentFormData>({
+            assignmentId: 0,
+            assignmentTitle: '',
+            maxPoints: 0,
+            studentEmail: '',
+            studentName: '',
+            pointsEarned: 0,
+            feedback: '',
+        })
+    const [isGradingAssignment, setIsGradingAssignment] = useState(false)
     const [gradeForm, setGradeForm] = useState<GradeFormData>({
         studentEmail: '',
         studentName: '',
@@ -77,7 +96,9 @@ const ProfessorBoard: React.FC = () => {
         dueDate: '',
         title: '',
         description: '',
-        maxPoints: 100,
+        type: 'Zadaća',
+        difficulty: 'Srednje',
+        maxPoints: 20,
         file: null,
     })
     const [isUploading, setIsUploading] = useState(false)
@@ -141,25 +162,29 @@ const ProfessorBoard: React.FC = () => {
             })
 
             if (response.ok) {
-                // Save homework metadata to backend
                 if (professorId) {
                     try {
                         const ext =
-                            assignmentForm.file.name.split('.').pop() || 'pdf'
-                        await fetch(`${BACKEND_URL}/api/homeworks`, {
+                            assignmentForm.file!.name.split('.').pop() || 'pdf'
+                        const professorS3Path = `${subjectName}/${assignmentForm.title}.${ext}`
+                        await fetch(`${BACKEND_URL}/api/assignments`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 title: assignmentForm.title,
                                 description: assignmentForm.description || null,
-                                s3Path: `${subjectName}/${assignmentForm.title}.${ext}`,
+                                type: assignmentForm.type,
+                                difficulty: assignmentForm.difficulty,
                                 dueDate: assignmentForm.dueDate,
+                                maxPoints: assignmentForm.maxPoints,
+                                professorS3Path,
                                 subjectId: assignmentForm.subjectId,
                                 professorId,
                             }),
                         })
+                        await refetchBackendAssignments(professorId)
                     } catch (err) {
-                        console.error('❌ Backend homework save error:', err)
+                        console.error('❌ Backend assignment save error:', err)
                     }
                 }
 
@@ -212,7 +237,9 @@ const ProfessorBoard: React.FC = () => {
                     dueDate: '',
                     title: '',
                     description: '',
-                    maxPoints: 100,
+                    type: 'Zadaća',
+                    difficulty: 'Srednje',
+                    maxPoints: 20,
                     file: null,
                 })
                 // Refresh assignments list
@@ -435,6 +462,54 @@ const ProfessorBoard: React.FC = () => {
         } catch (error) {
             console.error('Delete assignment error:', error)
             toastError('Greška pri brisanju zadaće')
+        }
+    }
+
+    const handleDownloadSubmission = async (s3Path: string) => {
+        try {
+            const [folderName, fileName] = s3Path.split('/')
+            const response = await fetch(
+                `${NLP_URL}/get_file_from_s3?folder_name=${encodeURIComponent(folderName)}&file_name=${encodeURIComponent(fileName)}`
+            )
+            if (!response.ok) throw new Error('Download failed')
+            const blob = await response.blob()
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = fileName
+            document.body.appendChild(a)
+            a.click()
+            window.URL.revokeObjectURL(url)
+            document.body.removeChild(a)
+            toastSuccess(`Preuzeto: ${fileName}`)
+        } catch {
+            toastError('Greška pri preuzimanju fajla')
+        }
+    }
+
+    const handleGradeAssignment = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!professorId) return
+        setIsGradingAssignment(true)
+        try {
+            await gradeAssignment(
+                gradeAssignmentForm.assignmentId,
+                gradeAssignmentForm.studentEmail,
+                gradeAssignmentForm.pointsEarned,
+                gradeAssignmentForm.feedback,
+                professorId
+            )
+            toastSuccess(
+                `Ocijenjeno: ${gradeAssignmentForm.studentName} — ${gradeAssignmentForm.pointsEarned}/${gradeAssignmentForm.maxPoints} bodova`
+            )
+            setShowGradeAssignmentModal(false)
+            await refetchBackendAssignments(professorId)
+        } catch (error) {
+            toastError(
+                `Greška: ${error instanceof Error ? error.message : 'Pokušajte ponovo'}`
+            )
+        } finally {
+            setIsGradingAssignment(false)
         }
     }
 
@@ -1165,6 +1240,196 @@ const ProfessorBoard: React.FC = () => {
                 </div>
             </motion.div>
 
+            {/* Grade Assignments Section */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.32, duration: 0.5 }}
+                className="bg-[#1a1a1a] rounded-xl p-6 border border-neutral-800 mb-8"
+            >
+                <h2 className="text-2xl font-bold text-gray-200 mb-6">
+                    Ocijeni Zadaće
+                </h2>
+
+                {backendAssignmentsLoading ? (
+                    <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-500 mx-auto mb-3"></div>
+                        <p className="text-gray-400">Učitavanje...</p>
+                    </div>
+                ) : backendAssignments.length === 0 ? (
+                    <div className="text-center py-8 text-gray-400">
+                        <IconClipboardList className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                        <p>Nema kreiranih zadaća</p>
+                    </div>
+                ) : (
+                    <div className="space-y-6">
+                        {backendAssignments.map((assignment) => {
+                            const pending = assignment.submissions.filter(
+                                (s) => s.status === 'PENDING'
+                            )
+                            const graded = assignment.submissions.filter(
+                                (s) => s.status === 'GRADED'
+                            )
+                            return (
+                                <div
+                                    key={assignment.id}
+                                    className="bg-[#252525] rounded-xl p-5 border border-neutral-700"
+                                >
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded font-medium">
+                                                    {assignment.type}
+                                                </span>
+                                                <span className="text-xs text-gray-500">
+                                                    {assignment.subject.code}
+                                                </span>
+                                            </div>
+                                            <h3 className="text-lg font-bold text-gray-200">
+                                                {assignment.title}
+                                            </h3>
+                                            <p className="text-sm text-gray-400 mt-1">
+                                                Rok:{' '}
+                                                {new Date(
+                                                    assignment.dueDate
+                                                ).toLocaleDateString('bs-BA')}{' '}
+                                                · Maks:{' '}
+                                                <span className="text-green-400 font-semibold">
+                                                    {assignment.maxPoints} bodova
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <div className="flex gap-3 text-sm">
+                                            <span className="bg-green-500/10 text-green-400 px-3 py-1 rounded-full">
+                                                {graded.length} ocijenjeno
+                                            </span>
+                                            <span className="bg-yellow-500/10 text-yellow-400 px-3 py-1 rounded-full">
+                                                {pending.length} čeka
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {assignment.submissions.length === 0 ? (
+                                        <p className="text-sm text-gray-500 italic">
+                                            Nema predaja za ovu zadaću
+                                        </p>
+                                    ) : (
+                                        <div className="space-y-2">
+                                            {assignment.submissions.map(
+                                                (sub) => (
+                                                    <div
+                                                        key={sub.id}
+                                                        className="flex items-center justify-between bg-[#1a1a1a] rounded-lg px-4 py-3"
+                                                    >
+                                                        <div>
+                                                            <p className="text-gray-200 font-medium text-sm">
+                                                                {
+                                                                    sub.student
+                                                                        .firstName
+                                                                }{' '}
+                                                                {
+                                                                    sub.student
+                                                                        .lastName
+                                                                }
+                                                            </p>
+                                                            <p className="text-xs text-gray-500">
+                                                                {
+                                                                    sub.student
+                                                                        .indexNumber
+                                                                }{' '}
+                                                                ·{' '}
+                                                                {
+                                                                    sub.student
+                                                                        .email
+                                                                }
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex items-center gap-3">
+                                                            {sub.status ===
+                                                            'GRADED' ? (
+                                                                <span className="text-green-400 font-semibold text-sm">
+                                                                    {
+                                                                        sub.pointsEarned
+                                                                    }
+                                                                    /
+                                                                    {
+                                                                        assignment.maxPoints
+                                                                    }{' '}
+                                                                    bodova
+                                                                </span>
+                                                            ) : null}
+                                                            {sub.s3Path && (
+                                                                <motion.button
+                                                                    whileHover={{ scale: 1.05 }}
+                                                                    whileTap={{ scale: 0.95 }}
+                                                                    onClick={() => handleDownloadSubmission(sub.s3Path!)}
+                                                                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-all"
+                                                                    title="Preuzmi zadaću"
+                                                                >
+                                                                    <IconDownload className="w-4 h-4" />
+                                                                    Preuzmi
+                                                                </motion.button>
+                                                            )}
+                                                            <motion.button
+                                                                whileHover={{
+                                                                    scale: 1.05,
+                                                                }}
+                                                                whileTap={{
+                                                                    scale: 0.95,
+                                                                }}
+                                                                onClick={() => {
+                                                                    setGradeAssignmentForm(
+                                                                        {
+                                                                            assignmentId:
+                                                                                assignment.id,
+                                                                            assignmentTitle:
+                                                                                assignment.title,
+                                                                            maxPoints:
+                                                                                assignment.maxPoints,
+                                                                            studentEmail:
+                                                                                sub
+                                                                                    .student
+                                                                                    .email,
+                                                                            studentName: `${sub.student.firstName} ${sub.student.lastName}`,
+                                                                            pointsEarned:
+                                                                                sub.status ===
+                                                                                'GRADED'
+                                                                                    ? sub.pointsEarned
+                                                                                    : 0,
+                                                                            feedback:
+                                                                                sub.feedback ||
+                                                                                '',
+                                                                        }
+                                                                    )
+                                                                    setShowGradeAssignmentModal(
+                                                                        true
+                                                                    )
+                                                                }}
+                                                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                                                                    sub.status ===
+                                                                    'GRADED'
+                                                                        ? 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30'
+                                                                        : 'bg-green-500 text-white hover:bg-green-600'
+                                                                }`}
+                                                            >
+                                                                {sub.status ===
+                                                                'GRADED'
+                                                                    ? 'Ažuriraj'
+                                                                    : 'Ocijeni'}
+                                                            </motion.button>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )
+                        })}
+                    </div>
+                )}
+            </motion.div>
+
             {/* Subjects with Students */}
             <motion.div
                 initial={{ opacity: 0 }}
@@ -1658,6 +1923,76 @@ const ProfessorBoard: React.FC = () => {
 
                                 <div>
                                     <label className="block text-gray-200 mb-2 font-semibold">
+                                        Tip zadaće *
+                                    </label>
+                                    <select
+                                        value={assignmentForm.type}
+                                        onChange={(e) =>
+                                            setAssignmentForm({
+                                                ...assignmentForm,
+                                                type: e.target.value,
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
+                                        disabled={isUploading}
+                                    >
+                                        <option value="Zadaća">Zadaća</option>
+                                        <option value="Parcijalni ispit">
+                                            Parcijalni ispit
+                                        </option>
+                                        <option value="Projekt">Projekt</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-200 mb-2 font-semibold">
+                                        Težina zadaće
+                                    </label>
+                                    <select
+                                        value={assignmentForm.difficulty}
+                                        onChange={(e) =>
+                                            setAssignmentForm({
+                                                ...assignmentForm,
+                                                difficulty: e.target.value,
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
+                                        disabled={isUploading}
+                                    >
+                                        <option value="Lagan">Lagan</option>
+                                        <option value="Srednje">Srednje</option>
+                                        <option value="Težak">Težak</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-200 mb-2 font-semibold">
+                                        Broj bodova *
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max="100"
+                                        value={assignmentForm.maxPoints}
+                                        onChange={(e) =>
+                                            setAssignmentForm({
+                                                ...assignmentForm,
+                                                maxPoints: parseInt(
+                                                    e.target.value
+                                                ),
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-blue-500 focus:outline-none"
+                                        required
+                                        disabled={isUploading}
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        1 bod = 1% konačne ocjene
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-200 mb-2 font-semibold">
                                         Rok predaje *
                                     </label>
                                     <input
@@ -1734,6 +2069,116 @@ const ProfessorBoard: React.FC = () => {
                                         </>
                                     ) : (
                                         'Postavi Zadaću'
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                    </motion.div>
+                </div>
+            )}
+            {/* Grade Assignment Modal */}
+            {showGradeAssignmentModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-[#1a1a1a] rounded-xl p-6 w-full max-w-md border border-neutral-800"
+                    >
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-2xl font-bold text-gray-200">
+                                Ocijeni zadaću
+                            </h2>
+                            <button
+                                onClick={() =>
+                                    setShowGradeAssignmentModal(false)
+                                }
+                                className="text-gray-400 hover:text-gray-200"
+                            >
+                                <IconX className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        <div className="mb-5 p-4 bg-[#252525] rounded-lg space-y-1">
+                            <p className="text-xs text-gray-400">Zadaća</p>
+                            <p className="text-base font-bold text-gray-200">
+                                {gradeAssignmentForm.assignmentTitle}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-2">
+                                Student
+                            </p>
+                            <p className="text-base font-bold text-gray-200">
+                                {gradeAssignmentForm.studentName}
+                            </p>
+                        </div>
+
+                        <form onSubmit={handleGradeAssignment}>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-gray-200 mb-2 font-semibold">
+                                        Bodovi (0 -{' '}
+                                        {gradeAssignmentForm.maxPoints}):
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max={gradeAssignmentForm.maxPoints}
+                                        value={gradeAssignmentForm.pointsEarned}
+                                        onChange={(e) =>
+                                            setGradeAssignmentForm({
+                                                ...gradeAssignmentForm,
+                                                pointsEarned: parseInt(
+                                                    e.target.value || '0'
+                                                ),
+                                            })
+                                        }
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-green-500 focus:outline-none"
+                                        required
+                                        disabled={isGradingAssignment}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-200 mb-2 font-semibold">
+                                        Komentar (opcionalno):
+                                    </label>
+                                    <textarea
+                                        value={gradeAssignmentForm.feedback}
+                                        onChange={(e) =>
+                                            setGradeAssignmentForm({
+                                                ...gradeAssignmentForm,
+                                                feedback: e.target.value,
+                                            })
+                                        }
+                                        rows={3}
+                                        className="bg-[#252525] text-gray-200 border border-neutral-700 rounded-lg p-3 w-full focus:border-green-500 focus:outline-none resize-none"
+                                        placeholder="Napomena za studenta..."
+                                        disabled={isGradingAssignment}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end gap-3 mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowGradeAssignmentModal(false)
+                                    }
+                                    className="px-6 py-2 text-gray-400 hover:text-gray-200 font-medium transition-colors"
+                                    disabled={isGradingAssignment}
+                                >
+                                    Odustani
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-medium transition-all transform hover:scale-105 disabled:opacity-50 flex items-center gap-2"
+                                    disabled={isGradingAssignment}
+                                >
+                                    {isGradingAssignment ? (
+                                        <>
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                            Čuvam...
+                                        </>
+                                    ) : (
+                                        'Potvrdi ocjenu'
                                     )}
                                 </button>
                             </div>

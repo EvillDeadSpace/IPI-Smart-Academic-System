@@ -12,7 +12,8 @@ const Dashboard = () => {
     const navigate = useNavigate()
     const { studentMail } = useAuth()
 
-    const { grades, progress, isLoading, hasError, refetchAll } = useFetchStudentProgress(studentMail)
+    const { grades, progress, assignmentProgress, isLoading, hasError, refetchAll } =
+        useFetchStudentProgress(studentMail)
 
     if (isLoading) {
         return (
@@ -172,6 +173,65 @@ const Dashboard = () => {
                             </div>
                         </div>
                     </div>
+
+                    {/* Assignment Points by Subject */}
+                    {assignmentProgress && assignmentProgress.length > 0 && (
+                        <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700">
+                            <h2 className="text-lg font-semibold mb-4 text-neutral-900 dark:text-white">
+                                Bodovi od zadaća
+                            </h2>
+                            <div className="space-y-4">
+                                {assignmentProgress
+                                    .filter((item) => item.assignmentPoints.max > 0)
+                                    .map((item) => {
+                                        const { earned, max } =
+                                            item.assignmentPoints
+                                        const pct =
+                                            max > 0
+                                                ? Math.round((earned / max) * 100)
+                                                : 0
+                                        const barColor =
+                                            pct >= 80
+                                                ? 'bg-green-500'
+                                                : pct >= 50
+                                                  ? 'bg-yellow-500'
+                                                  : 'bg-red-500'
+                                        return (
+                                            <div key={item.subjectId}>
+                                                <div className="flex justify-between items-center mb-1">
+                                                    <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                                        {item.subjectName}
+                                                    </span>
+                                                    <span
+                                                        className={`text-sm font-semibold ${
+                                                            pct >= 80
+                                                                ? 'text-green-600 dark:text-green-400'
+                                                                : pct >= 50
+                                                                  ? 'text-yellow-600 dark:text-yellow-400'
+                                                                  : 'text-red-600 dark:text-red-400'
+                                                        }`}
+                                                    >
+                                                        {earned} / {max} bodova
+                                                    </span>
+                                                </div>
+                                                <div className="w-full bg-neutral-200 dark:bg-neutral-700 rounded-full h-2.5">
+                                                    <div
+                                                        className={`${barColor} h-2.5 rounded-full transition-all duration-500`}
+                                                        style={{
+                                                            width: `${pct}%`,
+                                                        }}
+                                                    />
+                                                </div>
+                                                <p className="text-xs text-neutral-400 mt-1">
+                                                    {item.assignmentPoints.graded}/
+                                                    {item.assignmentPoints.total} zadaća ocijenjeno
+                                                </p>
+                                            </div>
+                                        )
+                                    })}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Recent Activity */}
                     <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700">

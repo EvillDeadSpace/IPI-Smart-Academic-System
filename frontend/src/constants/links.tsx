@@ -4,7 +4,6 @@ import {
     IconClipboardList,
     IconFileText,
     IconLayoutDashboard,
-    IconPencilPlus,
     IconUserCircle,
 } from '@tabler/icons-react'
 import { ReactNode } from 'react'
@@ -67,10 +66,10 @@ export const links: DashboardTypes[] = [
         ),
     },
     {
-        label: 'Zadaca',
-        to: '/dashboard/homework',
+        label: 'Zadaće',
+        to: '/dashboard/assignments',
         icon: (
-            <IconPencilPlus className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+            <IconClipboardList className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
         ),
     },
 ]

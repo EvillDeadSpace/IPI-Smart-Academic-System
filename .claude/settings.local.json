@@ -6,7 +6,8 @@
       "Bash(python -m ruff check . --fix)",
       "Bash(python -m ruff format .)",
       "Bash(python -m ruff check .)",
-      "Bash(python -m ruff check . --unsafe-fixes --fix)"
+      "Bash(python -m ruff check . --unsafe-fixes --fix)",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__get_network_request"
     ]
   }
 }

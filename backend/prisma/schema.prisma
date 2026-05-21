@@ -25,9 +25,10 @@ model Student {
   documentRequests   DocumentRequest[]
   grades             Grade[]
   major              Major                     @relation(fields: [majorId], references: [id])
-  examRegistrations  StudentExamRegistration[]
-  subjectEnrollments SubjectEnrollment[]
-  yearEnrollments    YearEnrollment[]
+  examRegistrations    StudentExamRegistration[]
+  subjectEnrollments   SubjectEnrollment[]
+  yearEnrollments      YearEnrollment[]
+  assignmentSubmissions AssignmentSubmission[]
 
   @@index([majorId])
 }
@@ -75,6 +76,7 @@ model Subject {
   lectures           Lecture[]
   professors         ProfessorSubject[]
   homeworks          Homework[]
+  assignments        Assignment[]
   major              Major               @relation(fields: [majorId], references: [id])
   yearPlan           YearPlan            @relation(fields: [yearPlanId], references: [id])
   subjectEnrollments SubjectEnrollment[]
@@ -170,11 +172,13 @@ model Professor {
   updatedAt DateTime           @updatedAt
   office    String?
   password  String
-  exams     Exam[]
-  grades    Grade[]
-  lectures  Lecture[]
-  subjects  ProfessorSubject[]
-  homeworks Homework[]
+  exams                 Exam[]
+  grades                Grade[]
+  lectures              Lecture[]
+  subjects              ProfessorSubject[]
+  homeworks             Homework[]
+  assignments           Assignment[]
+  gradedSubmissions     AssignmentSubmission[]
 
   @@index([email])
 }
@@ -282,6 +286,60 @@ enum DocumentRequestStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum SubmissionStatus {
+  PENDING
+  GRADED
+}
+
+enum AssignmentDifficulty {
+  LAGAN
+  SREDNJE
+  TESKO
+}
+
+model Assignment {
+  id          Int                    @id @default(autoincrement())
+  title            String
+  description      String?
+  type             String
+  difficulty       AssignmentDifficulty @default(SREDNJE)
+  dueDate          DateTime
+  maxPoints        Int
+  professorS3Path  String?
+  createdAt        DateTime               @default(now())
+  subjectId   Int
+  professorId Int
+  professor   Professor              @relation(fields: [professorId], references: [id], onDelete: Cascade)
+  subject     Subject                @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  submissions AssignmentSubmission[]
+
+  @@index([subjectId])
+  @@index([professorId])
+  @@index([dueDate])
+}
+
+model AssignmentSubmission {
+  id           Int              @id @default(autoincrement())
+  s3Path       String?
+  pointsEarned Int              @default(0)
+  feedback     String?
+  status       SubmissionStatus @default(PENDING)
+  submittedAt  DateTime?
+  gradedAt     DateTime?
+  createdAt    DateTime         @default(now())
+  assignmentId Int
+  studentId    Int
+  gradedById   Int?
+  assignment   Assignment       @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student      Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  gradedBy     Professor?       @relation(fields: [gradedById], references: [id])
+
+  @@unique([assignmentId, studentId])
+  @@index([assignmentId])
+  @@index([studentId])
+  @@index([gradedById])
 }
 
 model Homework {

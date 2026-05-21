@@ -8,6 +8,7 @@ import documentRequestRoutes from "./document-request.routes";
 import enrollmentRoutes from "./enrollment.routes";
 import examRoutes from "./exam.routes";
 import gradeRoutes from "./grade.routes";
+import assignmentRoutes from "./assignment.routes";
 import homeworkRoutes from "./homework.routes";
 import lectureRoutes from "./lecture.routes";
 import newsRoutes from "./news.route";
@@ -69,6 +70,7 @@ router.use("/schedule", scheduleRoutes);
 router.use("/user", userRoutes);
 router.use("/lecture", lectureRoutes);
 router.use("/homeworks", homeworkRoutes);
+router.use("/assignments", assignmentRoutes);
 router.use("/progress", studentRoutes);
 
 export default router;
