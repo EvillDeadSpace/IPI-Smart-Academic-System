@@ -40,7 +40,7 @@ export default function RequestCard({
                         <span className="text-3xl font-syne font-bold text-slate-100 select-none leading-none">03</span>
                     </div>
 
-                    <h3 className="text-base font-syne font-bold text-slate-800 mb-1.5">
+                    <h3 className="text-base font-nuni font-bold text-slate-800 mb-1.5">
                         Upravljanje zahtjevima
                     </h3>
                     <p className="text-sm text-slate-500 leading-relaxed">

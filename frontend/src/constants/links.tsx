@@ -72,6 +72,13 @@ export const links: DashboardTypes[] = [
             <IconClipboardList className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
         ),
     },
+    {
+        label: 'Raspored časova',
+        to: '/dashboard/lectures',
+        icon: (
+            <IconCalendarTime className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        ),
+    },
 ]
 
 // Footer Links

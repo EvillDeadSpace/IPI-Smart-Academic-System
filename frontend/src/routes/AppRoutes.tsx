@@ -18,6 +18,9 @@ const AdminPanel = lazy(() => import('../components/Dashboard/AdminBoard'))
 const AdminProfessorManagement = lazy(
     () => import('../components/Dashboard/AdminProfessorManagement')
 )
+const AdminLectureManagement = lazy(
+    () => import('../components/Dashboard/AdminLectureManagement')
+)
 
 // Lazy load student dashboard pages
 const DashboardHome = lazy(
@@ -30,6 +33,9 @@ const EnrollmentForTheYear = lazy(
 const StudentExams = lazy(() => import('../components/Faculty/StudentExams'))
 const StudentSchedule = lazy(
     () => import('../components/Faculty/StudentSchedule')
+)
+const LectureSchedule = lazy(
+    () => import('../components/Faculty/LectureSchedule')
 )
 const Papirologija = lazy(() => import('../components/Faculty/Papirologija'))
 const Calendar = lazy(() => import('../components/Pages/Calendar'))
@@ -103,6 +109,14 @@ export default function AppRoutes() {
                     element={
                         <ProtectedRoute allowedRoles={['ADMIN']}>
                             <AdminProfessorManagement />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/lectures"
+                    element={
+                        <ProtectedRoute allowedRoles={['ADMIN']}>
+                            <AdminLectureManagement />
                         </ProtectedRoute>
                     }
                 />

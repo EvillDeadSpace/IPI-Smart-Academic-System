@@ -261,7 +261,7 @@ const AdminProfessorManagement: React.FC = () => {
                                             <IconSchool className="w-5 h-5 text-blue-600" />
                                         </div>
                                         <div className="min-w-0">
-                                            <h3 className="text-sm font-syne font-bold text-slate-800 leading-tight">
+                                            <h3 className="text-sm font-nuni font-bold text-slate-800 leading-tight">
                                                 {professor.title}{' '}
                                                 {professor.firstName}{' '}
                                                 {professor.lastName}
@@ -329,7 +329,7 @@ const AdminProfessorManagement: React.FC = () => {
                         <div className="w-16 h-16 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center mx-auto mb-4">
                             <IconUserPlus className="w-8 h-8 text-blue-400" />
                         </div>
-                        <h3 className="text-lg font-syne font-bold text-slate-600 mb-1">
+                        <h3 className="text-lg font-nuni font-bold text-slate-600 mb-1">
                             Nema profesora
                         </h3>
                         <p className="text-sm text-slate-400 mb-6">
