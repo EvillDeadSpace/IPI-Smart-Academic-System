@@ -69,22 +69,23 @@ export class HomeworkService {
 
     const subjectIds = student.subjectEnrollments.map((e) => e.subjectId);
 
-    const allHomeworks = await prisma.homework.findMany({
+    const allAssignments = await prisma.assignment.findMany({
       where: { subjectId: { in: subjectIds } },
-      include: { subject: true },
       orderBy: { dueDate: "asc" },
     });
 
     const now = new Date();
+    // Monday-based week (ISO)
+    const dayOfWeek = now.getDay() === 0 ? 6 : now.getDay() - 1;
     const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - now.getDay());
+    startOfWeek.setDate(now.getDate() - dayOfWeek);
     startOfWeek.setHours(0, 0, 0, 0);
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 6);
     endOfWeek.setHours(23, 59, 59, 999);
 
-    const thisWeek = allHomeworks.filter(
-      (h) => h.dueDate >= startOfWeek && h.dueDate <= endOfWeek,
+    const thisWeek = allAssignments.filter(
+      (a) => a.dueDate >= startOfWeek && a.dueDate <= endOfWeek,
     ).length;
 
     const totalEcts = student.subjectEnrollments.reduce((sum, e) => sum + e.subject.ects, 0);
@@ -92,7 +93,7 @@ export class HomeworkService {
       student.subjectEnrollments.length > 0 ? totalEcts / student.subjectEnrollments.length : 0;
 
     return {
-      total: allHomeworks.length,
+      total: allAssignments.length,
       thisWeek,
       avgEcts: Math.round(avgEcts * 10) / 10,
     };

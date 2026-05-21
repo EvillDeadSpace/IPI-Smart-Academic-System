@@ -34,9 +34,7 @@ const StudentExams = lazy(() => import('../components/Faculty/StudentExams'))
 const StudentSchedule = lazy(
     () => import('../components/Faculty/StudentSchedule')
 )
-const LectureSchedule = lazy(
-    () => import('../components/Faculty/LectureSchedule')
-)
+
 const Papirologija = lazy(() => import('../components/Faculty/Papirologija'))
 const Calendar = lazy(() => import('../components/Pages/Calendar'))
 const StudentAssignments = lazy(
