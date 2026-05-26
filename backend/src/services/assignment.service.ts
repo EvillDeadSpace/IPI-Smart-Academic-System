@@ -1,3 +1,4 @@
+import { Professor } from './../../../frontend/src/types/AdminTypes/AdminProfessor';
 import { getPrismaClient } from "../config/database";
 import { getSubjectColor } from "../utils/subjectColor";
 
@@ -84,6 +85,7 @@ export class AssignmentService {
       where: { subjectId: { in: subjectIds } },
       include: {
         subject: true,
+        professor: true,
         submissions: {
           where: { studentId: student.id },
         },
@@ -106,6 +108,7 @@ export class AssignmentService {
         color: getSubjectColor(a.subject.id),
       },
       submission: a.submissions[0] || null,
+      professorName: `${a.professor.firstName} ${a.professor.lastName}`,
     }));
   }
 
@@ -196,6 +199,7 @@ export class AssignmentService {
     const student = await prisma.student.findUnique({
       where: { email: studentEmail },
       include: {
+        professor: true,
         subjectEnrollments: {
           include: { subject: true },
         },
