@@ -9,26 +9,27 @@ datasource db {
 }
 
 model Student {
-  id                 Int                       @id @default(autoincrement())
-  email              String                    @unique
-  createdAt          DateTime                  @default(now())
-  updatedAt          DateTime                  @updatedAt
-  currentYear        Int                       @default(1)
-  dateOfBirth        DateTime
-  firstName          String
-  indexNumber        String                    @unique
-  lastName           String
-  majorId            Int
-  password           String
-  status             StudentStatus             @default(ACTIVE)
-  comments           Comment[]
-  documentRequests   DocumentRequest[]
-  grades             Grade[]
-  major              Major                     @relation(fields: [majorId], references: [id])
-  examRegistrations    StudentExamRegistration[]
-  subjectEnrollments   SubjectEnrollment[]
-  yearEnrollments      YearEnrollment[]
+  id                    Int                       @id @default(autoincrement())
+  email                 String                    @unique
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+  currentYear           Int                       @default(1)
+  dateOfBirth           DateTime
+  firstName             String
+  indexNumber           String                    @unique
+  lastName              String
+  majorId               Int
+  password              String
+  status                StudentStatus             @default(ACTIVE)
+  comments              Comment[]
+  documentRequests      DocumentRequest[]
+  grades                Grade[]
+  major                 Major                     @relation(fields: [majorId], references: [id])
+  examRegistrations     StudentExamRegistration[]
+  subjectEnrollments    SubjectEnrollment[]
+  yearEnrollments       YearEnrollment[]
   assignmentSubmissions AssignmentSubmission[]
+  Question              Question[]
 
   @@index([majorId])
 }
@@ -163,22 +164,22 @@ model StudentExamRegistration {
 }
 
 model Professor {
-  id        Int                @id @default(autoincrement())
-  firstName String
-  lastName  String
-  email     String             @unique
-  title     String
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
-  office    String?
-  password  String
-  exams                 Exam[]
-  grades                Grade[]
-  lectures              Lecture[]
-  subjects              ProfessorSubject[]
-  homeworks             Homework[]
-  assignments           Assignment[]
-  gradedSubmissions     AssignmentSubmission[]
+  id                Int                    @id @default(autoincrement())
+  firstName         String
+  lastName          String
+  email             String                 @unique
+  title             String
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  office            String?
+  password          String
+  exams             Exam[]
+  grades            Grade[]
+  lectures          Lecture[]
+  subjects          ProfessorSubject[]
+  homeworks         Homework[]
+  assignments       Assignment[]
+  gradedSubmissions AssignmentSubmission[]
 
   @@index([email])
 }
@@ -300,20 +301,21 @@ enum AssignmentDifficulty {
 }
 
 model Assignment {
-  id          Int                    @id @default(autoincrement())
-  title            String
-  description      String?
-  type             String
-  difficulty       AssignmentDifficulty @default(SREDNJE)
-  dueDate          DateTime
-  maxPoints        Int
-  professorS3Path  String?
-  createdAt        DateTime               @default(now())
-  subjectId   Int
-  professorId Int
-  professor   Professor              @relation(fields: [professorId], references: [id], onDelete: Cascade)
-  subject     Subject                @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  submissions AssignmentSubmission[]
+  id              Int                    @id @default(autoincrement())
+  title           String
+  description     String?
+  type            String
+  difficulty      AssignmentDifficulty   @default(SREDNJE)
+  dueDate         DateTime
+  maxPoints       Int
+  professorS3Path String?
+  createdAt       DateTime               @default(now())
+  subjectId       Int
+  professorId     Int
+  professor       Professor              @relation(fields: [professorId], references: [id], onDelete: Cascade)
+  subject         Subject                @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  submissions     AssignmentSubmission[]
+  questions       Question[]
 
   @@index([subjectId])
   @@index([professorId])
@@ -335,6 +337,7 @@ model AssignmentSubmission {
   assignment   Assignment       @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   student      Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
   gradedBy     Professor?       @relation(fields: [gradedById], references: [id])
+  questions    Question[]
 
   @@unique([assignmentId, studentId])
   @@index([assignmentId])
@@ -357,4 +360,21 @@ model Homework {
   @@index([subjectId])
   @@index([professorId])
   @@index([dueDate])
+}
+
+model Question {
+  id                     Int                   @id @default(autoincrement())
+  text                   String
+  answer                 String?
+  createdAt              DateTime              @default(now())
+  answeredAt             DateTime?
+  assignmentId           Int
+  studentId              Int
+  assignment             Assignment            @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student                Student               @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  AssignmentSubmission   AssignmentSubmission? @relation(fields: [assignmentSubmissionId], references: [id])
+  assignmentSubmissionId Int?
+
+  @@index([assignmentId])
+  @@index([studentId])
 }

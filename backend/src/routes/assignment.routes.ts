@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { AssignmentController } from "../controllers/assignment.controller";
+import { QuestionController } from "../controllers/question.controller";
 
 const router = Router();
 
@@ -9,5 +10,7 @@ router.get("/student/:email", AssignmentController.getAssignmentsByStudent);
 router.post("/:id/submit", AssignmentController.submitAssignment);
 router.post("/:id/grade", AssignmentController.gradeSubmission);
 router.get("/progress/:email", AssignmentController.getAssignmentProgress);
+router.get("/:id/questions", QuestionController.getQuestion);
+router.post("/:id/questions", QuestionController.createQuestion);
 
 export default router;

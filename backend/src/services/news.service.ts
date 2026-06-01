@@ -12,15 +12,7 @@ export class NewsServices {
     calendarNews?: boolean;
     eventDate?: string;
   }) {
-    const {
-      tagName,
-      title,
-      likes,
-      content,
-      linksParent,
-      calendarNews,
-      eventDate,
-    } = data;
+    const { tagName, title, likes, content, linksParent, calendarNews, eventDate } = data;
 
     const news = await prisma.newsInformation.create({
       data: {
