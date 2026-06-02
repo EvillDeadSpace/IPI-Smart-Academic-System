@@ -198,7 +198,11 @@ export class ExamController {
 
   static async getExamForCalendar(req: Request, res: Response) {
     try {
-      const allExams = await ExamService.getAllExamsForCalendar();
+      const now = new Date();
+      const month = req.query.month !== undefined ? parseInt(req.query.month as string) : now.getMonth();
+      const year = req.query.year !== undefined ? parseInt(req.query.year as string) : now.getFullYear();
+
+      const allExams = await ExamService.getAllExamsForCalendar(month, year);
       return res.json(allExams);
     } catch (error) {
       console.error("Get calendar exams error:", error);

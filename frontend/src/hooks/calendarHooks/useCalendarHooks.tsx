@@ -2,17 +2,17 @@ import { useQuery } from '@tanstack/react-query'
 import { BACKEND_URL } from '../../config'
 import { BackendExam, BackendNews, Event } from '../../types/calendar'
 
-export default function useCalendarFeatures() {
+export default function useCalendarFeatures(month: number, year: number) {
     const {
         data: events = [],
         isLoading,
         error,
     } = useQuery({
-        queryKey: ['calendarEvents'],
+        queryKey: ['calendarEvents', month, year],
         queryFn: async () => {
             // Fetch exams
             const examsResponse = await fetch(
-                `${BACKEND_URL}/api/exams/calendar/all`
+                `${BACKEND_URL}/api/exams/calendar/all?month=${month}&year=${year}`
             )
             const examsData: BackendExam[] = await examsResponse.json()
 

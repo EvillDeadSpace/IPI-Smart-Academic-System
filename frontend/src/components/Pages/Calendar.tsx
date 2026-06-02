@@ -1,5 +1,7 @@
 import {
     IconCalendar,
+    IconChevronLeft,
+    IconChevronRight,
     IconClock,
     IconMapPin,
     IconUser,
@@ -10,13 +12,30 @@ import { FC, useState } from 'react'
 import useCalendarFeatures from '../../hooks/calendarHooks/useCalendarHooks'
 import { Event } from '../../types/calendar'
 
+const MONTH_NAMES = [
+    'Januar', 'Februar', 'Mart', 'April', 'Maj', 'Juni',
+    'Juli', 'August', 'Septembar', 'Oktobar', 'Novembar', 'Decembar',
+]
+
 const Calendar: FC = () => {
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
-    const { events } = useCalendarFeatures()
     const now = new Date()
-    const monthName = now.toLocaleDateString('en-US', { month: 'long' })
-    const year = now.getFullYear()
-    const daysInMonth = new Date(year, now.getMonth() + 1, 0).getDate()
+    const [month, setMonth] = useState(now.getMonth())
+    const [year, setYear] = useState(now.getFullYear())
+
+    const { events } = useCalendarFeatures(month, year)
+    const monthName = MONTH_NAMES[month]
+    const daysInMonth = new Date(year, month + 1, 0).getDate()
+
+    const goToPrev = () => {
+        if (month === 0) { setYear(y => y - 1); setMonth(11) }
+        else setMonth(m => m - 1)
+    }
+
+    const goToNext = () => {
+        if (month === 11) { setYear(y => y + 1); setMonth(0) }
+        else setMonth(m => m + 1)
+    }
 
     return (
         <div className="flex flex-1 h-screen bg-white dark:bg-neutral-900">
@@ -48,6 +67,20 @@ const Calendar: FC = () => {
                             <h6 className="text-lg font-semibold text-neutral-900 dark:text-white">
                                 {monthName} {year}
                             </h6>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={goToPrev}
+                                className="p-2 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+                            >
+                                <IconChevronLeft className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
+                            </button>
+                            <button
+                                onClick={goToNext}
+                                className="p-2 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+                            >
+                                <IconChevronRight className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
+                            </button>
                         </div>
                     </div>
 

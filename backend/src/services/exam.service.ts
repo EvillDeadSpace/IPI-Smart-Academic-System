@@ -319,15 +319,13 @@ export class ExamService {
   }
 
   /**
-   * Get all exams for calendar view (current month only)
+   * Get all exams for calendar view (given month and year)
    */
-  static async getAllExamsForCalendar() {
-    const now = new Date();
-
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  static async getAllExamsForCalendar(month: number, year: number) {
+    const startOfMonth = new Date(year, month, 1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const endOfMonth = new Date(year, month + 1, 0);
     endOfMonth.setHours(23, 59, 59, 999);
 
     const exams = await prisma.exam.findMany({
