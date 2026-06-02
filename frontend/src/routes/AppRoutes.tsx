@@ -34,6 +34,9 @@ const StudentExams = lazy(() => import('../components/Faculty/StudentExams'))
 const StudentSchedule = lazy(
     () => import('../components/Faculty/StudentSchedule')
 )
+const LectureSchedule = lazy(
+    () => import('../components/Faculty/LectureSchedule')
+)
 
 const Papirologija = lazy(() => import('../components/Faculty/Papirologija'))
 const Calendar = lazy(() => import('../components/Pages/Calendar'))
@@ -78,6 +81,7 @@ export default function AppRoutes() {
                         path="studentschedule"
                         element={<StudentSchedule />}
                     />
+                    <Route path="lectures" element={<LectureSchedule />} />
                     <Route path="papirologija" element={<Papirologija />} />
                     <Route path="calendar" element={<Calendar />} />
                     <Route
