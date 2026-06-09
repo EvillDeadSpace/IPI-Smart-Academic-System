@@ -13,7 +13,7 @@ import {
     IconX,
 } from '@tabler/icons-react'
 import { motion } from 'framer-motion'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { BACKEND_URL, NLP_URL } from '../../constants/storage'
 import { useAuth } from '../../Context'
 import useFetchAboutProfessorData from '../../hooks/professorHooks/useProfessorsHooks'
@@ -61,6 +61,28 @@ const ProfessorBoard: React.FC = () => {
     const [compareFile2, setCompareFile2] = useState<File | null>(null)
     const [isComparing, setIsComparing] = useState(false)
 
+    const [activeSection, setActiveSection] = useState<
+        'ispiti' | 'zadace' | 'pitanja'
+    >('ispiti')
+
+    // Questions state
+    const [allQuestions, setAllQuestions] = useState<
+        {
+            id: number
+            text: string
+            answer: string | null
+            createdAt: string
+            assignmentId: number
+            assignment: { title: string; subject: { name: string; code: string } }
+            student: { firstName: string; lastName: string; email: string }
+        }[]
+    >([])
+    const [questionsLoading, setQuestionsLoading] = useState(false)
+    const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(null)
+    const [answerText, setAnswerText] = useState('')
+    const [questionFilter, setQuestionFilter] = useState<'otvorena' | 'odgovorena' | 'sve'>('otvorena')
+    const [isSubmittingAnswer, setIsSubmittingAnswer] = useState(false)
+
     const [showGradeModal, setShowGradeModal] = useState(false)
     const [showGradeAssignmentModal, setShowGradeAssignmentModal] =
         useState(false)
@@ -106,6 +128,89 @@ const ProfessorBoard: React.FC = () => {
         useState<string>('')
 
     // Convert points (0-100) into grade (5-10) using thresholds
+    const fetchAllQuestions = async () => {
+        if (!backendAssignments.length) return
+        setQuestionsLoading(true)
+        try {
+            const results = await Promise.all(
+                backendAssignments.map(async (assignment) => {
+                    const res = await fetch(
+                        `${BACKEND_URL}/api/assignments/${assignment.id}/questions`
+                    )
+                    if (!res.ok) return []
+                    const data = await res.json()
+                    const questions = data.question ?? []
+                    return questions.map(
+                        (q: {
+                            id: number
+                            text: string
+                            answer: string | null
+                            createdAt: string
+                            student: { firstName: string; lastName: string; email: string }
+                        }) => ({
+                            ...q,
+                            assignmentId: assignment.id,
+                            assignment: {
+                                title: assignment.title,
+                                subject: assignment.subject,
+                            },
+                        })
+                    )
+                })
+            )
+            setAllQuestions(results.flat())
+        } finally {
+            setQuestionsLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        if (activeSection === 'pitanja' && backendAssignments.length > 0) {
+            fetchAllQuestions()
+        }
+    }, [activeSection, backendAssignments])
+
+    const handleSubmitAnswer = async () => {
+        if (!selectedQuestionId || !answerText.trim()) return
+        const q = allQuestions.find((q) => q.id === selectedQuestionId)
+        if (!q) return
+        setIsSubmittingAnswer(true)
+        try {
+            const res = await fetch(
+                `${BACKEND_URL}/api/assignments/${q.assignmentId}/questions/${selectedQuestionId}`,
+                {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ answer: answerText }),
+                }
+            )
+            if (res.ok) {
+                const wasAlreadyAnswered = !!q.answer
+                setAllQuestions((prev) =>
+                    prev.map((item) =>
+                        item.id === selectedQuestionId
+                            ? { ...item, answer: answerText }
+                            : item
+                    )
+                )
+                if (wasAlreadyAnswered) {
+                    toastSuccess('Odgovor uspješno ažuriran!')
+                } else {
+                    toastSuccess('Odgovor objavljen!')
+                    setSelectedQuestionId(null)
+                    setAnswerText('')
+                    setQuestionFilter('odgovorena')
+                }
+            } else {
+                toastError('Greška pri slanju odgovora')
+            }
+        } catch {
+            toastError('Greška pri slanju odgovora')
+        } finally {
+            setIsSubmittingAnswer(false)
+        }
+    }
+
     const computeGradeFromPoints = (points: number | null | undefined) => {
         if (points === null || points === undefined || isNaN(points)) return 5
         const p = Math.max(0, Math.min(100, Math.round(points)))
@@ -706,8 +811,42 @@ const ProfessorBoard: React.FC = () => {
                 </motion.div>
             </div>
 
+            {/* Section Tabs */}
+            <div className="flex gap-2 mb-6 border-b border-neutral-800 pb-4">
+                <button
+                    onClick={() => setActiveSection('ispiti')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        activeSection === 'ispiti'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-[#1a1a1a] text-gray-400 hover:text-gray-200 border border-neutral-800'
+                    }`}
+                >
+                    Raspored Ispita
+                </button>
+                <button
+                    onClick={() => setActiveSection('zadace')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        activeSection === 'zadace'
+                            ? 'bg-purple-600 text-white'
+                            : 'bg-[#1a1a1a] text-gray-400 hover:text-gray-200 border border-neutral-800'
+                    }`}
+                >
+                    Zadaće
+                </button>
+                <button
+                    onClick={() => setActiveSection('pitanja')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        activeSection === 'pitanja'
+                            ? 'bg-green-600 text-white'
+                            : 'bg-[#1a1a1a] text-gray-400 hover:text-gray-200 border border-neutral-800'
+                    }`}
+                >
+                    Pitanja studenata
+                </button>
+            </div>
+
             {/* Exams Section */}
-            <motion.div
+            {activeSection === 'ispiti' && <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.5 }}
@@ -803,8 +942,9 @@ const ProfessorBoard: React.FC = () => {
                         ))}
                     </div>
                 )}
-            </motion.div>
+            </motion.div>}
 
+            {activeSection === 'zadace' && <>
             {/* Assignments Section */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -1622,6 +1762,196 @@ const ProfessorBoard: React.FC = () => {
                     </motion.div>
                 )}
             </motion.div>
+            </>}
+
+            {/* Questions Section */}
+            {activeSection === 'pitanja' && (() => {
+                const pending = allQuestions.filter((q) => !q.answer)
+                const filtered =
+                    questionFilter === 'otvorena'
+                        ? allQuestions.filter((q) => !q.answer)
+                        : questionFilter === 'odgovorena'
+                          ? allQuestions.filter((q) => q.answer)
+                          : allQuestions
+                const selected = allQuestions.find((q) => q.id === selectedQuestionId) ?? null
+
+                return (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-[#1a1a1a] rounded-xl border border-neutral-800 overflow-hidden"
+                    >
+                        {/* Header */}
+                        <div className="p-6 border-b border-neutral-800">
+                            <div className="flex items-center gap-3 mb-1">
+                                <h2 className="text-2xl font-bold text-gray-200">
+                                    Pitanja studenata
+                                </h2>
+                                {pending.length > 0 && (
+                                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                        {pending.length} čeka odgovor
+                                    </span>
+                                )}
+                            </div>
+                            <p className="text-sm text-gray-400">
+                                Odgovori se automatski objavljuju svim studentima predmeta
+                            </p>
+                        </div>
+
+                        <div className="flex h-[600px]">
+                            {/* Left panel */}
+                            <div className="w-96 border-r border-neutral-800 flex flex-col">
+                                {/* Filter tabs */}
+                                <div className="flex gap-2 p-4 border-b border-neutral-800">
+                                    {(
+                                        [
+                                            { key: 'otvorena', label: 'Otvorena', count: allQuestions.filter((q) => !q.answer).length },
+                                            { key: 'odgovorena', label: 'Odgovorena', count: allQuestions.filter((q) => q.answer).length },
+                                            { key: 'sve', label: 'Sve', count: allQuestions.length },
+                                        ] as const
+                                    ).map((tab) => (
+                                        <button
+                                            key={tab.key}
+                                            onClick={() => setQuestionFilter(tab.key)}
+                                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                                                questionFilter === tab.key
+                                                    ? 'bg-blue-600 text-white'
+                                                    : 'bg-[#252525] text-gray-400 hover:text-gray-200'
+                                            }`}
+                                        >
+                                            {tab.label}
+                                            <span className={`px-1.5 py-0.5 rounded-full text-xs ${questionFilter === tab.key ? 'bg-blue-500' : 'bg-neutral-700'}`}>
+                                                {tab.count}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* Question list */}
+                                <div className="flex-1 overflow-y-auto">
+                                    {questionsLoading ? (
+                                        <div className="p-6 text-center text-gray-500 text-sm">
+                                            Učitavanje...
+                                        </div>
+                                    ) : filtered.length === 0 ? (
+                                        <div className="p-6 text-center text-gray-500 text-sm">
+                                            Nema pitanja
+                                        </div>
+                                    ) : (
+                                        filtered.map((q) => {
+                                            const initials = `${q.student.firstName[0]}${q.student.lastName[0]}`
+                                            return (
+                                                <button
+                                                    key={q.id}
+                                                    onClick={() => {
+                                                        setSelectedQuestionId(q.id)
+                                                        setAnswerText(q.answer ?? '')
+                                                    }}
+                                                    className={`w-full text-left p-4 border-b border-neutral-800 hover:bg-[#252525] transition-all ${
+                                                        selectedQuestionId === q.id ? 'bg-[#252525] border-l-2 border-l-blue-500' : ''
+                                                    }`}
+                                                >
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="w-7 h-7 rounded-full bg-blue-600/30 text-blue-400 text-xs font-bold flex items-center justify-center">
+                                                                {initials}
+                                                            </div>
+                                                            <span className="text-sm font-medium text-gray-300">
+                                                                {q.student.firstName} {q.student.lastName}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5">
+                                                            <span className="text-xs text-gray-500">
+                                                                {new Date(q.createdAt).toLocaleDateString('bs-BA')}
+                                                            </span>
+                                                            {!q.answer && (
+                                                                <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-sm text-gray-300 line-clamp-2 mb-2">
+                                                        {q.text}
+                                                    </p>
+                                                    <div className="flex gap-1.5">
+                                                        <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">
+                                                            {q.assignment.subject.code}
+                                                        </span>
+                                                        <span className="text-xs bg-neutral-700 text-gray-400 px-2 py-0.5 rounded">
+                                                            {q.assignment.subject.name}
+                                                        </span>
+                                                    </div>
+                                                </button>
+                                            )
+                                        })
+                                    )}
+                                </div>
+
+                            </div>
+
+                            {/* Right panel */}
+                            <div className="flex-1 flex flex-col">
+                                {selected ? (
+                                    <>
+                                        {/* Question detail */}
+                                        <div className="p-6 border-b border-neutral-800">
+                                            <p className="text-xs text-gray-500 mb-4">
+                                                {selected.assignment.subject.name} · {selected.assignment.title}
+                                            </p>
+                                            <div className="bg-[#252525] rounded-xl p-5 border border-neutral-700">
+                                                <div className="flex items-center gap-3 mb-4">
+                                                    <div className="w-10 h-10 rounded-full bg-blue-600/30 text-blue-400 text-sm font-bold flex items-center justify-center">
+                                                        {selected.student.firstName[0]}{selected.student.lastName[0]}
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-bold text-gray-200">
+                                                            {selected.student.firstName} {selected.student.lastName}
+                                                        </p>
+                                                        <p className="text-xs text-gray-500">
+                                                            {new Date(selected.createdAt).toLocaleString('bs-BA', { dateStyle: 'medium', timeStyle: 'short' })}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <p className="text-gray-200 font-medium text-lg">
+                                                    {selected.text}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Answer area */}
+                                        <div className="flex-1 p-6 flex flex-col gap-4 overflow-y-auto">
+                                            <p className="text-xs font-bold text-gray-400 tracking-wider">
+                                                TVOJ ODGOVOR
+                                            </p>
+                                            <textarea
+                                                value={answerText}
+                                                onChange={(e) => setAnswerText(e.target.value)}
+                                                placeholder="Napiši odgovor..."
+                                                className="flex-1 min-h-32 bg-[#252525] border border-neutral-700 rounded-xl p-4 text-gray-200 text-sm resize-none focus:outline-none focus:border-blue-500 transition-colors"
+                                            />
+                                            <div className="flex items-center justify-between">
+                                                <button
+                                                    onClick={handleSubmitAnswer}
+                                                    disabled={!answerText.trim() || isSubmittingAnswer}
+                                                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
+                                                >
+                                                    {isSubmittingAnswer ? 'Slanje...' : 'Objavi odgovor'}
+                                                </button>
+                                                <span className="text-xs text-gray-500">
+                                                    {selected.answer ? '✓ Već odgovoreno' : 'Čeka odgovor'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="flex-1 flex items-center justify-center text-gray-500 text-sm">
+                                        Odaberi pitanje s lijeve strane
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </motion.div>
+                )
+            })()}
 
             {/* Grade Modal */}
             {showGradeModal && (
