@@ -37,4 +37,23 @@ export class QuestionController {
       return res.status(500).json({ error: error?.message || "Internal server error" });
     }
   }
+  /**
+   * PATCH /api/assignments/:id/questions
+   */
+
+  static async answerQuestion(req: Request, res: Response) {
+    try {
+      const questionId = parseInt(req.params.questionId);
+
+      const { answer } = req.body;
+
+      const answerQuestion = await QuestionServices.answerQuestion({
+        questionId,
+        answerText: answer,
+      });
+      return res.status(200).json({ message: "Question answered", answerQuestion });
+    } catch (error: any) {
+      return res.status(500).json({ error: error?.message || "Internal server error" });
+    }
+  }
 }

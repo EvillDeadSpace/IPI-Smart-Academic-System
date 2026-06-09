@@ -55,4 +55,16 @@ export class QuestionServices {
       orderBy: { createdAt: "asc" },
     });
   }
+
+  static async answerQuestion(data: { questionId: number; answerText: string }) {
+    return await prisma.question.update({
+      where: {
+        id: data.questionId,
+      },
+      data: {
+        answer: data.answerText,
+        answeredAt: new Date(),
+      },
+    });
+  }
 }

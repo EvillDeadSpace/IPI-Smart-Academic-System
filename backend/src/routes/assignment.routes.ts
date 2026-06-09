@@ -12,5 +12,6 @@ router.post("/:id/grade", AssignmentController.gradeSubmission);
 router.get("/progress/:email", AssignmentController.getAssignmentProgress);
 router.get("/:id/questions", QuestionController.getQuestion);
 router.post("/:id/questions", QuestionController.createQuestion);
+router.patch("/:id/questions/:questionId", QuestionController.answerQuestion);
 
 export default router;
