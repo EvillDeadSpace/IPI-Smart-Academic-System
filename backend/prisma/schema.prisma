@@ -30,6 +30,7 @@ model Student {
   yearEnrollments       YearEnrollment[]
   assignmentSubmissions AssignmentSubmission[]
   Question              Question[]
+  Attendance            Attendance[]
 
   @@index([majorId])
 }
@@ -62,16 +63,17 @@ model YearPlan {
 }
 
 model Subject {
-  id                 Int                 @id @default(autoincrement())
-  name               String
-  code               String              @unique
-  ects               Int
-  isElective         Boolean             @default(false)
-  description        String?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  yearPlanId         Int
-  majorId            Int
+  id          Int      @id @default(autoincrement())
+  name        String
+  code        String   @unique
+  ects        Int
+  isElective  Boolean  @default(false)
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  yearPlanId  Int
+  majorId     Int
+
   exams              Exam[]
   grades             Grade[]
   lectures           Lecture[]
@@ -81,6 +83,7 @@ model Subject {
   major              Major               @relation(fields: [majorId], references: [id])
   yearPlan           YearPlan            @relation(fields: [yearPlanId], references: [id])
   subjectEnrollments SubjectEnrollment[]
+  totalLectures      Int                 @default(15) // Subject to have per one semester
 
   @@index([majorId])
   @@index([yearPlanId])
@@ -164,15 +167,16 @@ model StudentExamRegistration {
 }
 
 model Professor {
-  id                Int                    @id @default(autoincrement())
-  firstName         String
-  lastName          String
-  email             String                 @unique
-  title             String
-  createdAt         DateTime               @default(now())
-  updatedAt         DateTime               @updatedAt
-  office            String?
-  password          String
+  id        Int      @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String   @unique
+  title     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  office    String?
+  password  String
+
   exams             Exam[]
   grades            Grade[]
   lectures          Lecture[]
@@ -180,6 +184,8 @@ model Professor {
   homeworks         Homework[]
   assignments       Assignment[]
   gradedSubmissions AssignmentSubmission[]
+  attendances       Attendance[]
+  AttendanceSession AttendanceSession[]
 
   @@index([email])
 }
@@ -257,6 +263,8 @@ model Lecture {
   professorId Int
   professor   Professor @relation(fields: [professorId], references: [id], onDelete: Cascade)
   subject     Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  sessions AttendanceSession[]
 
   @@index([subjectId])
   @@index([professorId])
@@ -377,4 +385,65 @@ model Question {
 
   @@index([assignmentId])
   @@index([studentId])
+}
+
+// Session model to track user sessions
+enum SessionStatus {
+  ACTIVE
+  CLOSED
+}
+
+// Attendance model to track student attendance
+enum AttendanceStatus {
+  PRESENT
+  EXCUSED
+}
+
+model AttendanceSession {
+  id          Int           @id @default(autoincrement())
+  lectureId   Int
+  lecture     Lecture       @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+  professorId Int
+  professor   Professor     @relation(fields: [professorId], references: [id])
+  token       String        @unique
+  status      SessionStatus @default(ACTIVE)
+  openAt      DateTime      @default(now())
+  expiresAt   DateTime
+  closeAt     DateTime?
+
+  attendances Attendance[]
+
+  @@index([lectureId])
+  @@index([status])
+}
+
+model Attendance {
+  id          Int               @id @default(autoincrement())
+  sessionId   Int
+  session     AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  studentId   Int
+  student     Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  status      AttendanceStatus  @default(PRESENT)
+  scannedAt   DateTime          @default(now())
+  Professor   Professor?        @relation(fields: [professorId], references: [id])
+  professorId Int?
+
+  @@unique([sessionId, studentId])
+  @@index([studentId])
+}
+
+enum SemesterType {
+  WINTER
+  SUMMER
+}
+
+model Semester {
+  id        Int          @id @default(autoincrement())
+  name      String
+  year      String
+  type      SemesterType
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean      @default(false)
+  createdAt DateTime     @default(now())
 }

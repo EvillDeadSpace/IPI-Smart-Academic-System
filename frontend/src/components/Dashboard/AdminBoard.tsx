@@ -15,6 +15,7 @@ import LectureCard from './AdminComponents/LectureComponent/LectureCard'
 import NewsCard from './AdminComponents/NewsComponent/NewsCard'
 import ProfessorCard from './AdminComponents/ProfessorComponent/ProfessorCard'
 import RequestCard from './AdminComponents/RequestComponent/RequestCard'
+import SemesterCard from './AdminComponents/SemesterComponent/SemesterCard'
 
 const AdminPanel: React.FC = () => {
     const { logout, studentName, studentMail } = useAuth()
@@ -430,6 +431,7 @@ const AdminPanel: React.FC = () => {
                                 setDeleteModalState({ isOpen: false, newsId: null, newsTitle: '' })
                             }
                         />,
+                        <SemesterCard key="semester" />,
                     ].map((card, i) => (
                         <motion.div
                             key={i}

@@ -11,6 +11,7 @@ import gradeRoutes from "./grade.routes";
 import assignmentRoutes from "./assignment.routes";
 import homeworkRoutes from "./homework.routes";
 import lectureRoutes from "./lecture.routes";
+import semesterRoutes from "./semester.routes";
 import newsRoutes from "./news.route";
 import professorRoutes from "./professor.routes";
 import scheduleRoutes from "./schedule.routes";
@@ -71,6 +72,7 @@ router.use("/user", userRoutes);
 router.use("/lecture", lectureRoutes);
 router.use("/homeworks", homeworkRoutes);
 router.use("/assignments", assignmentRoutes);
+router.use("/semester", semesterRoutes);
 router.use("/progress", studentRoutes);
 
 export default router;
