@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { AuthService } from "../services/auth.service";
 import { ResponseUtil } from "../utils/response";
+import { signToken } from "../utils/jwt";
 import {
   LoginRequest,
   RegisterStudentRequest,
@@ -38,12 +39,14 @@ export class AuthController {
         userEmail: user.email,
         StudentName:
           user.userType === "PROFESSOR"
-            ? `${(user as any).title || "Prof"} ${user.firstName} ${
-                user.lastName
-              }`
+            ? `${(user as any).title || "Prof"} ${user.firstName} ${user.lastName}`
             : `${user.firstName} ${user.lastName}`,
         TipUsera: user.userType,
       };
+
+      // Additive field: old clients ignore it. Omitted if JWT_SECRET is not configured.
+      const token = signToken({ id: user.id, email: user.email, role: user.userType });
+      if (token) response.token = token;
 
       // Add professor-specific fields
       if (user.userType === "PROFESSOR" && (user as any).subjects) {
@@ -80,12 +83,7 @@ export class AuthController {
       // Create student
       const student = await AuthService.registerStudent(data);
 
-      return ResponseUtil.success(
-        res,
-        student,
-        "Student registered successfully",
-        201
-      );
+      return ResponseUtil.success(res, student, "Student registered successfully", 201);
     } catch (error) {
       console.error("Register student error:", error);
       return ResponseUtil.error(res, "Registration failed");
@@ -114,12 +112,7 @@ export class AuthController {
       // Create professor
       const professor = await AuthService.registerProfessor(data);
 
-      return ResponseUtil.success(
-        res,
-        professor,
-        "Professor registered successfully",
-        201
-      );
+      return ResponseUtil.success(res, professor, "Professor registered successfully", 201);
     } catch (error) {
       console.error("Register professor error:", error);
       return ResponseUtil.error(res, "Registration failed");

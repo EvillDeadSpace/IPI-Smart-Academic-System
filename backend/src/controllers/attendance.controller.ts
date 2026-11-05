@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { currentUser } from "../middleware/auth";
 import { AttendanceError, AttendanceService } from "../services/attendance.service";
 
 // Errors carry a stable `code` so clients can show their own (localized) message.
@@ -15,16 +16,15 @@ const parseId = (value: unknown) => {
   return Number.isInteger(id) && id > 0 ? id : null;
 };
 
+// Identity always comes from currentUser(res) — set by requireAuth from the verified JWT.
 export class AttendanceController {
-  // POST /api/attendance/sessions  { lectureId, professorEmail }
+  // POST /api/attendance/sessions  { lectureId }
   static async openSession(req: Request, res: Response) {
     const lectureId = parseId(req.body?.lectureId);
-    const { professorEmail } = req.body ?? {};
-    if (!lectureId || !professorEmail) {
-      return res.status(400).json({ error: "lectureId and professorEmail are required" });
-    }
+    if (!lectureId) return res.status(400).json({ error: "lectureId is required" });
     try {
-      return res.status(201).json(await AttendanceService.openSession(professorEmail, lectureId));
+      const session = await AttendanceService.openSession(currentUser(res).email, lectureId);
+      return res.status(201).json(session);
     } catch (error) {
       return handleError(res, error, "Failed to open attendance session");
     }
@@ -35,62 +35,57 @@ export class AttendanceController {
     const id = parseId(req.params.id);
     if (!id) return res.status(400).json({ error: "Invalid session ID" });
     try {
-      return res.json(await AttendanceService.getSessionStatus(id));
+      return res.json(await AttendanceService.getSessionStatus(id, currentUser(res).email));
     } catch (error) {
       return handleError(res, error, "Failed to fetch attendance session");
     }
   }
 
-  // POST /api/attendance/sessions/:id/close  { professorEmail }
+  // POST /api/attendance/sessions/:id/close
   static async closeSession(req: Request, res: Response) {
     const id = parseId(req.params.id);
-    const { professorEmail } = req.body ?? {};
-    if (!id || !professorEmail) {
-      return res.status(400).json({ error: "Valid session ID and professorEmail are required" });
-    }
+    if (!id) return res.status(400).json({ error: "Invalid session ID" });
     try {
-      return res.json(await AttendanceService.closeSession(id, professorEmail));
+      return res.json(await AttendanceService.closeSession(id, currentUser(res).email));
     } catch (error) {
       return handleError(res, error, "Failed to close attendance session");
     }
   }
 
-  // GET /api/attendance/professor/:email/lectures
-  static async getProfessorLectures(req: Request, res: Response) {
+  // GET /api/attendance/professor/lectures
+  static async getProfessorLectures(_req: Request, res: Response) {
     try {
-      return res.json(await AttendanceService.getProfessorLectures(req.params.email));
+      return res.json(await AttendanceService.getProfessorLectures(currentUser(res).email));
     } catch (error) {
       return handleError(res, error, "Failed to fetch professor lectures");
     }
   }
 
-  // GET /api/attendance/active/:email
-  static async getActiveSession(req: Request, res: Response) {
+  // GET /api/attendance/active
+  static async getActiveSession(_req: Request, res: Response) {
     try {
-      const session = await AttendanceService.getActiveSessionForStudent(req.params.email);
+      const session = await AttendanceService.getActiveSessionForStudent(currentUser(res).email);
       return res.json({ session });
     } catch (error) {
       return handleError(res, error, "Failed to fetch active attendance session");
     }
   }
 
-  // POST /api/attendance/scan  { email, payload }
+  // POST /api/attendance/scan  { payload }
   static async scan(req: Request, res: Response) {
-    const { email, payload } = req.body ?? {};
-    if (typeof email !== "string" || typeof payload !== "string") {
-      return res.status(400).json({ error: "email and payload are required" });
-    }
+    const { payload } = req.body ?? {};
+    if (typeof payload !== "string") return res.status(400).json({ error: "payload is required" });
     try {
-      return res.json(await AttendanceService.scan(email, payload));
+      return res.json(await AttendanceService.scan(currentUser(res).email, payload));
     } catch (error) {
       return handleError(res, error, "Failed to record attendance");
     }
   }
 
-  // GET /api/attendance/student/:email
-  static async getStudentSummary(req: Request, res: Response) {
+  // GET /api/attendance/student/me
+  static async getStudentSummary(_req: Request, res: Response) {
     try {
-      return res.json(await AttendanceService.getStudentSummary(req.params.email));
+      return res.json(await AttendanceService.getStudentSummary(currentUser(res).email));
     } catch (error) {
       return handleError(res, error, "Failed to fetch attendance summary");
     }

@@ -127,13 +127,14 @@ export class AttendanceService {
     };
   }
 
-  /** Polled by the professor's QR page. Never includes the secret. */
-  static async getSessionStatus(sessionId: number) {
+  /** Polled by the professor's QR page. Owner only. Never includes the secret. */
+  static async getSessionStatus(sessionId: number, professorEmail: string) {
     const session = await prisma.attendanceSession.findUnique({
       where: { id: sessionId },
       include: { _count: { select: { attendances: true } } },
     });
     if (!session) throw new AttendanceError("SESSION_NOT_FOUND", "Session not found");
+    await getOwnedLecture(professorEmail, session.lectureId);
 
     return {
       sessionId: session.id,
