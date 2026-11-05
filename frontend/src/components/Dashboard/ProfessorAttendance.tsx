@@ -1,7 +1,14 @@
-import { IconArrowLeft, IconQrcode, IconUsers, IconX } from '@tabler/icons-react'
+import {
+    IconAlertTriangle,
+    IconArrowLeft,
+    IconLock,
+    IconQrcode,
+    IconUsers,
+    IconX,
+} from '@tabler/icons-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import QRCode from 'react-qr-code'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { BACKEND_URL, STORAGE_KEYS } from '../../constants/storage'
 import { useAuth } from '../../Context'
 import { toastError, toastSuccess } from '../../lib/toast'
@@ -34,28 +41,33 @@ type OpenSession = {
 
 const STATUS_POLL_MS = 3000
 
-class SessionExpiredError extends Error {}
+type AuthProblem = 'expired' | 'notConfigured'
+
+class AuthProblemError extends Error {
+    constructor(readonly problem: AuthProblem) {
+        super(problem)
+    }
+}
 
 // Every attendance call is authenticated: identity comes from the JWT, not from an email.
+// The request is sent even without a token so the server can tell us WHY it fails:
+// 401 → sign in again, 503 AUTH_NOT_CONFIGURED → JWT_SECRET missing on the backend.
 async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
     const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN)
-    if (!token) throw new SessionExpiredError()
     const res = await fetch(`${BACKEND_URL}/api/attendance${path}`, {
         ...init,
         headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
             ...init.headers,
         },
     })
-    if (res.status === 401) throw new SessionExpiredError()
+    if (res.status === 401) throw new AuthProblemError('expired')
+    if (res.status === 503) throw new AuthProblemError('notConfigured')
     if (!res.ok) throw new Error(String(res.status))
     return res.json()
 }
 
-const SESSION_EXPIRED_MSG = 'Sesija je istekla. Odjavi se i prijavi ponovo.'
-const errorMessage = (error: unknown, fallback: string) =>
-    error instanceof SessionExpiredError ? SESSION_EXPIRED_MSG : fallback
 const todayIndex = () => (new Date().getDay() + 6) % 7
 
 // Today's lectures first, then the rest of the week in order.
@@ -69,7 +81,15 @@ const sortForToday = (lectures: ProfessorLecture[]) => {
 }
 
 export default function ProfessorAttendance() {
-    const { studentMail: professorEmail } = useAuth()
+    const { studentMail: professorEmail, logout } = useAuth()
+    const navigate = useNavigate()
+    const [authProblem, setAuthProblem] = useState<AuthProblem | null>(null)
+
+    // Auth problems are shown as a page state, not a toast: retrying can't fix them.
+    const handleError = (error: unknown, fallback: string) => {
+        if (error instanceof AuthProblemError) setAuthProblem(error.problem)
+        else toastError(fallback)
+    }
     const [lectures, setLectures] = useState<ProfessorLecture[]>([])
     const [loading, setLoading] = useState(true)
     const [session, setSession] = useState<OpenSession | null>(null)
@@ -82,7 +102,7 @@ export default function ProfessorAttendance() {
                 sortForToday(await api<ProfessorLecture[]>('/professor/lectures'))
             )
         } catch (error) {
-            toastError(errorMessage(error, 'Nije moguće učitati predavanja.'))
+            handleError(error, 'Nije moguće učitati predavanja.')
         } finally {
             setLoading(false)
         }
@@ -102,7 +122,7 @@ export default function ProfessorAttendance() {
                 })
             )
         } catch (error) {
-            toastError(errorMessage(error, 'Nije moguće pokrenuti prisustvo.'))
+            handleError(error, 'Nije moguće pokrenuti prisustvo.')
         } finally {
             setOpening(null)
         }
@@ -119,8 +139,20 @@ export default function ProfessorAttendance() {
             setSession(null)
             loadLectures()
         } catch (error) {
-            toastError(errorMessage(error, 'Nije moguće zatvoriti prisustvo.'))
+            handleError(error, 'Nije moguće zatvoriti prisustvo.')
         }
+    }
+
+    if (authProblem) {
+        return (
+            <AuthProblemView
+                problem={authProblem}
+                onSignInAgain={() => {
+                    logout()
+                    navigate('/login')
+                }}
+            />
+        )
     }
 
     if (session) {
@@ -297,6 +329,53 @@ function LiveQr({
                 <span className="text-gray-400 tabular-nums">
                     Novi kod za {secondsLeft}s
                 </span>
+            </div>
+        </div>
+    )
+}
+
+function AuthProblemView({
+    problem,
+    onSignInAgain,
+}: {
+    problem: AuthProblem
+    onSignInAgain: () => void
+}) {
+    const expired = problem === 'expired'
+    const Icon = expired ? IconLock : IconAlertTriangle
+
+    return (
+        <div className="min-h-screen bg-[#0f0f0f] text-white flex items-center justify-center p-6">
+            <div className="max-w-md w-full bg-[#1a1a1a] border border-neutral-800 rounded-2xl p-8 text-center">
+                <Icon
+                    className={`w-12 h-12 mx-auto mb-4 ${expired ? 'text-blue-400' : 'text-amber-400'}`}
+                />
+                <h1 className="text-2xl font-bold mb-2">
+                    {expired
+                        ? 'Prijavi se ponovo'
+                        : 'Prisustvo još nije podešeno'}
+                </h1>
+                <p className="text-gray-400 mb-6">
+                    {expired
+                        ? 'Prisustvo koristi novu, sigurniju prijavu. Odjavi se i prijavi ponovo da nastaviš.'
+                        : 'Server nema postavljen JWT_SECRET, pa ne može potvrditi ko pokreće prisustvo. Administrator ga treba dodati u postavke servera.'}
+                </p>
+                <div className="flex gap-3 justify-center">
+                    <Link
+                        to="/profesor"
+                        className="px-4 py-2 rounded-lg bg-[#252525] border border-neutral-800 hover:bg-[#2f2f2f] text-sm"
+                    >
+                        Nazad na ploču
+                    </Link>
+                    {expired && (
+                        <button
+                            onClick={onSignInAgain}
+                            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-sm font-medium"
+                        >
+                            Prijavi se ponovo
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     )
