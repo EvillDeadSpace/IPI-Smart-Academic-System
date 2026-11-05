@@ -1,6 +1,17 @@
+export type LectureType = 'LECTURE' | 'EXERCISE'
+
+export const LECTURE_TYPE_LABEL: Record<LectureType, string> = {
+  LECTURE: 'Predavanje',
+  EXERCISE: 'Vježbe',
+}
+
 export interface Lecture {
   id: number
   dayOfWeek: number
+  type?: LectureType
+  startDate?: string | null // ISO date (UTC midnight)
+  endDate?: string | null
+  plannedClasses?: number | null
   startTime: string
   endTime: string
   room: string
@@ -27,6 +38,9 @@ export interface LectureFormData {
   startTime: string
   endTime: string
   room: string
+  type: LectureType
+  startDate: string // YYYY-MM-DD, '' = not set
+  endDate: string
 }
 
 export const DAY_NAMES = ['Ponedjeljak', 'Utorak', 'Srijeda', 'Četvrtak', 'Petak', 'Subota', 'Nedjelja']

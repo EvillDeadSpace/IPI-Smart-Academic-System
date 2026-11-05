@@ -12,6 +12,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { BACKEND_URL, STORAGE_KEYS } from '../../constants/storage'
 import { useAuth } from '../../Context'
 import { toastError, toastSuccess } from '../../lib/toast'
+import { LECTURE_TYPE_LABEL, LectureType } from '../../types/LectureTypes/lecture'
 import {
     buildQrPayload,
     currentWindow,
@@ -25,6 +26,8 @@ type ProfessorLecture = {
     startTime: string
     endTime: string
     room: string
+    type: LectureType
+    plannedClasses: number | null
     subject: { id: number; name: string; code: string }
     activeSessionId: number | null
 }
@@ -36,7 +39,7 @@ type OpenSession = {
     serverTime: number
     expiresAt: string
     presentCount: number
-    lecture: { id: number; room: string; subject: { name: string } }
+    lecture: { id: number; room: string; type: LectureType; subject: { name: string } }
 }
 
 const STATUS_POLL_MS = 3000
@@ -193,6 +196,15 @@ export default function ProfessorAttendance() {
                                 <div className="flex-1 min-w-0">
                                     <p className="font-semibold truncate">
                                         {lecture.subject.name}
+                                        <span
+                                            className={`ml-2 align-middle px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                                                lecture.type === 'EXERCISE'
+                                                    ? 'bg-amber-500/15 text-amber-300'
+                                                    : 'bg-blue-500/15 text-blue-300'
+                                            }`}
+                                        >
+                                            {LECTURE_TYPE_LABEL[lecture.type ?? 'LECTURE']}
+                                        </span>
                                     </p>
                                     <p className="text-sm text-gray-400">
                                         {isToday ? 'Danas' : lecture.dayName} ·{' '}
@@ -299,7 +311,8 @@ function LiveQr({
 
             <div className="text-center">
                 <p className="text-sm uppercase tracking-widest text-gray-400">
-                    Skeniraj u IPI Smart aplikaciji
+                    {LECTURE_TYPE_LABEL[session.lecture.type ?? 'LECTURE']} · Skeniraj u IPI
+                    Smart aplikaciji
                 </p>
                 <h1 className="text-4xl md:text-5xl font-bold mt-2">
                     {session.lecture.subject.name}

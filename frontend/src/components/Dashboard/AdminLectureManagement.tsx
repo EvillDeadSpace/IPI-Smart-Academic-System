@@ -3,19 +3,31 @@ import {
   IconCalendarTime,
   IconCheck,
   IconMapPin,
+  IconPencil,
   IconPlus,
   IconTrash,
   IconX,
 } from '@tabler/icons-react'
 import { motion } from 'framer-motion'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../Context'
-import { BACKEND_URL } from '../../constants/storage'
+import { BACKEND_URL, STORAGE_KEYS } from '../../constants/storage'
 import { useAllLectures } from '../../hooks/lectureHooks/useLectureHooks'
 import useFetchProfessorsData from '../../hooks/professorHooks/useFetchProfessorsData'
 import { toastError, toastSuccess } from '../../lib/toast'
-import { DAY_NAMES, LectureFormData } from '../../types/LectureTypes/lecture'
+import {
+  DAY_NAMES,
+  LECTURE_TYPE_LABEL,
+  Lecture,
+  LectureFormData,
+  LectureType,
+} from '../../types/LectureTypes/lecture'
+import {
+  countWeeklyOccurrences,
+  formatPlainDate,
+  toInputDate,
+} from '../../utils/lectureCalendar'
 
 const EMPTY_FORM: LectureFormData = {
   subjectId: '',
@@ -24,7 +36,28 @@ const EMPTY_FORM: LectureFormData = {
   startTime: '',
   endTime: '',
   room: '',
+  type: 'LECTURE',
+  startDate: '',
+  endDate: '',
 }
+
+// Schedule writes are admin-only on the backend (JWT role check).
+const authHeaders = (): HeadersInit => {
+  const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN)
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  }
+}
+
+const authErrorMessage = (status: number) =>
+  status === 401
+    ? 'Prijava je istekla. Odjavite se i prijavite ponovo.'
+    : status === 403
+      ? 'Samo administrator može mijenjati raspored.'
+      : status === 503
+        ? 'Server nema postavljen JWT_SECRET.'
+        : null
 
 const AdminLectureManagement: React.FC = () => {
   const navigate = useNavigate()
@@ -35,11 +68,52 @@ const AdminLectureManagement: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [formData, setFormData] = useState<LectureFormData>(EMPTY_FORM)
   const [submitting, setSubmitting] = useState(false)
+  // null = creating a new slot; a number = editing that slot's type/period.
+  const [editingId, setEditingId] = useState<number | null>(null)
+  // Active semester dates prefill the period, so admins usually just confirm.
+  const [semesterPeriod, setSemesterPeriod] = useState({ startDate: '', endDate: '' })
+
+  useEffect(() => {
+    fetch(`${BACKEND_URL}/api/semester/current`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((body) => {
+        const semester = body?.data ?? body
+        if (semester?.startDate && semester?.endDate) {
+          setSemesterPeriod({
+            startDate: toInputDate(semester.startDate),
+            endDate: toInputDate(semester.endDate),
+          })
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   const openModal = () => {
-    setFormData(EMPTY_FORM)
+    setEditingId(null)
+    setFormData({ ...EMPTY_FORM, ...semesterPeriod })
     setIsModalOpen(true)
   }
+
+  const openEdit = (lecture: Lecture) => {
+    setEditingId(lecture.id)
+    setFormData({
+      subjectId: lecture.subjectId,
+      professorId: lecture.professorId,
+      dayOfWeek: lecture.dayOfWeek,
+      startTime: lecture.startTime,
+      endTime: lecture.endTime,
+      room: lecture.room,
+      type: lecture.type ?? 'LECTURE',
+      startDate: toInputDate(lecture.startDate) || semesterPeriod.startDate,
+      endDate: toInputDate(lecture.endDate) || semesterPeriod.endDate,
+    })
+    setIsModalOpen(true)
+  }
+
+  const plannedPreview =
+    formData.dayOfWeek !== '' && formData.startDate && formData.endDate
+      ? countWeeklyOccurrences(Number(formData.dayOfWeek), formData.startDate, formData.endDate)
+      : null
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -49,27 +123,39 @@ const AdminLectureManagement: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
+    const period = {
+      type: formData.type,
+      startDate: formData.startDate || null,
+      endDate: formData.endDate || null,
+    }
     try {
-      const response = await fetch(`${BACKEND_URL}/api/lecture`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subjectId: Number(formData.subjectId),
-          professorId: Number(formData.professorId),
-          dayOfWeek: Number(formData.dayOfWeek),
-          startTime: formData.startTime,
-          endTime: formData.endTime,
-          room: formData.room,
-        }),
-      })
+      const response = editingId
+        ? await fetch(`${BACKEND_URL}/api/lecture/${editingId}`, {
+            method: 'PATCH',
+            headers: authHeaders(),
+            body: JSON.stringify(period),
+          })
+        : await fetch(`${BACKEND_URL}/api/lecture`, {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({
+              subjectId: Number(formData.subjectId),
+              professorId: Number(formData.professorId),
+              dayOfWeek: Number(formData.dayOfWeek),
+              startTime: formData.startTime,
+              endTime: formData.endTime,
+              room: formData.room,
+              ...period,
+            }),
+          })
 
       if (response.ok) {
-        toastSuccess('Predavanje uspješno kreirano!')
+        toastSuccess(editingId ? 'Termin ažuriran!' : 'Termin uspješno kreiran!')
         setIsModalOpen(false)
         await refetch()
       } else {
-        const err = await response.json()
-        toastError(`Greška: ${err.error || 'Unknown error'}`)
+        const err = await response.json().catch(() => ({}))
+        toastError(authErrorMessage(response.status) ?? `Greška: ${err.error || 'Unknown error'}`)
       }
     } catch {
       toastError('Greška pri kreiranju predavanja')
@@ -85,13 +171,14 @@ const AdminLectureManagement: React.FC = () => {
     try {
       const response = await fetch(`${BACKEND_URL}/api/lecture/${id}`, {
         method: 'DELETE',
+        headers: authHeaders(),
       })
 
       if (response.ok) {
-        toastSuccess('Predavanje obrisano!')
+        toastSuccess('Termin obrisan!')
         await refetch()
       } else {
-        toastError('Greška pri brisanju predavanja')
+        toastError(authErrorMessage(response.status) ?? 'Greška pri brisanju termina')
       }
     } catch {
       toastError('Greška pri brisanju predavanja')
@@ -157,7 +244,7 @@ const AdminLectureManagement: React.FC = () => {
               </p>
               <h1 className="text-2xl font-syne font-bold mb-1">Upravljanje Predavanjima</h1>
               <p className="text-blue-100 text-sm opacity-90">
-                Kreirajte i upravljajte sedmičnim rasporedom predavanja
+                Predavanja i vježbe: sedmični termin i period trajanja
               </p>
             </div>
             <motion.button
@@ -167,7 +254,7 @@ const AdminLectureManagement: React.FC = () => {
               whileTap={{ scale: 0.97 }}
             >
               <IconPlus className="w-4 h-4" />
-              Dodaj Predavanje
+              Dodaj termin
             </motion.button>
           </div>
         </motion.div>
@@ -219,9 +306,20 @@ const AdminLectureManagement: React.FC = () => {
                               <IconCalendarTime className="w-5 h-5 text-blue-600" />
                             </div>
                             <div className="flex flex-col gap-3 min-w-0">
-                              <h3 className="text-sm font-nuni font-bold text-slate-800">
-                                {lecture.subject?.name ?? `Predmet #${lecture.subjectId}`}
-                              </h3>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h3 className="text-sm font-nuni font-bold text-slate-800">
+                                  {lecture.subject?.name ?? `Predmet #${lecture.subjectId}`}
+                                </h3>
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[11px] font-semibold border ${
+                                    lecture.type === 'EXERCISE'
+                                      ? 'bg-amber-50 text-amber-800 border-amber-200'
+                                      : 'bg-blue-50 text-blue-700 border-blue-200'
+                                  }`}
+                                >
+                                  {LECTURE_TYPE_LABEL[lecture.type ?? 'LECTURE']}
+                                </span>
+                              </div>
                               <p className="text-xs text-slate-500">
                                 {lecture.startTime} – {lecture.endTime}
                               </p>
@@ -240,6 +338,20 @@ const AdminLectureManagement: React.FC = () => {
                             <IconMapPin className="w-4 h-4 text-slate-400" />
                             <span>{lecture.room}</span>
                           </div>
+                          {lecture.startDate && lecture.endDate ? (
+                            <p className="mt-2 text-xs text-slate-600">
+                              {formatPlainDate(lecture.startDate)} – {formatPlainDate(lecture.endDate)}
+                              {lecture.plannedClasses != null && (
+                                <span className="ml-1 font-semibold text-slate-800">
+                                  · {lecture.plannedClasses} termina
+                                </span>
+                              )}
+                            </p>
+                          ) : (
+                            <p className="mt-2 text-xs font-medium text-amber-700">
+                              Period nije postavljen
+                            </p>
+                          )}
                           {lecture.subject?.code && (
                             <span className="inline-block mt-3 bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full text-xs font-medium border border-blue-100">
                               {lecture.subject.code}
@@ -248,6 +360,13 @@ const AdminLectureManagement: React.FC = () => {
                         </div>
 
                         <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex gap-2">
+                          <button
+                            onClick={() => openEdit(lecture)}
+                            className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-2 rounded-lg transition-colors duration-200"
+                          >
+                            <IconPencil className="w-3.5 h-3.5" />
+                            Uredi period
+                          </button>
                           <button
                             onClick={() => handleDelete(lecture.id)}
                             className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-2 rounded-lg transition-colors duration-200"
@@ -286,9 +405,13 @@ const AdminLectureManagement: React.FC = () => {
           >
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Dodaj Novo Predavanje</h2>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {editingId ? 'Uredi termin' : 'Dodaj novi termin'}
+                </h2>
                 <p className="text-sm text-gray-500 mt-1">
-                  Popunite informacije o terminu predavanja
+                  {editingId
+                    ? 'Promijenite tip i period trajanja'
+                    : 'Predavanje ili vježbe, sedmični termin i period trajanja'}
                 </p>
               </div>
               <button
@@ -301,6 +424,64 @@ const AdminLectureManagement: React.FC = () => {
 
             <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-2 gap-4 mb-6">
+                {/* Tip */}
+                <div className="col-span-2">
+                  <label className="block text-gray-700 mb-2 font-medium text-sm">Tip *</label>
+                  <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Tip termina">
+                    {(['LECTURE', 'EXERCISE'] as LectureType[]).map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        role="radio"
+                        aria-checked={formData.type === type}
+                        onClick={() => setFormData((prev) => ({ ...prev, type }))}
+                        className={`py-2.5 rounded-lg text-sm font-semibold border transition-colors ${
+                          formData.type === type
+                            ? 'bg-blue-600 text-white border-blue-600'
+                            : 'bg-gray-50 text-gray-700 border-gray-300 hover:border-blue-400'
+                        }`}
+                      >
+                        {LECTURE_TYPE_LABEL[type]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Period */}
+                <div>
+                  <label className="block text-gray-700 mb-2 font-medium text-sm">Od *</label>
+                  <input
+                    type="date"
+                    name="startDate"
+                    value={formData.startDate}
+                    onChange={handleChange}
+                    required
+                    className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 mb-2 font-medium text-sm">Do *</label>
+                  <input
+                    type="date"
+                    name="endDate"
+                    value={formData.endDate}
+                    min={formData.startDate || undefined}
+                    onChange={handleChange}
+                    required
+                    className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all"
+                  />
+                </div>
+                {plannedPreview !== null && (
+                  <div className="col-span-2 bg-blue-50 border border-blue-100 rounded-lg px-4 py-2.5 text-sm text-blue-800">
+                    <strong>{plannedPreview}</strong>{' '}
+                    {formData.type === 'EXERCISE' ? 'termina vježbi' : 'termina predavanja'} u
+                    ovom periodu
+                    {formData.dayOfWeek !== '' && ` (${DAY_NAMES[Number(formData.dayOfWeek)].toLowerCase()})`}
+                  </div>
+                )}
+
+                {editingId === null && (
+                <>
                 {/* Predmet */}
                 <div className="col-span-2">
                   <label className="block text-gray-700 mb-2 font-medium text-sm">Predmet *</label>
@@ -463,6 +644,8 @@ const AdminLectureManagement: React.FC = () => {
                     className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all"
                   />
                 </div>
+                </>
+                )}
               </div>
 
               <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
@@ -479,7 +662,7 @@ const AdminLectureManagement: React.FC = () => {
                   className="flex items-center gap-2 bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
                 >
                   <IconCheck className="w-5 h-5" />
-                  {submitting ? 'Kreiranje...' : 'Kreiraj'}
+                  {submitting ? 'Spremanje...' : editingId ? 'Spremi' : 'Kreiraj'}
                 </button>
               </div>
             </form>
