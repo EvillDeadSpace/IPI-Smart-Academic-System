@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { LectureService, LectureType } from "../services/lecture.service";
-import { parsePlainDate } from "../utils/lectureCalendar";
+import { WORKING_DAYS, parsePlainDate } from "../utils/lectureCalendar";
 
 const LECTURE_TYPES: LectureType[] = ["LECTURE", "EXERCISE"];
 
@@ -56,8 +56,15 @@ export class LectureController {
         });
       }
 
-      if (dayOfWeek < 0 || dayOfWeek > 6) {
-        return res.status(400).json({ error: "dayOfWeek must be 0 (Monday) to 6 (Sunday)" });
+      if (!WORKING_DAYS.includes(Number(dayOfWeek))) {
+        return res.status(400).json({ error: "Termin može biti samo od ponedjeljka do petka." });
+      }
+      if (
+        !/^\d{2}:\d{2}$/.test(startTime) ||
+        !/^\d{2}:\d{2}$/.test(endTime) ||
+        endTime <= startTime
+      ) {
+        return res.status(400).json({ error: "Kraj termina mora biti poslije početka." });
       }
 
       const period = parsePeriod(req.body);
@@ -75,7 +82,9 @@ export class LectureController {
 
       return res.status(201).json(lecture);
     } catch (error: any) {
-      return res.status(500).json({ error: error.message || "Failed to create lecture" });
+      return res
+        .status(error.status ?? 500)
+        .json({ error: error.message || "Failed to create lecture" });
     }
   }
 
@@ -131,7 +140,7 @@ export class LectureController {
 
       return res.json(await LectureService.updateLecturePeriod(id, period.value));
     } catch (error: any) {
-      const status = error.message === "Lecture not found" ? 404 : 500;
+      const status = error.status ?? (error.message === "Lecture not found" ? 404 : 500);
       return res.status(status).json({ error: error.message || "Failed to update lecture" });
     }
   }

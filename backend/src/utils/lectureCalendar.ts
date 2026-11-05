@@ -46,3 +46,49 @@ export function todayInSarajevo(now: Date = new Date()): Date {
   const ymd = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Sarajevo" }).format(now);
   return new Date(`${ymd}T00:00:00.000Z`);
 }
+
+// ─── Room clashes ─────────────────────────────────────────────
+
+/** Mon–Fri; the faculty schedules no weekend classes. */
+export const WORKING_DAYS = [0, 1, 2, 3, 4];
+
+/** "HH:MM" strings compare correctly as text. Touching ends (09:30 / 09:30) don't clash. */
+export const timesOverlap = (aStart: string, aEnd: string, bStart: string, bEnd: string) =>
+  aStart < bEnd && bStart < aEnd;
+
+type DateBound = Date | null;
+
+/** Periods overlap unless one ends before the other starts; a missing bound is open-ended. */
+export const periodsOverlap = (
+  a: { startDate: DateBound; endDate: DateBound },
+  b: { startDate: DateBound; endDate: DateBound },
+) =>
+  !(a.endDate && b.startDate && utcDay(a.endDate) < utcDay(b.startDate)) &&
+  !(b.endDate && a.startDate && utcDay(b.endDate) < utcDay(a.startDate));
+
+export type ScheduleSlot = {
+  id?: number;
+  room: string;
+  dayOfWeek: number;
+  startTime: string;
+  endOfTime: string;
+  startDate: DateBound;
+  endDate: DateBound;
+};
+
+export const normalizeRoom = (room: string) => room.trim().toUpperCase();
+
+/**
+ * First existing slot that occupies the same room at an overlapping time on the same weekday,
+ * during an overlapping period. `candidate.id` is skipped so a slot never clashes with itself.
+ */
+export function findRoomConflict<T extends ScheduleSlot>(candidate: ScheduleSlot, existing: T[]) {
+  return existing.find(
+    (other) =>
+      other.id !== candidate.id &&
+      normalizeRoom(other.room) === normalizeRoom(candidate.room) &&
+      other.dayOfWeek === candidate.dayOfWeek &&
+      timesOverlap(candidate.startTime, candidate.endOfTime, other.startTime, other.endOfTime) &&
+      periodsOverlap(candidate, other),
+  );
+}

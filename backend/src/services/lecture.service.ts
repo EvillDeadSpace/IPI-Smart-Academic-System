@@ -1,6 +1,12 @@
 import prisma from "../config/database";
 import { buildNextLectureResponse, formatLecture } from "../utils/helperFunction";
-import { isActiveOn, todayInSarajevo } from "../utils/lectureCalendar";
+import {
+  ScheduleSlot,
+  findRoomConflict,
+  isActiveOn,
+  normalizeRoom,
+  todayInSarajevo,
+} from "../utils/lectureCalendar";
 
 export type LectureType = "LECTURE" | "EXERCISE";
 
@@ -18,13 +24,36 @@ type createLectureData = {
 
 type LecturePeriodData = { type: LectureType; startDate: Date | null; endDate: Date | null };
 
-// Two periods overlap unless one ends before the other starts; a missing bound is open-ended.
-const periodsOverlap = (
-  a: { startDate: Date | null; endDate: Date | null },
-  b: { startDate: Date | null; endDate: Date | null },
-) =>
-  !(a.endDate && b.startDate && a.endDate < b.startDate) &&
-  !(b.endDate && a.startDate && b.endDate < a.startDate);
+const TYPE_LABEL: Record<LectureType, string> = { LECTURE: "predavanje", EXERCISE: "vježbe" };
+const DAY_LABEL = [
+  "ponedjeljkom",
+  "utorkom",
+  "srijedom",
+  "četvrtkom",
+  "petkom",
+  "subotom",
+  "nedjeljom",
+];
+
+/** Room already taken → 409 with a message the admin UI shows as-is (Bosnian). */
+export class LectureConflictError extends Error {
+  readonly status = 409;
+}
+
+async function assertRoomFree(candidate: ScheduleSlot) {
+  const sameDay = await prisma.lecture.findMany({
+    where: { dayOfWeek: candidate.dayOfWeek },
+    include: { subject: { select: { name: true } } },
+  });
+  const clash = findRoomConflict(candidate, sameDay);
+  if (clash) {
+    throw new LectureConflictError(
+      `Sala ${normalizeRoom(clash.room)} je zauzeta: ${clash.subject.name} (${
+        TYPE_LABEL[clash.type as LectureType]
+      }) ${DAY_LABEL[clash.dayOfWeek]} ${clash.startTime}–${clash.endOfTime}.`,
+    );
+  }
+}
 
 export class LectureService {
   static async createLecture(data: createLectureData) {
@@ -48,19 +77,9 @@ export class LectureService {
       throw Error("Professor not found");
     }
 
-    // Same room/day/time is only a clash if the periods overlap (e.g. winter vs summer is fine).
-    const sameSlot = await prisma.lecture.findMany({
-      where: {
-        room: data.room,
-        dayOfWeek: data.dayOfWeek,
-        startTime: data.startTime,
-      },
-      select: { startDate: true, endDate: true },
-    });
-
-    if (sameSlot.some((l) => periodsOverlap(l, data))) {
-      throw Error("There is already a lecture scheduled in this room at the same time");
-    }
+    // Same room + weekday + overlapping time + overlapping period = clash.
+    // Different periods (winter vs summer) may reuse the room.
+    await assertRoomFree(data);
 
     const created = await prisma.lecture.create({
       data,
@@ -76,6 +95,9 @@ export class LectureService {
   static async updateLecturePeriod(id: number, data: LecturePeriodData) {
     const lecture = await prisma.lecture.findUnique({ where: { id } });
     if (!lecture) throw new Error("Lecture not found");
+
+    // A longer period can run into another slot in the same room.
+    await assertRoomFree({ ...lecture, ...data });
 
     const updated = await prisma.lecture.update({
       where: { id },
