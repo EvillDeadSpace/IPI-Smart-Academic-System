@@ -26,7 +26,7 @@ const openSession = (overrides: Record<string, unknown> = {}) =>
     openAt: new Date(),
     expiresAt: new Date(Date.now() + 60_000),
     closeAt: null,
-    lecture: { id: 10, room: "RC2", subject: SUBJECT },
+    lecture: { id: 10, room: "RC2", type: "EXERCISE", subject: SUBJECT },
     ...overrides,
   }) as any;
 
@@ -54,15 +54,29 @@ describe("AttendanceService.scan", () => {
     const scannedAt = new Date();
     prismaMock.attendance.create.mockResolvedValueOnce({ scannedAt } as any);
     prismaMock.attendance.count.mockResolvedValueOnce(3);
-    prismaMock.attendanceSession.count.mockResolvedValueOnce(17);
+    prismaMock.attendanceSession.count.mockResolvedValueOnce(4);
+    // One weekly exercise slot, Mondays Oct–Dec 2026 → 13 planned classes.
+    prismaMock.lecture.findMany.mockResolvedValueOnce([
+      {
+        dayOfWeek: 0,
+        startDate: new Date("2026-10-01T00:00:00Z"),
+        endDate: new Date("2026-12-31T00:00:00Z"),
+      },
+    ] as any);
 
     const result = await AttendanceService.scan(EMAIL, validPayload());
 
     expect(result).toMatchObject({
       subject: SUBJECT,
+      type: "EXERCISE",
       attended: 3,
-      held: 17,
+      held: 4,
+      planned: 13,
       alreadyRecorded: false,
+    });
+    // Counts are scoped to the scanned slot's type (vježbe), not all of the subject.
+    expect(prismaMock.attendance.count).toHaveBeenCalledWith({
+      where: { studentId: 99, session: { lecture: { subjectId: SUBJECT.id, type: "EXERCISE" } } },
     });
     expect(prismaMock.attendance.create).toHaveBeenCalledWith({
       data: { sessionId: 1, studentId: 99 },
@@ -75,10 +89,14 @@ describe("AttendanceService.scan", () => {
     prismaMock.attendance.create.mockRejectedValueOnce({ code: "P2002" });
     prismaMock.attendance.findUnique.mockResolvedValueOnce({ scannedAt: new Date() } as any);
     prismaMock.attendance.count.mockResolvedValueOnce(3);
-    prismaMock.attendanceSession.count.mockResolvedValueOnce(17);
+    prismaMock.attendanceSession.count.mockResolvedValueOnce(4);
+    prismaMock.lecture.findMany.mockResolvedValueOnce([
+      { dayOfWeek: 0, startDate: null, endDate: null },
+    ] as any);
 
     const result = await AttendanceService.scan(EMAIL, validPayload());
     expect(result.alreadyRecorded).toBe(true);
+    expect(result.planned).toBeNull(); // no period set → app falls back to "held"
   });
 
   it("rejects a payload that is not an attendance QR", async () => {

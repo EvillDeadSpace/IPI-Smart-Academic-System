@@ -1,5 +1,9 @@
 import { Router } from "express";
 import { LectureController } from "../controllers/lecture.controller";
+import { requireAuth } from "../middleware/auth";
+
+// Schedule changes are admin-only and verified by JWT role, not by who the client says it is.
+const admin = requireAuth("ADMIN");
 
 const router = Router();
 
@@ -9,7 +13,7 @@ const router = Router();
  * @access  Private only Admin
  */
 
-router.post("/", LectureController.createLecture);
+router.post("/", admin, LectureController.createLecture);
 
 /**
  * @route   GET /api/lecture
@@ -40,6 +44,13 @@ router.get("/student/:email", LectureController.getLecturesByStudent);
  * @desc    Delete a lecture (Admin)
  * @access  Private (Admin)
  */
-router.delete("/:id", LectureController.deleteLecture);
+/**
+ * @route   PATCH /api/lecture/:id
+ * @desc    Set type (predavanje/vježbe) and period (startDate–endDate) of a slot
+ * @access  Private (Admin)
+ */
+router.patch("/:id", admin, LectureController.updateLecturePeriod);
+
+router.delete("/:id", admin, LectureController.deleteLecture);
 
 export default router;

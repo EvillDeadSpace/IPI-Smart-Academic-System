@@ -1,5 +1,6 @@
 import prisma from "../config/database";
 import { formatLecture } from "../utils/helperFunction";
+import { plannedClasses } from "../utils/lectureCalendar";
 import {
   WINDOW_MS,
   generateSessionSecret,
@@ -75,13 +76,41 @@ async function getOwnedLecture(professorEmail: string, lectureId: number) {
   return { professor, lecture };
 }
 
-// "3/17" = attended / sessions held so far for the subject.
-async function subjectSummary(studentId: number, subjectId: number) {
-  const [attended, held] = await Promise.all([
-    prisma.attendance.count({ where: { studentId, session: { lecture: { subjectId } } } }),
-    prisma.attendanceSession.count({ where: { lecture: { subjectId } } }),
+type LectureType = "LECTURE" | "EXERCISE";
+const LECTURE_TYPES: LectureType[] = ["LECTURE", "EXERCISE"];
+
+/**
+ * Attendance for one subject and type (predavanja or vježbe):
+ * - attended: sessions the student scanned
+ * - held: sessions professors actually opened so far
+ * - planned: classes in the admin-set period (null if no period is set)
+ * "3 / 13" in the app = attended / (planned ?? held).
+ */
+async function typeSummary(studentId: number, subjectId: number, type: LectureType) {
+  const [attended, held, slots] = await Promise.all([
+    prisma.attendance.count({ where: { studentId, session: { lecture: { subjectId, type } } } }),
+    prisma.attendanceSession.count({ where: { lecture: { subjectId, type } } }),
+    prisma.lecture.findMany({
+      where: { subjectId, type },
+      select: { dayOfWeek: true, startDate: true, endDate: true },
+    }),
   ]);
-  return { attended, held };
+  const counts = slots.map(plannedClasses);
+  const planned = counts.some((c) => c !== null)
+    ? counts.reduce<number>((sum, c) => sum + (c ?? 0), 0)
+    : null;
+  return { attended, held, planned };
+}
+
+async function subjectSummary(studentId: number, subjectId: number) {
+  const [lecture, exercise] = await Promise.all(
+    LECTURE_TYPES.map((type) => typeSummary(studentId, subjectId, type)),
+  );
+  return {
+    attended: lecture.attended + exercise.attended,
+    held: lecture.held + exercise.held,
+    byType: { LECTURE: lecture, EXERCISE: exercise },
+  };
 }
 
 export class AttendanceService {
@@ -123,7 +152,7 @@ export class AttendanceService {
       serverTime: Date.now(),
       expiresAt: session.expiresAt,
       presentCount,
-      lecture: { id: lecture.id, room: lecture.room, subject: lecture.subject },
+      lecture: { id: lecture.id, room: lecture.room, type: lecture.type, subject: lecture.subject },
     };
   }
 
@@ -207,6 +236,7 @@ export class AttendanceService {
     return {
       sessionId: session.id,
       room: session.lecture.room,
+      type: session.lecture.type,
       subject: session.lecture.subject,
       alreadyRecorded: session.attendances.length > 0,
     };
@@ -247,8 +277,18 @@ export class AttendanceService {
       scannedAt = existing?.scannedAt ?? new Date();
     }
 
-    const { attended, held } = await subjectSummary(student.id, subject.id);
-    return { subject, room: session.lecture.room, scannedAt, alreadyRecorded, attended, held };
+    const type = session.lecture.type as LectureType;
+    const { attended, held, planned } = await typeSummary(student.id, subject.id, type);
+    return {
+      subject,
+      room: session.lecture.room,
+      type,
+      scannedAt,
+      alreadyRecorded,
+      attended,
+      held,
+      planned,
+    };
   }
 
   /** Per-subject attendance for the student, plus an overall percentage. */
@@ -263,11 +303,12 @@ export class AttendanceService {
 
     const rows = await Promise.all(
       subjects.map(async (subject) => {
-        const { attended, held } = await subjectSummary(student.id, subject.id);
+        const { attended, held, byType } = await subjectSummary(student.id, subject.id);
         return {
           subject,
           attended,
           held,
+          byType,
           percentage: held > 0 ? Math.round((attended / held) * 100) : null,
         };
       }),

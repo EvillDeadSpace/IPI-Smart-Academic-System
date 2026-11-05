@@ -1,3 +1,5 @@
+import { plannedClasses } from "./lectureCalendar";
+
 const DAY_NAMES = ["Ponedjeljak", "Utorak", "Srijeda", "Četvrtak", "Petak", "Subota", "Nedjelja"];
 
 export function formatLecture(l: any) {
@@ -8,6 +10,10 @@ export function formatLecture(l: any) {
     startTime: l.startTime,
     endTime: l.endOfTime,
     room: l.room,
+    type: l.type ?? "LECTURE",
+    startDate: l.startDate ?? null,
+    endDate: l.endDate ?? null,
+    plannedClasses: plannedClasses(l),
     subject: l.subject,
     professor: {
       ...l.professor,

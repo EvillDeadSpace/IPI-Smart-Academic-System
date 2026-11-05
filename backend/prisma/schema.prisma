@@ -251,12 +251,22 @@ model Comment {
   @@index([createdAt])
 }
 
+enum LectureType {
+  LECTURE
+  EXERCISE
+}
+
 model Lecture {
-  id          Int       @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   dayOfWeek   Int
   startTime   String
   endOfTime   String
   room        String
+  // Predavanje or vježbe — attendance and class counts are tracked per type.
+  type        LectureType @default(LECTURE)
+  // Period the weekly slot runs (e.g. Oct–Dec). Null = no period set yet.
+  startDate   DateTime?
+  endDate     DateTime?
   createAt    DateTime  @default(now())
   updateAt    DateTime  @updatedAt
   subjectId   Int

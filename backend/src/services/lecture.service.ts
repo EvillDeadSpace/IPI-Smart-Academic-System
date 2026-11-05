@@ -1,14 +1,30 @@
 import prisma from "../config/database";
 import { buildNextLectureResponse, formatLecture } from "../utils/helperFunction";
+import { isActiveOn, todayInSarajevo } from "../utils/lectureCalendar";
+
+export type LectureType = "LECTURE" | "EXERCISE";
 
 type createLectureData = {
   subjectId: number;
   professorId: number;
-  dayOfWeek: number; // 0=Monday ... 4=Friday
+  dayOfWeek: number; // 0=Monday ... 6=Sunday
   startTime: string; //
   endOfTime: string; //
   room: string;
+  type: LectureType;
+  startDate: Date | null;
+  endDate: Date | null;
 };
+
+type LecturePeriodData = { type: LectureType; startDate: Date | null; endDate: Date | null };
+
+// Two periods overlap unless one ends before the other starts; a missing bound is open-ended.
+const periodsOverlap = (
+  a: { startDate: Date | null; endDate: Date | null },
+  b: { startDate: Date | null; endDate: Date | null },
+) =>
+  !(a.endDate && b.startDate && a.endDate < b.startDate) &&
+  !(b.endDate && a.startDate && b.endDate < a.startDate);
 
 export class LectureService {
   static async createLecture(data: createLectureData) {
@@ -32,25 +48,44 @@ export class LectureService {
       throw Error("Professor not found");
     }
 
-    const duplicate = await prisma.lecture.findFirst({
+    // Same room/day/time is only a clash if the periods overlap (e.g. winter vs summer is fine).
+    const sameSlot = await prisma.lecture.findMany({
       where: {
         room: data.room,
         dayOfWeek: data.dayOfWeek,
         startTime: data.startTime,
       },
+      select: { startDate: true, endDate: true },
     });
 
-    if (duplicate) {
+    if (sameSlot.some((l) => periodsOverlap(l, data))) {
       throw Error("There is already a lecture scheduled in this room at the same time");
     }
 
-    return prisma.lecture.create({
+    const created = await prisma.lecture.create({
       data,
       include: {
         subject: { select: { id: true, name: true, code: true } },
         professor: { select: { id: true, firstName: true, lastName: true, title: true } },
       },
     });
+    return formatLecture(created);
+  }
+
+  /** Admin: set predavanje/vježbe and the period for an existing weekly slot. */
+  static async updateLecturePeriod(id: number, data: LecturePeriodData) {
+    const lecture = await prisma.lecture.findUnique({ where: { id } });
+    if (!lecture) throw new Error("Lecture not found");
+
+    const updated = await prisma.lecture.update({
+      where: { id },
+      data,
+      include: {
+        subject: { select: { id: true, name: true, code: true } },
+        professor: { select: { id: true, firstName: true, lastName: true, title: true } },
+      },
+    });
+    return formatLecture(updated);
   }
 
   // Get all lecture for admin panel
@@ -99,11 +134,15 @@ export class LectureService {
       orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
     });
 
-    if (allLectures.length === 0) return null;
+    // Only slots whose period is running today (lectures that ended in December don't come back).
+    // ponytail: a slot starting later this week is skipped until its start date; fine for weekly cadence.
+    const today = todayInSarajevo();
+    const activeLectures = allLectures.filter((l) => isActiveOn(l, today));
+    if (activeLectures.length === 0) return null;
 
     // Find next lecture for studnet
     // Find today's lecture that has not started yet
-    const todayUpcoming = allLectures.find(
+    const todayUpcoming = activeLectures.find(
       (l) => l.dayOfWeek === currentDay && l.startTime > currentTime,
     );
     if (todayUpcoming) {
@@ -112,14 +151,14 @@ export class LectureService {
 
     // If not have to day find next lecture in the week
     for (let d = currentDay + 1; d <= 6; d++) {
-      const next = allLectures.find((l) => l.dayOfWeek === d);
+      const next = activeLectures.find((l) => l.dayOfWeek === d);
       if (next) {
         return buildNextLectureResponse(next, now, currentDay, currentTime);
       }
     }
 
     // If not have next lecture in the week, return first lecture in the next week
-    const firstNext = allLectures[0];
+    const firstNext = activeLectures[0];
     return buildNextLectureResponse(firstNext, now, currentDay, currentTime);
   }
 
@@ -156,6 +195,10 @@ export class LectureService {
       orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
     });
 
-    return lectures.map((l) => formatLecture(l));
+    // Weekly schedule shows slots that haven't ended yet (current + upcoming periods).
+    const today = todayInSarajevo();
+    return lectures
+      .filter((l) => isActiveOn({ startDate: null, endDate: l.endDate }, today))
+      .map((l) => formatLecture(l));
   }
 }

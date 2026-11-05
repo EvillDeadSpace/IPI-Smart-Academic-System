@@ -1,5 +1,39 @@
 import { Request, Response } from "express";
-import { LectureService } from "../services/lecture.service";
+import { LectureService, LectureType } from "../services/lecture.service";
+import { parsePlainDate } from "../utils/lectureCalendar";
+
+const LECTURE_TYPES: LectureType[] = ["LECTURE", "EXERCISE"];
+
+/**
+ * Validates type + optional period from a request body.
+ * Period is both dates or neither; end must not be before start.
+ */
+function parsePeriod(
+  body: any,
+):
+  | { ok: true; value: { type: LectureType; startDate: Date | null; endDate: Date | null } }
+  | { ok: false; error: string } {
+  const type = body?.type ?? "LECTURE";
+  if (!LECTURE_TYPES.includes(type)) {
+    return { ok: false, error: "type must be LECTURE or EXERCISE" };
+  }
+
+  const hasStart = body?.startDate != null && body.startDate !== "";
+  const hasEnd = body?.endDate != null && body.endDate !== "";
+  if (hasStart !== hasEnd) {
+    return { ok: false, error: "startDate and endDate must be set together" };
+  }
+  if (!hasStart) return { ok: true, value: { type, startDate: null, endDate: null } };
+
+  const startDate = parsePlainDate(body.startDate);
+  const endDate = parsePlainDate(body.endDate);
+  if (!startDate || !endDate) {
+    return { ok: false, error: "startDate and endDate must be dates in YYYY-MM-DD format" };
+  }
+  if (endDate < startDate) return { ok: false, error: "endDate must not be before startDate" };
+
+  return { ok: true, value: { type, startDate, endDate } };
+}
 
 export class LectureController {
   // POST /api/lectures  (admin)
@@ -26,6 +60,9 @@ export class LectureController {
         return res.status(400).json({ error: "dayOfWeek must be 0 (Monday) to 6 (Sunday)" });
       }
 
+      const period = parsePeriod(req.body);
+      if (!period.ok) return res.status(400).json({ error: period.error });
+
       const lecture = await LectureService.createLecture({
         subjectId: Number(subjectId),
         professorId: Number(professorId),
@@ -33,6 +70,7 @@ export class LectureController {
         startTime,
         endOfTime: endTime,
         room,
+        ...period.value,
       });
 
       return res.status(201).json(lecture);
@@ -78,6 +116,23 @@ export class LectureController {
       return res.json(lectures);
     } catch (error: any) {
       return res.status(500).json({ error: error.message || "Failed to fetch student lectures" });
+    }
+  }
+
+  // PATCH /api/lecture/:id  (admin) { type, startDate, endDate }
+  static async updateLecturePeriod(req: Request, res: Response) {
+    try {
+      const id = Number(req.params.id);
+      if (!Number.isInteger(id) || id <= 0) {
+        return res.status(400).json({ error: "Invalid lecture ID" });
+      }
+      const period = parsePeriod(req.body);
+      if (!period.ok) return res.status(400).json({ error: period.error });
+
+      return res.json(await LectureService.updateLecturePeriod(id, period.value));
+    } catch (error: any) {
+      const status = error.message === "Lecture not found" ? 404 : 500;
+      return res.status(status).json({ error: error.message || "Failed to update lecture" });
     }
   }
 
