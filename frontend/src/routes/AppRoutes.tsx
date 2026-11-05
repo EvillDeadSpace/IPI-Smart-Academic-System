@@ -14,6 +14,9 @@ const MainBoard = lazy(() => import('../components/Dashboard/MainBoard'))
 const ProfessorBoard = lazy(
     () => import('../components/Dashboard/ProfessorBoard')
 )
+const ProfessorAttendance = lazy(
+    () => import('../components/Dashboard/ProfessorAttendance')
+)
 const AdminPanel = lazy(() => import('../components/Dashboard/AdminBoard'))
 const AdminProfessorManagement = lazy(
     () => import('../components/Dashboard/AdminProfessorManagement')
@@ -95,6 +98,14 @@ export default function AppRoutes() {
                     element={
                         <ProtectedRoute allowedRoles={['PROFESSOR']}>
                             <ProfessorBoard />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/profesor/prisustvo"
+                    element={
+                        <ProtectedRoute allowedRoles={['PROFESSOR']}>
+                            <ProfessorAttendance />
                         </ProtectedRoute>
                     }
                 />
