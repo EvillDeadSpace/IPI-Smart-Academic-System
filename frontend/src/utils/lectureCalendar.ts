@@ -24,3 +24,42 @@ export const formatPlainDate = (iso?: string | null) => {
     const [y, m, d] = iso.slice(0, 10).split('-').map(Number)
     return `${d}.${m}.${y}.`
 }
+
+/** Mon–Fri — must match WORKING_DAYS on the backend. */
+export const WORKING_DAYS = [0, 1, 2, 3, 4]
+
+type Slot = {
+    id?: number
+    room: string
+    dayOfWeek: number
+    startTime: string
+    endTime: string
+    startDate?: string | null // YYYY-MM-DD or ISO
+    endDate?: string | null
+}
+
+const day = (v?: string | null) => (v ? v.slice(0, 10) : null)
+
+/**
+ * Same rules as backend findRoomConflict: same room (case/space-insensitive), same weekday,
+ * overlapping times (touching ends are fine) and overlapping periods. Used for the live warning;
+ * the backend still enforces it.
+ */
+export function findRoomConflict<T extends Slot>(candidate: Slot, existing: T[]): T | undefined {
+    const room = candidate.room.trim().toUpperCase()
+    const cs = day(candidate.startDate)
+    const ce = day(candidate.endDate)
+    return existing.find((o) => {
+        const os = day(o.startDate)
+        const oe = day(o.endDate)
+        return (
+            o.id !== candidate.id &&
+            o.room.trim().toUpperCase() === room &&
+            o.dayOfWeek === candidate.dayOfWeek &&
+            candidate.startTime < o.endTime &&
+            o.startTime < candidate.endTime &&
+            !(ce && os && ce < os) &&
+            !(oe && cs && oe < cs)
+        )
+    })
+}

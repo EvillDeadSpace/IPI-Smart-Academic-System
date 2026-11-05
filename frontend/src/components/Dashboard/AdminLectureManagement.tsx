@@ -24,7 +24,9 @@ import {
   LectureType,
 } from '../../types/LectureTypes/lecture'
 import {
+  WORKING_DAYS,
   countWeeklyOccurrences,
+  findRoomConflict,
   formatPlainDate,
   toInputDate,
 } from '../../utils/lectureCalendar'
@@ -109,6 +111,28 @@ const AdminLectureManagement: React.FC = () => {
     })
     setIsModalOpen(true)
   }
+
+  // Live clash check against the loaded schedule (backend enforces the same rule).
+  const roomConflict =
+    formData.room.trim() &&
+    formData.dayOfWeek !== '' &&
+    formData.startTime &&
+    formData.endTime
+      ? findRoomConflict(
+          {
+            id: editingId ?? undefined,
+            room: formData.room,
+            dayOfWeek: Number(formData.dayOfWeek),
+            startTime: formData.startTime,
+            endTime: formData.endTime,
+            startDate: formData.startDate || null,
+            endDate: formData.endDate || null,
+          },
+          lectures
+        )
+      : undefined
+  const timeInvalid =
+    Boolean(formData.startTime && formData.endTime) && formData.endTime <= formData.startTime
 
   const plannedPreview =
     formData.dayOfWeek !== '' && formData.startDate && formData.endDate
@@ -531,9 +555,9 @@ const AdminLectureManagement: React.FC = () => {
                     className="bg-gray-50 text-gray-900 border border-gray-300 rounded-lg p-3 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all"
                   >
                     <option value="">Odaberi dan...</option>
-                    {DAY_NAMES.map((day, i) => (
+                    {WORKING_DAYS.map((i) => (
                       <option key={i} value={i}>
-                        {day}
+                        {DAY_NAMES[i]}
                       </option>
                     ))}
                   </select>
@@ -648,6 +672,25 @@ const AdminLectureManagement: React.FC = () => {
                 )}
               </div>
 
+              {(roomConflict || timeInvalid) && (
+                <div
+                  role="alert"
+                  className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+                >
+                  {timeInvalid
+                    ? 'Kraj termina mora biti poslije početka.'
+                    : roomConflict && (
+                        <>
+                          <strong>Sala {roomConflict.room} je zauzeta</strong> u to vrijeme:{' '}
+                          {roomConflict.subject?.name ?? 'drugi termin'} (
+                          {LECTURE_TYPE_LABEL[roomConflict.type ?? 'LECTURE'].toLowerCase()}),{' '}
+                          {DAY_NAMES[roomConflict.dayOfWeek].toLowerCase()} {roomConflict.startTime}–
+                          {roomConflict.endTime}. Izaberite drugu salu, vrijeme ili period.
+                        </>
+                      )}
+                </div>
+              )}
+
               <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
                 <button
                   type="button"
@@ -658,7 +701,7 @@ const AdminLectureManagement: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  disabled={submitting}
+                  disabled={submitting || Boolean(roomConflict) || timeInvalid}
                   className="flex items-center gap-2 bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
                 >
                   <IconCheck className="w-5 h-5" />
