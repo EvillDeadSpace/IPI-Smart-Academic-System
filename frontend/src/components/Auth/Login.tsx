@@ -9,7 +9,7 @@ import {
 } from 'react-icons/ai'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../Context'
-import { BACKEND_URL } from '../../constants/storage'
+import { BACKEND_URL, STORAGE_KEYS } from '../../constants/storage'
 import { toastError, toastInfo, toastSuccess } from '../../lib/toast'
 
 const Login: FC = () => {
@@ -107,6 +107,10 @@ const Login: FC = () => {
             // Set user data in Context first
             setStudentName(data.StudentName)
             login(data.userEmail, data.StudentName, data.TipUsera)
+            // JWT for protected endpoints (attendance). Absent if the backend has no JWT_SECRET.
+            if (data.token) {
+                localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, data.token)
+            }
 
             // If professor, fetch and store professor ID
             if (data.TipUsera === 'PROFESSOR') {

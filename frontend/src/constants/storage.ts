@@ -3,6 +3,7 @@ export const STORAGE_KEYS = {
     STUDENT_NAME: 'student name',
     STUDENT_TYPE: 'userType',
     USER_DETAILS: 'userDetails',
+    AUTH_TOKEN: 'authToken',
 }
 
 // Re-export environment-configured URLs from central config

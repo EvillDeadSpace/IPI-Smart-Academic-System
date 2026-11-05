@@ -76,6 +76,7 @@ export default function useContextsHooks() {
         localStorage.removeItem(STORAGE_KEYS.STUDENT_NAME)
         localStorage.removeItem(STORAGE_KEYS.STUDENT_TYPE)
         localStorage.removeItem(STORAGE_KEYS.USER_DETAILS)
+        localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN)
         setTimeout(() => {
             toastSuccess('Successfully logged out.')
             navigate('/')

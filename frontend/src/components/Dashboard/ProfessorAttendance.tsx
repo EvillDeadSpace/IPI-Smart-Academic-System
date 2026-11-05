@@ -2,7 +2,7 @@ import { IconArrowLeft, IconQrcode, IconUsers, IconX } from '@tabler/icons-react
 import { useCallback, useEffect, useRef, useState } from 'react'
 import QRCode from 'react-qr-code'
 import { Link } from 'react-router-dom'
-import { BACKEND_URL } from '../../constants/storage'
+import { BACKEND_URL, STORAGE_KEYS } from '../../constants/storage'
 import { useAuth } from '../../Context'
 import { toastError, toastSuccess } from '../../lib/toast'
 import {
@@ -33,6 +33,29 @@ type OpenSession = {
 }
 
 const STATUS_POLL_MS = 3000
+
+class SessionExpiredError extends Error {}
+
+// Every attendance call is authenticated: identity comes from the JWT, not from an email.
+async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
+    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN)
+    if (!token) throw new SessionExpiredError()
+    const res = await fetch(`${BACKEND_URL}/api/attendance${path}`, {
+        ...init,
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            ...init.headers,
+        },
+    })
+    if (res.status === 401) throw new SessionExpiredError()
+    if (!res.ok) throw new Error(String(res.status))
+    return res.json()
+}
+
+const SESSION_EXPIRED_MSG = 'Sesija je istekla. Odjavi se i prijavi ponovo.'
+const errorMessage = (error: unknown, fallback: string) =>
+    error instanceof SessionExpiredError ? SESSION_EXPIRED_MSG : fallback
 const todayIndex = () => (new Date().getDay() + 6) % 7
 
 // Today's lectures first, then the rest of the week in order.
@@ -55,13 +78,11 @@ export default function ProfessorAttendance() {
     const loadLectures = useCallback(async () => {
         if (!professorEmail) return
         try {
-            const res = await fetch(
-                `${BACKEND_URL}/api/attendance/professor/${encodeURIComponent(professorEmail)}/lectures`
+            setLectures(
+                sortForToday(await api<ProfessorLecture[]>('/professor/lectures'))
             )
-            if (!res.ok) throw new Error(String(res.status))
-            setLectures(sortForToday(await res.json()))
-        } catch {
-            toastError('Nije moguće učitati predavanja.')
+        } catch (error) {
+            toastError(errorMessage(error, 'Nije moguće učitati predavanja.'))
         } finally {
             setLoading(false)
         }
@@ -74,15 +95,14 @@ export default function ProfessorAttendance() {
     const openSession = async (lectureId: number) => {
         setOpening(lectureId)
         try {
-            const res = await fetch(`${BACKEND_URL}/api/attendance/sessions`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ lectureId, professorEmail }),
-            })
-            if (!res.ok) throw new Error(String(res.status))
-            setSession(await res.json())
-        } catch {
-            toastError('Nije moguće pokrenuti prisustvo.')
+            setSession(
+                await api<OpenSession>('/sessions', {
+                    method: 'POST',
+                    body: JSON.stringify({ lectureId }),
+                })
+            )
+        } catch (error) {
+            toastError(errorMessage(error, 'Nije moguće pokrenuti prisustvo.'))
         } finally {
             setOpening(null)
         }
@@ -91,21 +111,15 @@ export default function ProfessorAttendance() {
     const closeSession = async () => {
         if (!session) return
         try {
-            const res = await fetch(
-                `${BACKEND_URL}/api/attendance/sessions/${session.sessionId}/close`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ professorEmail }),
-                }
+            const data = await api<{ presentCount: number }>(
+                `/sessions/${session.sessionId}/close`,
+                { method: 'POST' }
             )
-            if (!res.ok) throw new Error(String(res.status))
-            const data = await res.json()
             toastSuccess(`Prisustvo zatvoreno · ${data.presentCount} studenata`)
             setSession(null)
             loadLectures()
-        } catch {
-            toastError('Nije moguće zatvoriti prisustvo.')
+        } catch (error) {
+            toastError(errorMessage(error, 'Nije moguće zatvoriti prisustvo.'))
         }
     }
 
@@ -229,11 +243,10 @@ function LiveQr({
     useEffect(() => {
         const id = setInterval(async () => {
             try {
-                const res = await fetch(
-                    `${BACKEND_URL}/api/attendance/sessions/${session.sessionId}`
-                )
-                if (!res.ok) return
-                const data = await res.json()
+                const data = await api<{
+                    presentCount: number
+                    serverTime: number
+                }>(`/sessions/${session.sessionId}`)
                 setPresentCount(data.presentCount)
                 clockOffsetRef.current = data.serverTime - Date.now()
             } catch {
