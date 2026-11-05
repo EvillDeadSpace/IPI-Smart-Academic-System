@@ -13,11 +13,17 @@ export class AuthService {
   static async login(credentials: LoginRequest): Promise<LoginResponse | null> {
     const { email, password } = credentials;
 
+    // req.body is untrusted JSON: an object like { "not": "" } would reach the Prisma `where`
+    // below as an operator and match any user. Only plain non-empty strings may pass.
+    if (typeof email !== "string" || typeof password !== "string" || !email || !password) {
+      return null;
+    }
+
     // Check for hardcoded Admin credentials
     const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
     const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+    if (ADMIN_EMAIL && ADMIN_PASSWORD && email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
       return {
         id: 0, // Special ID for admin
         firstName: "System",

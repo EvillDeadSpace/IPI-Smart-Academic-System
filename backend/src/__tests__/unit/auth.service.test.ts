@@ -75,3 +75,25 @@ describe("AuthService.Login TEST", () => {
     });
   });
 });
+
+describe("AuthService.login input hardening", () => {
+  it("rejects Prisma operator objects instead of passing them to the query", async () => {
+    const result = await AuthService.login({
+      email: { contains: "@" },
+      password: { not: "" },
+    } as any);
+
+    expect(result).toBeNull();
+    expect(prismaMock.student.findFirst).not.toHaveBeenCalled();
+    expect(prismaMock.professor.findFirst).not.toHaveBeenCalled();
+  });
+
+  it("does not log in as admin when admin env vars are unset", async () => {
+    delete process.env.ADMIN_EMAIL;
+    delete process.env.ADMIN_PASSWORD;
+    prismaMock.student.findFirst.mockResolvedValueOnce(null);
+    prismaMock.professor.findFirst.mockResolvedValueOnce(null);
+
+    expect(await AuthService.login({ email: "x@x.com", password: "y" })).toBeNull();
+  });
+});
