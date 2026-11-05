@@ -6,6 +6,7 @@ import {
     IconFileText,
     IconGitCompare,
     IconPlus,
+    IconQrcode,
     IconTrash,
     IconUpload,
     IconUserCircle,
@@ -14,6 +15,7 @@ import {
 } from '@tabler/icons-react'
 import { motion } from 'framer-motion'
 import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { BACKEND_URL, NLP_URL } from '../../constants/storage'
 import { useAuth } from '../../Context'
 import useFetchAboutProfessorData from '../../hooks/professorHooks/useProfessorsHooks'
@@ -843,6 +845,13 @@ const ProfessorBoard: React.FC = () => {
                 >
                     Pitanja studenata
                 </button>
+                <Link
+                    to="/profesor/prisustvo"
+                    className="ml-auto inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-white text-black hover:bg-gray-200 transition-all"
+                >
+                    <IconQrcode className="w-4 h-4" />
+                    Prisustvo (QR)
+                </Link>
             </div>
 
             {/* Exams Section */}
